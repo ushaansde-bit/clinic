@@ -1,224 +1,382 @@
 /* ============================================
-   Dr. Aarti Physio Clinic - Booking Calendar
+   Shree Physiotherapy Clinic - Booking System
    ============================================ */
 
+// --- Global State ---
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let selectedDate = null;
 let selectedTime = null;
 
-const TIME_SLOTS = [
-  '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
-  '11:00 AM', '11:30 AM', '12:00 PM',
-  '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM',
-  '04:00 PM', '04:30 PM', '05:00 PM', '05:30 PM',
-  '06:00 PM', '06:30 PM'
-];
-
+// --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
-  renderCalendar();
+    renderCalendar();
 });
 
+// --- Calendar Rendering ---
 function renderCalendar() {
-  const grid = document.getElementById('calendarGrid');
-  const monthYear = document.getElementById('calendarMonthYear');
-  if (!grid || !monthYear) return;
+    const monthYearEl = document.getElementById('calendarMonthYear');
+    const gridEl = document.getElementById('calendarGrid');
+    if (!monthYearEl || !gridEl) return;
 
-  const months = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
 
-  monthYear.textContent = `${months[currentMonth]} ${currentYear}`;
+    monthYearEl.textContent = monthNames[currentMonth] + ' ' + currentYear;
 
-  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-  let html = '';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  // Empty cells before first day
-  for (let i = 0; i < firstDay; i++) {
-    html += '<button class="calendar-day empty" disabled></button>';
-  }
+    let html = '';
 
-  // Day cells
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(currentYear, currentMonth, day);
-    const dateStr = formatDateISO(date);
-    const isPast = date < today;
-    const isSunday = date.getDay() === 0;
-    const isCurrentDay = date.toDateString() === today.toDateString();
-    const isSelected = selectedDate === dateStr;
+    // Empty cells for offset days (before the 1st)
+    for (let i = 0; i < firstDay; i++) {
+        html += '<div class="calendar-day disabled"></div>';
+    }
 
-    let classes = 'calendar-day';
-    if (isPast) classes += ' disabled';
-    if (isSunday && !isCurrentDay) classes += ' disabled';
-    if (isCurrentDay) classes += ' today';
-    if (isSelected) classes += ' selected';
+    // Day buttons
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(currentYear, currentMonth, day);
+        date.setHours(0, 0, 0, 0);
 
-    const disabled = isPast || (isSunday && !isCurrentDay);
+        let classes = 'calendar-day';
+        let isDisabled = false;
 
-    html += `<button class="${classes}" ${disabled ? 'disabled' : ''} onclick="selectDate('${dateStr}', this)">${day}</button>`;
-  }
+        // Past dates
+        if (date < today) {
+            classes += ' disabled';
+            isDisabled = true;
+        }
 
-  grid.innerHTML = html;
+        // Sundays (clinic closed)
+        if (date.getDay() === 0) {
+            classes += ' disabled';
+            isDisabled = true;
+        }
+
+        // Today
+        if (date.getTime() === today.getTime()) {
+            classes += ' today';
+        }
+
+        // Selected date
+        if (selectedDate && date.getTime() === selectedDate.getTime()) {
+            classes += ' selected';
+        }
+
+        if (isDisabled) {
+            html += `<div class="${classes}">${day}</div>`;
+        } else {
+            html += `<div class="${classes}" onclick="selectDate(${currentYear}, ${currentMonth}, ${day})">${day}</div>`;
+        }
+    }
+
+    gridEl.innerHTML = html;
 }
 
-function formatDateISO(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+// --- Month Navigation ---
+function changeMonth(delta) {
+    const now = new Date();
+    const nowMonth = now.getMonth();
+    const nowYear = now.getFullYear();
+
+    let newMonth = currentMonth + delta;
+    let newYear = currentYear;
+
+    // Handle year rollover
+    if (newMonth > 11) {
+        newMonth = 0;
+        newYear++;
+    } else if (newMonth < 0) {
+        newMonth = 11;
+        newYear--;
+    }
+
+    // Cannot go before current month
+    if (newYear < nowYear || (newYear === nowYear && newMonth < nowMonth)) {
+        return;
+    }
+
+    currentMonth = newMonth;
+    currentYear = newYear;
+    renderCalendar();
 }
 
-function changeMonth(dir) {
-  currentMonth += dir;
-  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-  renderCalendar();
+// --- Date Selection ---
+function selectDate(year, month, day) {
+    selectedDate = new Date(year, month, day);
+    selectedDate.setHours(0, 0, 0, 0);
+    selectedTime = null;
+
+    // Re-render calendar to update selected state
+    renderCalendar();
+
+    // Show time slots section
+    const timeSlotsSection = document.getElementById('timeSlotsSection');
+    if (timeSlotsSection) {
+        timeSlotsSection.style.display = 'block';
+    }
+
+    // Update selected date text
+    const selectedDateText = document.getElementById('selectedDateText');
+    if (selectedDateText) {
+        selectedDateText.textContent = formatDateFull(selectedDate.toISOString());
+    }
+
+    // Render time slots
+    renderTimeSlots();
+
+    // Update booking summary
+    updateBookingSummary();
 }
 
-function selectDate(dateStr, el) {
-  selectedDate = dateStr;
-  selectedTime = null;
+// --- Time Slots ---
+function renderTimeSlots() {
+    const gridEl = document.getElementById('timeSlotsGrid');
+    if (!gridEl) return;
 
-  // Update calendar UI
-  document.querySelectorAll('#calendarGrid .calendar-day').forEach(d => d.classList.remove('selected'));
-  el.classList.add('selected');
+    // Generate 20 slots from 9:00 AM to 6:30 PM in 30-min intervals
+    const slots = [
+        '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM',
+        '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM',
+        '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
+        '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM',
+        '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM'
+    ];
 
-  // Show time slots
-  const slotsSection = document.getElementById('timeSlotsSection');
-  const dateText = document.getElementById('selectedDateText');
-  if (slotsSection) slotsSection.style.display = 'block';
-  if (dateText) dateText.textContent = formatDate(dateStr);
+    // Check localStorage for booked appointments on this date
+    const appointments = getData('appointments');
+    const dateStr = selectedDate.toDateString();
+    const bookedSlots = appointments
+        .filter(apt => {
+            const aptDate = new Date(apt.date);
+            return aptDate.toDateString() === dateStr && apt.status !== 'Cancelled';
+        })
+        .map(apt => apt.time);
 
-  renderTimeSlots(dateStr);
-  updateBookingSummary();
+    let html = '';
+
+    slots.forEach(slot => {
+        let classes = 'time-slot';
+        const isBooked = bookedSlots.includes(slot);
+
+        if (isBooked) {
+            classes += ' booked';
+            html += `<div class="${classes}"><i class="fas fa-clock"></i> ${slot}<span class="booked-label">Booked</span></div>`;
+        } else {
+            if (selectedTime === slot) {
+                classes += ' selected';
+            }
+            html += `<div class="${classes}" onclick="selectTime('${slot}')">${slot}</div>`;
+        }
+    });
+
+    gridEl.innerHTML = html;
 }
 
-function renderTimeSlots(dateStr) {
-  const grid = document.getElementById('timeSlotsGrid');
-  if (!grid) return;
+// --- Time Selection ---
+function selectTime(time) {
+    selectedTime = time;
 
-  // Get booked slots for this date
-  const appointments = getData('appointments');
-  const bookedSlots = appointments
-    .filter(a => a.date === dateStr && a.status !== 'cancelled')
-    .map(a => a.time);
+    // Re-render time slots to update selected state
+    renderTimeSlots();
 
-  let html = '';
-  TIME_SLOTS.forEach(slot => {
-    const isBooked = bookedSlots.includes(slot);
-    html += `<button class="time-slot ${isBooked ? 'booked' : ''}"
-      ${isBooked ? 'disabled' : ''}
-      onclick="selectTime('${slot}', this)">
-      ${slot}${isBooked ? ' (Booked)' : ''}
-    </button>`;
-  });
+    // Update booking summary
+    updateBookingSummary();
 
-  grid.innerHTML = html;
+    // Enable submit button
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+        submitBtn.disabled = false;
+    }
 }
 
-function selectTime(time, el) {
-  selectedTime = time;
-  document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-  el.classList.add('selected');
-  updateBookingSummary();
-}
-
+// --- Update Booking Summary ---
 function updateBookingSummary() {
-  const summary = document.getElementById('bookingSummary');
-  const dateEl = document.getElementById('summaryDate');
-  const timeEl = document.getElementById('summaryTime');
-  const submitBtn = document.getElementById('submitBtn');
+    const summaryEl = document.getElementById('bookingSummary');
+    const summaryDate = document.getElementById('summaryDate');
+    const summaryTime = document.getElementById('summaryTime');
 
-  if (selectedDate && selectedTime) {
-    if (summary) summary.style.display = 'block';
-    if (dateEl) dateEl.textContent = formatDateFull(selectedDate);
-    if (timeEl) timeEl.textContent = selectedTime;
-    if (submitBtn) submitBtn.disabled = false;
-  } else {
-    if (summary) summary.style.display = 'none';
-    if (submitBtn) submitBtn.disabled = true;
-  }
+    if (summaryEl) {
+        if (selectedDate && selectedTime) {
+            summaryEl.style.display = 'block';
+        } else {
+            summaryEl.style.display = 'none';
+        }
+    }
+
+    if (summaryDate && selectedDate) {
+        summaryDate.textContent = formatDateFull(selectedDate.toISOString());
+    }
+
+    if (summaryTime && selectedTime) {
+        summaryTime.textContent = selectedTime;
+    }
 }
 
-function submitBooking(e) {
-  e.preventDefault();
+// --- Booking Submission ---
+function submitBooking(event) {
+    event.preventDefault();
 
-  if (!selectedDate || !selectedTime) {
-    showToast('Please select a date and time slot.', 'error');
-    return;
-  }
+    // Validate date and time selection
+    if (!selectedDate) {
+        showToast('Please select an appointment date.', 'error');
+        return;
+    }
 
-  const name = document.getElementById('patientName').value.trim();
-  const age = document.getElementById('patientAge').value;
-  const gender = document.getElementById('patientGender').value;
-  const phone = document.getElementById('patientPhone').value.trim();
-  const email = document.getElementById('patientEmail').value.trim();
-  const address = document.getElementById('patientAddress').value.trim();
-  const service = document.getElementById('serviceType').value;
-  const complaint = document.getElementById('patientComplaint').value.trim();
-  const history = document.getElementById('medicalHistory').value.trim();
+    if (!selectedTime) {
+        showToast('Please select an appointment time.', 'error');
+        return;
+    }
 
-  // Create or find patient record
-  let patients = getData('patients');
-  let patient = patients.find(p => p.phone === phone);
+    // Gather form data
+    const patientName = document.getElementById('patientName').value.trim();
+    const patientAge = document.getElementById('patientAge').value.trim();
+    const patientGender = document.getElementById('patientGender').value;
+    const patientPhone = document.getElementById('patientPhone').value.trim();
+    const patientEmail = document.getElementById('patientEmail').value.trim();
+    const patientAddress = document.getElementById('patientAddress').value.trim();
+    const serviceType = document.getElementById('serviceType').value;
+    const patientComplaint = document.getElementById('patientComplaint').value.trim();
+    const medicalHistory = document.getElementById('medicalHistory').value.trim();
 
-  if (!patient) {
-    patient = {
-      id: generateId(),
-      name,
-      age,
-      gender,
-      phone,
-      email,
-      address,
-      medicalHistory: history,
-      createdAt: new Date().toISOString(),
-      status: 'active'
+    // Validate required fields
+    if (!patientName || !patientPhone) {
+        showToast('Please fill in all required fields.', 'error');
+        return;
+    }
+
+    // Create appointment object
+    const appointment = {
+        id: generateId(),
+        patientName: patientName,
+        patientAge: patientAge,
+        patientGender: patientGender,
+        patientPhone: patientPhone,
+        patientEmail: patientEmail,
+        patientAddress: patientAddress,
+        serviceType: serviceType,
+        patientComplaint: patientComplaint,
+        medicalHistory: medicalHistory,
+        date: selectedDate.toISOString(),
+        time: selectedTime,
+        status: 'Scheduled',
+        createdAt: new Date().toISOString()
     };
-    patients.push(patient);
+
+    // Save appointment to localStorage
+    const appointments = getData('appointments');
+    appointments.push(appointment);
+    setData('appointments', appointments);
+
+    // Create or update patient record
+    const patients = getData('patients');
+    let existingPatient = patients.find(p => p.phone === patientPhone);
+
+    if (existingPatient) {
+        // Update existing patient info
+        existingPatient.name = patientName;
+        existingPatient.age = patientAge;
+        existingPatient.gender = patientGender;
+        existingPatient.email = patientEmail;
+        existingPatient.address = patientAddress;
+        if (!existingPatient.visits) {
+            existingPatient.visits = [];
+        }
+        existingPatient.visits.push({
+            appointmentId: appointment.id,
+            date: appointment.date,
+            time: appointment.time,
+            service: serviceType,
+            complaint: patientComplaint,
+            status: 'Scheduled'
+        });
+    } else {
+        const newPatient = {
+            id: generateId(),
+            name: patientName,
+            age: patientAge,
+            gender: patientGender,
+            phone: patientPhone,
+            email: patientEmail,
+            address: patientAddress,
+            visits: [{
+                appointmentId: appointment.id,
+                date: appointment.date,
+                time: appointment.time,
+                service: serviceType,
+                complaint: patientComplaint,
+                status: 'Scheduled'
+            }]
+        };
+        patients.push(newPatient);
+    }
+
     setData('patients', patients);
-  }
 
-  // Create appointment
-  const appointments = getData('appointments');
-  const appointment = {
-    id: 'A' + Date.now().toString(36).toUpperCase(),
-    patientId: patient.id,
-    patientName: name,
-    patientPhone: phone,
-    date: selectedDate,
-    time: selectedTime,
-    service,
-    complaint,
-    status: 'pending',
-    createdAt: new Date().toISOString()
-  };
-  appointments.push(appointment);
-  setData('appointments', appointments);
+    // Format the display date
+    const displayDate = formatDateFull(selectedDate.toISOString());
 
-  // Show confirmation
-  document.getElementById('confName').textContent = name;
-  document.getElementById('confDate').textContent = formatDateFull(selectedDate);
-  document.getElementById('confTime').textContent = selectedTime;
-  document.getElementById('confService').textContent = service;
+    // Populate confirmation modal
+    const confName = document.getElementById('confName');
+    const confDate = document.getElementById('confDate');
+    const confTime = document.getElementById('confTime');
+    const confService = document.getElementById('confService');
 
-  const whatsappMsg = `Hello Dr. Aarti,\n\nI have booked an appointment:\n\nName: ${name}\nDate: ${formatDateFull(selectedDate)}\nTime: ${selectedTime}\nService: ${service}\nComplaint: ${complaint}\n\nPlease confirm my appointment. Thank you!`;
+    if (confName) confName.textContent = patientName;
+    if (confDate) confDate.textContent = displayDate;
+    if (confTime) confTime.textContent = selectedTime;
+    if (confService) confService.textContent = serviceType;
 
-  const cleanPhone = '919843222137';
-  document.getElementById('whatsappConfirmLink').href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsappMsg)}`;
+    // Build WhatsApp confirmation link
+    const whatsappMessage = `Hello Shree Physiotherapy Clinic,\n\nI have booked an appointment with the following details:\n\nPatient Name: ${patientName}\nDate: ${displayDate}\nTime: ${selectedTime}\nService: ${serviceType}\nComplaint: ${patientComplaint}\n\nPlease confirm my appointment.\n\nThank you.`;
 
-  openModal('confirmationModal');
-  showToast('Appointment booked successfully!', 'success');
+    const whatsappLink = document.getElementById('whatsappConfirmLink');
+    if (whatsappLink) {
+        whatsappLink.href = `https://wa.me/919092294466?text=${encodeURIComponent(whatsappMessage)}`;
+    }
 
-  // Reset form
-  document.getElementById('bookingForm').reset();
-  selectedDate = null;
-  selectedTime = null;
-  document.getElementById('timeSlotsSection').style.display = 'none';
-  document.getElementById('bookingSummary').style.display = 'none';
-  document.getElementById('submitBtn').disabled = true;
-  renderCalendar();
+    // Show confirmation modal
+    const confirmationModal = document.getElementById('confirmationModal');
+    if (confirmationModal) {
+        confirmationModal.classList.add('active');
+    }
+
+    // Reset form
+    const bookingForm = document.getElementById('bookingForm');
+    if (bookingForm) {
+        bookingForm.reset();
+    }
+
+    // Reset state
+    selectedDate = null;
+    selectedTime = null;
+
+    // Hide time slots section and booking summary
+    const timeSlotsSection = document.getElementById('timeSlotsSection');
+    if (timeSlotsSection) {
+        timeSlotsSection.style.display = 'none';
+    }
+
+    const bookingSummary = document.getElementById('bookingSummary');
+    if (bookingSummary) {
+        bookingSummary.style.display = 'none';
+    }
+
+    // Disable submit button
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+    }
+
+    // Re-render calendar
+    renderCalendar();
+
+    // Show success toast
+    showToast('Appointment booked successfully!', 'success');
 }

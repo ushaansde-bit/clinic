@@ -1,713 +1,932 @@
 /* ============================================
-   Dr. Aarti Physio Clinic - Doctor Dashboard
+   Shree Physiotherapy Clinic - Doctor Dashboard
+   Phone: 822004084, 9092294466
+   WhatsApp: 919092294466
    ============================================ */
 
-let dashMonth = new Date().getMonth();
-let dashYear = new Date().getFullYear();
+/* ---- Dashboard Calendar State ---- */
+let currentDashMonth = new Date().getMonth();
+let currentDashYear = new Date().getFullYear();
 
+/* ============================================
+   1. TAB NAVIGATION
+   ============================================ */
+function switchTab(tabName) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(tab => {
+    tab.style.display = 'none';
+  });
+
+  // Show target tab
+  const target = document.getElementById('tab-' + tabName);
+  if (target) {
+    target.style.display = 'block';
+  }
+
+  // Update sidebar active state
+  document.querySelectorAll('.sidebar-nav a').forEach(link => {
+    link.classList.remove('active');
+  });
+  const links = document.querySelectorAll('.sidebar-nav a');
+  const tabMap = ['overview', 'patients', 'appointments', 'calendar', 'prescriptions', 'followups'];
+  const index = tabMap.indexOf(tabName);
+  if (index >= 0 && links[index]) {
+    links[index].classList.add('active');
+  }
+
+  // Refresh relevant data on switch
+  switch (tabName) {
+    case 'overview':
+      refreshDashboard();
+      break;
+    case 'patients':
+      loadPatients();
+      break;
+    case 'appointments':
+      loadAppointments();
+      break;
+    case 'calendar':
+      renderDashCalendar();
+      break;
+    case 'prescriptions':
+      loadPrescriptions();
+      break;
+    case 'followups':
+      loadFollowups();
+      break;
+  }
+}
+
+/* ============================================
+   2. DASHBOARD STATS
+   ============================================ */
+function refreshDashboard() {
+  const patients = getData('patients');
+  const appointments = getData('appointments');
+  const prescriptions = getData('prescriptions');
+  const followups = getData('followups');
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayAppointments = appointments.filter(a => a.date === todayStr && a.status !== 'Cancelled');
+  const pendingFollowups = followups.filter(f => f.status !== 'Completed');
+
+  const elPatients = document.getElementById('statPatients');
+  const elToday = document.getElementById('statToday');
+  const elPrescriptions = document.getElementById('statPrescriptions');
+  const elFollowups = document.getElementById('statFollowups');
+
+  if (elPatients) elPatients.textContent = patients.length;
+  if (elToday) elToday.textContent = todayAppointments.length;
+  if (elPrescriptions) elPrescriptions.textContent = prescriptions.length;
+  if (elFollowups) elFollowups.textContent = pendingFollowups.length;
+}
+
+/* ============================================
+   3. PATIENTS
+   ============================================ */
+function loadPatients() {
+  const patients = getData('patients');
+  const appointments = getData('appointments');
+  const tbody = document.querySelector('#patientsTable tbody');
+  if (!tbody) return;
+
+  if (patients.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:var(--text-light);">No patients found. Click "Add Patient" to get started.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = patients.map(p => {
+    const visits = appointments.filter(a => a.patientId === p.id && a.status === 'Completed').length;
+    return `<tr>
+      <td><strong>${escapeHtml(p.name)}</strong></td>
+      <td>${p.age}</td>
+      <td>${p.gender}</td>
+      <td>${escapeHtml(p.phone)}</td>
+      <td>${visits}</td>
+      <td>
+        <button class="action-btn view" title="View" onclick="viewPatient('${p.id}')"><i class="fas fa-eye"></i></button>
+        <button class="action-btn delete" title="Delete" onclick="deletePatient('${p.id}')"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function addPatient(event) {
+  event.preventDefault();
+
+  const name = document.getElementById('ptName').value.trim();
+  const age = document.getElementById('ptAge').value.trim();
+  const gender = document.getElementById('ptGender').value;
+  const phone = document.getElementById('ptPhone').value.trim();
+  const email = document.getElementById('ptEmail').value.trim();
+  const address = document.getElementById('ptAddress').value.trim();
+
+  if (!name || !age || !gender || !phone) {
+    showToast('Please fill in all required fields.', 'error');
+    return;
+  }
+
+  const patient = {
+    id: generateId(),
+    name,
+    age: parseInt(age),
+    gender,
+    phone,
+    email,
+    address,
+    createdAt: new Date().toISOString()
+  };
+
+  const patients = getData('patients');
+  patients.unshift(patient);
+  setData('patients', patients);
+
+  // Reset form
+  document.getElementById('ptName').value = '';
+  document.getElementById('ptAge').value = '';
+  document.getElementById('ptGender').value = '';
+  document.getElementById('ptPhone').value = '';
+  document.getElementById('ptEmail').value = '';
+  document.getElementById('ptAddress').value = '';
+
+  closeModal('addPatientModal');
+  loadPatients();
+  refreshDashboard();
+  showToast('Patient added successfully!', 'success');
+}
+
+function viewPatient(id) {
+  const patients = getData('patients');
+  const patient = patients.find(p => p.id === id);
+  if (!patient) {
+    showToast('Patient not found.', 'error');
+    return;
+  }
+
+  // Render patient details
+  const detailsEl = document.getElementById('patientDetails');
+  if (detailsEl) {
+    detailsEl.innerHTML = `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; background:var(--light); padding:20px; border-radius:var(--radius);">
+        <div><strong>Name:</strong> ${escapeHtml(patient.name)}</div>
+        <div><strong>Age:</strong> ${patient.age}</div>
+        <div><strong>Gender:</strong> ${patient.gender}</div>
+        <div><strong>Phone:</strong> ${escapeHtml(patient.phone)}</div>
+        ${patient.email ? `<div><strong>Email:</strong> ${escapeHtml(patient.email)}</div>` : ''}
+        ${patient.address ? `<div style="grid-column:1/-1;"><strong>Address:</strong> ${escapeHtml(patient.address)}</div>` : ''}
+        <div><strong>Registered:</strong> ${formatDate(patient.createdAt)}</div>
+      </div>
+    `;
+  }
+
+  // Render visit history (appointments + prescriptions)
+  const visitEl = document.getElementById('visitHistory');
+  if (visitEl) {
+    const appointments = getData('appointments').filter(a => a.patientId === id);
+    const prescriptions = getData('prescriptions').filter(rx => rx.patientId === id);
+
+    if (appointments.length === 0 && prescriptions.length === 0) {
+      visitEl.innerHTML = '<p style="color:var(--text-light); font-size:0.9rem;">No visit history yet.</p>';
+    } else {
+      let html = '';
+      if (appointments.length > 0) {
+        html += '<p style="font-weight:600; font-size:0.88rem; margin-bottom:8px;">Appointments:</p>';
+        html += '<div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">';
+        appointments.forEach(a => {
+          const statusClass = a.status === 'Completed' ? 'completed' : a.status === 'Cancelled' ? '' : 'pending';
+          html += `<div style="background:var(--light); padding:10px 14px; border-radius:8px; font-size:0.88rem; display:flex; justify-content:space-between; align-items:center;">
+            <span>${formatDate(a.date)} at ${a.time} - ${escapeHtml(a.service || 'General')}</span>
+            <span class="status-badge ${statusClass}">${a.status || 'Scheduled'}</span>
+          </div>`;
+        });
+        html += '</div>';
+      }
+      if (prescriptions.length > 0) {
+        html += '<p style="font-weight:600; font-size:0.88rem; margin-bottom:8px;">Prescriptions:</p>';
+        html += '<div style="display:flex; flex-direction:column; gap:8px;">';
+        prescriptions.forEach(rx => {
+          html += `<div style="background:var(--light); padding:10px 14px; border-radius:8px; font-size:0.88rem;">
+            ${formatDate(rx.date)} - ${escapeHtml(rx.diagnosis ? rx.diagnosis.substring(0, 80) : 'N/A')}${rx.diagnosis && rx.diagnosis.length > 80 ? '...' : ''}
+          </div>`;
+        });
+        html += '</div>';
+      }
+      visitEl.innerHTML = html;
+    }
+  }
+
+  // Wire up action buttons
+  const btnRx = document.getElementById('btnWriteRx');
+  const btnFu = document.getElementById('btnScheduleFu');
+  const btnWa = document.getElementById('btnPatientWa');
+
+  if (btnRx) {
+    btnRx.onclick = function () {
+      closeModal('viewPatientModal');
+      writePrescription(id);
+    };
+  }
+  if (btnFu) {
+    btnFu.onclick = function () {
+      closeModal('viewPatientModal');
+      scheduleFollowup(id);
+    };
+  }
+  if (btnWa) {
+    btnWa.onclick = function () {
+      openWhatsApp(patient.phone, `Hello ${patient.name}, this is Shree Physiotherapy Clinic. We hope you are doing well. Please reach us at 822004084 or 9092294466 for any queries.`);
+    };
+  }
+
+  openModal('viewPatientModal');
+}
+
+function deletePatient(id) {
+  if (!confirm('Are you sure you want to delete this patient? This action cannot be undone.')) return;
+
+  let patients = getData('patients');
+  patients = patients.filter(p => p.id !== id);
+  setData('patients', patients);
+
+  loadPatients();
+  refreshDashboard();
+  showToast('Patient deleted.', 'info');
+}
+
+// Patient search filter
 document.addEventListener('DOMContentLoaded', () => {
-  loadOverview();
+  const searchInput = document.getElementById('patientSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      const query = this.value.toLowerCase();
+      const rows = document.querySelectorAll('#patientsTable tbody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    });
+  }
+});
+
+/* ============================================
+   4. APPOINTMENTS
+   ============================================ */
+function loadAppointments() {
+  const appointments = getData('appointments');
+  const patients = getData('patients');
+  const filterDate = document.getElementById('appointmentFilter') ? document.getElementById('appointmentFilter').value : '';
+  const tbody = document.querySelector('#appointmentsTable tbody');
+  if (!tbody) return;
+
+  let filtered = appointments;
+  if (filterDate) {
+    filtered = appointments.filter(a => a.date === filterDate);
+  }
+
+  // Sort by date descending, then time
+  filtered.sort((a, b) => {
+    const dateCompare = (b.date || '').localeCompare(a.date || '');
+    if (dateCompare !== 0) return dateCompare;
+    return (a.time || '').localeCompare(b.time || '');
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:var(--text-light);">No appointments found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(a => {
+    // Resolve patient name
+    let patientName = a.patientName || a.name || 'Unknown';
+    if (a.patientId) {
+      const pt = patients.find(p => p.id === a.patientId);
+      if (pt) patientName = pt.name;
+    }
+
+    const statusClass = a.status === 'Completed' ? 'completed' : a.status === 'Cancelled' ? '' : a.status === 'Confirmed' ? 'active' : 'pending';
+    const statusLabel = a.status || 'Scheduled';
+    const isActionable = statusLabel !== 'Completed' && statusLabel !== 'Cancelled';
+
+    return `<tr>
+      <td><strong>${escapeHtml(patientName)}</strong></td>
+      <td>${formatDate(a.date)}</td>
+      <td>${a.time || '-'}</td>
+      <td>${escapeHtml(a.service || 'General')}</td>
+      <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+      <td>
+        ${isActionable ? `
+          <button class="action-btn view" title="Complete" onclick="updateAppointmentStatus('${a.id}','Completed')" style="background:rgba(34,197,94,0.1); color:#22C55E;"><i class="fas fa-check"></i></button>
+          <button class="action-btn delete" title="Cancel" onclick="updateAppointmentStatus('${a.id}','Cancelled')"><i class="fas fa-times"></i></button>
+        ` : `<span style="color:var(--text-light); font-size:0.82rem;">-</span>`}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function updateAppointmentStatus(id, status) {
+  const appointments = getData('appointments');
+  const index = appointments.findIndex(a => a.id === id);
+  if (index === -1) return;
+
+  appointments[index].status = status;
+  setData('appointments', appointments);
+
+  // If completed, increment visit count concept (handled dynamically)
+  loadAppointments();
+  refreshDashboard();
+  showToast(`Appointment ${status.toLowerCase()}.`, status === 'Completed' ? 'success' : 'info');
+}
+
+// Appointment date filter
+document.addEventListener('DOMContentLoaded', () => {
+  const filterInput = document.getElementById('appointmentFilter');
+  if (filterInput) {
+    filterInput.addEventListener('change', loadAppointments);
+  }
+});
+
+/* ============================================
+   5. DASHBOARD CALENDAR
+   ============================================ */
+function renderDashCalendar() {
+  const grid = document.getElementById('dashCalendarGrid');
+  const monthLabel = document.getElementById('dashCalendarMonth');
+  if (!grid || !monthLabel) return;
+
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  monthLabel.textContent = months[currentDashMonth] + ' ' + currentDashYear;
+
+  const firstDay = new Date(currentDashYear, currentDashMonth, 1).getDay();
+  const daysInMonth = new Date(currentDashYear, currentDashMonth + 1, 0).getDate();
+  const today = new Date();
+  const todayDate = today.getDate();
+  const todayMonth = today.getMonth();
+  const todayYear = today.getFullYear();
+
+  // Get appointments for this month
+  const appointments = getData('appointments');
+  const appointmentDates = {};
+  appointments.forEach(a => {
+    if (!a.date) return;
+    const d = new Date(a.date);
+    if (d.getMonth() === currentDashMonth && d.getFullYear() === currentDashYear && a.status !== 'Cancelled') {
+      const day = d.getDate();
+      if (!appointmentDates[day]) appointmentDates[day] = 0;
+      appointmentDates[day]++;
+    }
+  });
+
+  let html = '';
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    html += '<div class="calendar-day empty"></div>';
+  }
+
+  // Day cells
+  for (let day = 1; day <= daysInMonth; day++) {
+    const isToday = (day === todayDate && currentDashMonth === todayMonth && currentDashYear === todayYear);
+    const todayCls = isToday ? ' today' : '';
+    const hasAppts = appointmentDates[day] || 0;
+    const dotHtml = hasAppts > 0 ? `<span style="display:block; width:6px; height:6px; border-radius:50%; background:var(--primary); margin:2px auto 0;"></span>` : '';
+    const countBadge = hasAppts > 1 ? `<span style="font-size:0.65rem; color:var(--primary); display:block;">${hasAppts}</span>` : '';
+
+    const dateStr = `${currentDashYear}-${String(currentDashMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+    html += `<div class="calendar-day${todayCls}" onclick="filterAppointmentsByDate('${dateStr}')" style="flex-direction:column; cursor:pointer;">
+      ${day}
+      ${dotHtml}
+      ${countBadge}
+    </div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+function changeDashMonth(delta) {
+  currentDashMonth += delta;
+  if (currentDashMonth < 0) {
+    currentDashMonth = 11;
+    currentDashYear--;
+  } else if (currentDashMonth > 11) {
+    currentDashMonth = 0;
+    currentDashYear++;
+  }
+  renderDashCalendar();
+}
+
+function filterAppointmentsByDate(dateStr) {
+  // Switch to appointments tab and set filter
+  const filterInput = document.getElementById('appointmentFilter');
+  if (filterInput) {
+    filterInput.value = dateStr;
+  }
+  switchTab('appointments');
+}
+
+/* ============================================
+   6. PRESCRIPTIONS
+   ============================================ */
+function loadPrescriptions() {
+  const prescriptions = getData('prescriptions');
+  const patients = getData('patients');
+  const tbody = document.querySelector('#prescriptionsTable tbody');
+  if (!tbody) return;
+
+  // Sort by date descending
+  const sorted = [...prescriptions].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  if (sorted.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:32px; color:var(--text-light);">No prescriptions yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = sorted.map(rx => {
+    let patientName = rx.patientName || 'Unknown';
+    if (rx.patientId) {
+      const pt = patients.find(p => p.id === rx.patientId);
+      if (pt) patientName = pt.name;
+    }
+
+    const diagnosisPreview = rx.diagnosis ? (rx.diagnosis.length > 60 ? rx.diagnosis.substring(0, 60) + '...' : rx.diagnosis) : 'N/A';
+
+    return `<tr>
+      <td><strong>${escapeHtml(patientName)}</strong></td>
+      <td>${formatDate(rx.date)}</td>
+      <td>${escapeHtml(diagnosisPreview)}</td>
+      <td>
+        <button class="action-btn view" title="View" onclick="viewPrescription('${rx.id}')"><i class="fas fa-eye"></i></button>
+        <button class="action-btn edit" title="Print" onclick="printPrescription('${rx.id}')"><i class="fas fa-print"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function writePrescription(patientId) {
+  const patients = getData('patients');
+  const patient = patients.find(p => p.id === patientId);
+  if (!patient) {
+    showToast('Patient not found.', 'error');
+    return;
+  }
+
+  document.getElementById('rxPatientId').value = patientId;
+  document.getElementById('rxPatientName').textContent = 'Patient: ' + patient.name;
+
+  // Clear form
+  document.getElementById('rxDiagnosis').value = '';
+  document.getElementById('rxTreatment').value = '';
+  document.getElementById('rxMedications').value = '';
+  document.getElementById('rxInstructions').value = '';
+  document.getElementById('rxFollowupDate').value = '';
+  document.getElementById('rxFollowupReason').value = '';
+
+  openModal('prescriptionModal');
+}
+
+function savePrescription(event) {
+  event.preventDefault();
+
+  const patientId = document.getElementById('rxPatientId').value;
+  const diagnosis = document.getElementById('rxDiagnosis').value.trim();
+  const treatment = document.getElementById('rxTreatment').value.trim();
+  const medications = document.getElementById('rxMedications').value.trim();
+  const instructions = document.getElementById('rxInstructions').value.trim();
+  const followupDate = document.getElementById('rxFollowupDate').value;
+  const followupReason = document.getElementById('rxFollowupReason').value.trim();
+
+  if (!diagnosis || !treatment) {
+    showToast('Please fill in diagnosis and treatment plan.', 'error');
+    return;
+  }
+
+  const patients = getData('patients');
+  const patient = patients.find(p => p.id === patientId);
+
+  const prescription = {
+    id: generateId(),
+    patientId,
+    patientName: patient ? patient.name : 'Unknown',
+    date: new Date().toISOString().split('T')[0],
+    diagnosis,
+    treatment,
+    medications,
+    instructions,
+    createdAt: new Date().toISOString()
+  };
+
+  const prescriptions = getData('prescriptions');
+  prescriptions.unshift(prescription);
+  setData('prescriptions', prescriptions);
+
+  // Optionally create follow-up if date is provided
+  if (followupDate) {
+    const followup = {
+      id: generateId(),
+      patientId,
+      patientName: patient ? patient.name : 'Unknown',
+      date: followupDate,
+      reason: followupReason || 'Post-treatment follow-up',
+      notes: 'Auto-created from prescription',
+      status: 'Pending',
+      createdAt: new Date().toISOString()
+    };
+
+    const followups = getData('followups');
+    followups.unshift(followup);
+    setData('followups', followups);
+  }
+
+  closeModal('prescriptionModal');
+  loadPrescriptions();
+  refreshDashboard();
+  showToast('Prescription saved successfully!', 'success');
+}
+
+function viewPrescription(id) {
+  const prescriptions = getData('prescriptions');
+  const rx = prescriptions.find(p => p.id === id);
+  if (!rx) {
+    showToast('Prescription not found.', 'error');
+    return;
+  }
+
+  const patients = getData('patients');
+  let patientName = rx.patientName || 'Unknown';
+  let patientPhone = '';
+  if (rx.patientId) {
+    const pt = patients.find(p => p.id === rx.patientId);
+    if (pt) {
+      patientName = pt.name;
+      patientPhone = pt.phone;
+    }
+  }
+
+  const content = `
+    <div style="background:var(--light); padding:24px; border-radius:var(--radius); margin-bottom:20px;">
+      <div style="text-align:center; margin-bottom:16px; padding-bottom:16px; border-bottom:2px solid var(--border);">
+        <h3 style="font-size:1.2rem; color:var(--primary);">Shree Physiotherapy Clinic</h3>
+        <p style="font-size:0.82rem; color:var(--text-light);">Phone: 822004084 | 9092294466</p>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; font-size:0.9rem;">
+        <div><strong>Patient:</strong> ${escapeHtml(patientName)}</div>
+        <div><strong>Date:</strong> ${formatDate(rx.date)}</div>
+        ${patientPhone ? `<div><strong>Phone:</strong> ${escapeHtml(patientPhone)}</div>` : ''}
+      </div>
+      <div style="margin-bottom:12px;">
+        <strong style="color:var(--primary); font-size:0.85rem;">DIAGNOSIS:</strong>
+        <p style="font-size:0.9rem; margin-top:4px;">${escapeHtml(rx.diagnosis || 'N/A')}</p>
+      </div>
+      <div style="margin-bottom:12px;">
+        <strong style="color:var(--primary); font-size:0.85rem;">TREATMENT PLAN:</strong>
+        <p style="font-size:0.9rem; margin-top:4px;">${escapeHtml(rx.treatment || 'N/A')}</p>
+      </div>
+      ${rx.medications ? `<div style="margin-bottom:12px;">
+        <strong style="color:var(--primary); font-size:0.85rem;">MEDICATIONS:</strong>
+        <p style="font-size:0.9rem; margin-top:4px;">${escapeHtml(rx.medications)}</p>
+      </div>` : ''}
+      ${rx.instructions ? `<div style="margin-bottom:12px;">
+        <strong style="color:var(--primary); font-size:0.85rem;">INSTRUCTIONS:</strong>
+        <p style="font-size:0.9rem; margin-top:4px;">${escapeHtml(rx.instructions)}</p>
+      </div>` : ''}
+    </div>
+  `;
+
+  // Reuse viewPatient modal structure
+  const detailsEl = document.getElementById('patientDetails');
+  const visitEl = document.getElementById('visitHistory');
+  if (detailsEl) detailsEl.innerHTML = content;
+  if (visitEl) visitEl.innerHTML = '';
+
+  // Rebind buttons for this context
+  const btnRx = document.getElementById('btnWriteRx');
+  const btnFu = document.getElementById('btnScheduleFu');
+  const btnWa = document.getElementById('btnPatientWa');
+
+  if (btnRx) btnRx.style.display = 'none';
+  if (btnFu) btnFu.style.display = 'none';
+  if (btnWa) btnWa.style.display = 'none';
+
+  // Change modal title
+  const modalTitle = document.querySelector('#viewPatientModal .modal h2');
+  if (modalTitle) modalTitle.textContent = 'Prescription Details';
+
+  openModal('viewPatientModal');
+
+  // Restore defaults when modal closes (using MutationObserver)
+  const observer = new MutationObserver(() => {
+    const modal = document.getElementById('viewPatientModal');
+    if (modal && !modal.classList.contains('active')) {
+      if (btnRx) btnRx.style.display = '';
+      if (btnFu) btnFu.style.display = '';
+      if (btnWa) btnWa.style.display = '';
+      if (modalTitle) modalTitle.textContent = 'Patient Details';
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.getElementById('viewPatientModal'), { attributes: true, attributeFilter: ['class'] });
+}
+
+function printPrescription(id) {
+  const prescriptions = getData('prescriptions');
+  const rx = prescriptions.find(p => p.id === id);
+  if (!rx) {
+    showToast('Prescription not found.', 'error');
+    return;
+  }
+
+  const patients = getData('patients');
+  let patientName = rx.patientName || 'Unknown';
+  let patientAge = '';
+  let patientGender = '';
+  let patientPhone = '';
+  if (rx.patientId) {
+    const pt = patients.find(p => p.id === rx.patientId);
+    if (pt) {
+      patientName = pt.name;
+      patientAge = pt.age;
+      patientGender = pt.gender;
+      patientPhone = pt.phone;
+    }
+  }
+
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Prescription - ${patientName}</title>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #2D2D2D; padding: 40px; line-height: 1.6; }
+        .header { text-align: center; padding-bottom: 20px; border-bottom: 3px solid #2A7D6F; margin-bottom: 24px; }
+        .header h1 { font-size: 1.5rem; color: #2A7D6F; margin-bottom: 4px; }
+        .header p { font-size: 0.85rem; color: #6B7280; }
+        .patient-info { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E5E7EB; margin-bottom: 20px; font-size: 0.9rem; }
+        .patient-info div { margin-right: 24px; }
+        .section { margin-bottom: 18px; }
+        .section-label { font-weight: 700; color: #2A7D6F; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .section-content { font-size: 0.92rem; white-space: pre-wrap; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #E5E7EB; display: flex; justify-content: space-between; font-size: 0.82rem; color: #6B7280; }
+        .signature { text-align: right; margin-top: 48px; }
+        .signature p { border-top: 1px solid #2D2D2D; display: inline-block; padding-top: 8px; font-weight: 600; }
+        @media print { body { padding: 20px; } }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>Shree Physiotherapy Clinic</h1>
+        <p>Periyanaickenpalayam, Coimbatore</p>
+        <p>Phone: 822004084 | 9092294466 | WhatsApp: 9092294466</p>
+      </div>
+      <div class="patient-info">
+        <div><strong>Patient:</strong> ${escapeHtml(patientName)}</div>
+        ${patientAge ? `<div><strong>Age/Gender:</strong> ${patientAge} / ${patientGender}</div>` : ''}
+        <div><strong>Date:</strong> ${formatDate(rx.date)}</div>
+        ${patientPhone ? `<div><strong>Phone:</strong> ${escapeHtml(patientPhone)}</div>` : ''}
+      </div>
+      <div class="section">
+        <div class="section-label">Diagnosis</div>
+        <div class="section-content">${escapeHtml(rx.diagnosis || 'N/A')}</div>
+      </div>
+      <div class="section">
+        <div class="section-label">Treatment Plan</div>
+        <div class="section-content">${escapeHtml(rx.treatment || 'N/A')}</div>
+      </div>
+      ${rx.medications ? `<div class="section">
+        <div class="section-label">Medications</div>
+        <div class="section-content">${escapeHtml(rx.medications)}</div>
+      </div>` : ''}
+      ${rx.instructions ? `<div class="section">
+        <div class="section-label">Instructions</div>
+        <div class="section-content">${escapeHtml(rx.instructions)}</div>
+      </div>` : ''}
+      <div class="signature">
+        <p>Dr. Aarti Ganesh, BPT, MPT<br>Shree Physiotherapy Clinic</p>
+      </div>
+      <div class="footer">
+        <span>Shree Physiotherapy Clinic</span>
+        <span>This is a computer-generated prescription.</span>
+      </div>
+      <script>window.onload = function() { window.print(); };<\/script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+// Prescription search filter
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.getElementById('prescriptionSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      const query = this.value.toLowerCase();
+      const rows = document.querySelectorAll('#prescriptionsTable tbody tr');
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    });
+  }
+});
+
+/* ============================================
+   7. FOLLOW-UPS
+   ============================================ */
+function loadFollowups() {
+  const followups = getData('followups');
+  const patients = getData('patients');
+  const filterStatus = document.getElementById('followupFilter') ? document.getElementById('followupFilter').value : 'all';
+  const tbody = document.querySelector('#followupsTable tbody');
+  if (!tbody) return;
+
+  let filtered = followups;
+  if (filterStatus !== 'all') {
+    filtered = followups.filter(f => f.status === filterStatus);
+  }
+
+  // Sort: pending first, then by date
+  filtered.sort((a, b) => {
+    if (a.status === 'Pending' && b.status !== 'Pending') return -1;
+    if (a.status !== 'Pending' && b.status === 'Pending') return 1;
+    return (a.date || '').localeCompare(b.date || '');
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:var(--text-light);">No follow-ups found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(f => {
+    let patientName = f.patientName || 'Unknown';
+    let patientPhone = '';
+    if (f.patientId) {
+      const pt = patients.find(p => p.id === f.patientId);
+      if (pt) {
+        patientName = pt.name;
+        patientPhone = pt.phone;
+      }
+    }
+
+    const statusClass = f.status === 'Completed' ? 'completed' : 'pending';
+    const isPending = f.status !== 'Completed';
+
+    return `<tr>
+      <td><strong>${escapeHtml(patientName)}</strong></td>
+      <td>${formatDate(f.date)}</td>
+      <td>${escapeHtml(f.reason || '-')}</td>
+      <td><span class="status-badge ${statusClass}">${f.status || 'Pending'}</span></td>
+      <td>
+        ${isPending ? `
+          <button class="action-btn view" title="Mark Done" onclick="markFollowupDone('${f.id}')" style="background:rgba(34,197,94,0.1); color:#22C55E;"><i class="fas fa-check"></i></button>
+          <button class="action-btn whatsapp" title="WhatsApp Reminder" onclick="sendFollowupReminder('${f.id}')"><i class="fab fa-whatsapp"></i></button>
+        ` : `<span style="color:var(--text-light); font-size:0.82rem;">Done</span>`}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function scheduleFollowup(patientId) {
+  const patients = getData('patients');
+  const patient = patients.find(p => p.id === patientId);
+  if (!patient) {
+    showToast('Patient not found.', 'error');
+    return;
+  }
+
+  document.getElementById('fuPatientId').value = patientId;
+  document.getElementById('fuPatientName').textContent = 'Patient: ' + patient.name;
+
+  // Clear form
+  document.getElementById('fuDate').value = '';
+  document.getElementById('fuReason').value = '';
+  document.getElementById('fuNotes').value = '';
+
+  openModal('followupModal');
+}
+
+function saveFollowup(event) {
+  event.preventDefault();
+
+  const patientId = document.getElementById('fuPatientId').value;
+  const date = document.getElementById('fuDate').value;
+  const reason = document.getElementById('fuReason').value.trim();
+  const notes = document.getElementById('fuNotes').value.trim();
+
+  if (!date || !reason) {
+    showToast('Please fill in date and reason.', 'error');
+    return;
+  }
+
+  const patients = getData('patients');
+  const patient = patients.find(p => p.id === patientId);
+
+  const followup = {
+    id: generateId(),
+    patientId,
+    patientName: patient ? patient.name : 'Unknown',
+    date,
+    reason,
+    notes,
+    status: 'Pending',
+    createdAt: new Date().toISOString()
+  };
+
+  const followups = getData('followups');
+  followups.unshift(followup);
+  setData('followups', followups);
+
+  // Optionally create an appointment for the follow-up date
+  const appointment = {
+    id: generateId(),
+    patientId,
+    patientName: patient ? patient.name : 'Unknown',
+    name: patient ? patient.name : 'Unknown',
+    phone: patient ? patient.phone : '',
+    date,
+    time: '10:00 AM',
+    service: 'Follow-up: ' + reason,
+    status: 'Scheduled',
+    createdAt: new Date().toISOString()
+  };
+
+  const appointments = getData('appointments');
+  appointments.unshift(appointment);
+  setData('appointments', appointments);
+
+  closeModal('followupModal');
+  loadFollowups();
+  refreshDashboard();
+  showToast('Follow-up scheduled and appointment created!', 'success');
+}
+
+function markFollowupDone(id) {
+  const followups = getData('followups');
+  const index = followups.findIndex(f => f.id === id);
+  if (index === -1) return;
+
+  followups[index].status = 'Completed';
+  setData('followups', followups);
+
+  loadFollowups();
+  refreshDashboard();
+  showToast('Follow-up marked as completed.', 'success');
+}
+
+function sendFollowupReminder(id) {
+  const followups = getData('followups');
+  const followup = followups.find(f => f.id === id);
+  if (!followup) return;
+
+  const patients = getData('patients');
+  let phone = '';
+  let patientName = followup.patientName || 'there';
+
+  if (followup.patientId) {
+    const pt = patients.find(p => p.id === followup.patientId);
+    if (pt) {
+      phone = pt.phone;
+      patientName = pt.name;
+    }
+  }
+
+  if (!phone) {
+    showToast('No phone number found for this patient.', 'error');
+    return;
+  }
+
+  const message = `Hello ${patientName},\n\nThis is a reminder from Shree Physiotherapy Clinic about your upcoming follow-up appointment on ${formatDateFull(followup.date)}.\n\nReason: ${followup.reason}\n\nPlease confirm your visit. For any queries, call us at 822004084 or 9092294466.\n\nThank you,\nDr. Aarti Ganesh\nShree Physiotherapy Clinic`;
+
+  openWhatsApp(phone, message);
+}
+
+// Follow-up filter
+document.addEventListener('DOMContentLoaded', () => {
+  const filterSelect = document.getElementById('followupFilter');
+  if (filterSelect) {
+    filterSelect.addEventListener('change', loadFollowups);
+  }
+});
+
+/* ============================================
+   UTILITY: HTML ESCAPE
+   ============================================ */
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+/* ============================================
+   8. DOMContentLoaded - INIT
+   ============================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  switchTab('overview');
+  refreshDashboard();
   loadPatients();
   loadAppointments();
   loadPrescriptions();
   loadFollowups();
   renderDashCalendar();
 });
-
-// ===== TAB NAVIGATION =====
-function showTab(tabName) {
-  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
-
-  const tab = document.getElementById(`tab-${tabName}`);
-  if (tab) tab.style.display = 'block';
-
-  const links = document.querySelectorAll('.sidebar-nav a');
-  links.forEach(a => {
-    if (a.getAttribute('onclick')?.includes(tabName)) {
-      a.classList.add('active');
-    }
-  });
-
-  // Refresh data
-  if (tabName === 'overview') loadOverview();
-  if (tabName === 'patients') loadPatients();
-  if (tabName === 'appointments') loadAppointments();
-  if (tabName === 'calendar') renderDashCalendar();
-  if (tabName === 'prescriptions') loadPrescriptions();
-  if (tabName === 'followups') loadFollowups();
-}
-
-// ===== OVERVIEW =====
-function loadOverview() {
-  const patients = getData('patients');
-  const appointments = getData('appointments');
-  const prescriptions = getData('prescriptions');
-  const followups = getData('followups');
-
-  const today = new Date().toISOString().split('T')[0];
-  const todayAppts = appointments.filter(a => a.date === today);
-  const pendingFU = followups.filter(f => f.status === 'pending');
-
-  document.getElementById('totalPatients').textContent = patients.length;
-  document.getElementById('todayAppointments').textContent = todayAppts.length;
-  document.getElementById('totalPrescriptions').textContent = prescriptions.length;
-  document.getElementById('pendingFollowups').textContent = pendingFU.length;
-
-  // Recent appointments
-  const recent = [...appointments].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
-  const tbody = document.getElementById('recentAppointmentsBody');
-  if (!tbody) return;
-
-  if (recent.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:40px;">No appointments yet</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = recent.map(a => `
-    <tr>
-      <td><strong>${a.patientName}</strong></td>
-      <td>${formatDate(a.date)}</td>
-      <td>${a.time}</td>
-      <td>${a.service}</td>
-      <td><span class="status-badge ${a.status}">${capitalize(a.status)}</span></td>
-      <td>
-        <button class="action-btn view" title="View" onclick="viewPatientById('${a.patientId}')"><i class="fas fa-eye"></i></button>
-        <button class="action-btn edit" title="Write Prescription" onclick="openPrescription('${a.patientId}')"><i class="fas fa-file-prescription"></i></button>
-        <button class="action-btn whatsapp" title="WhatsApp" onclick="sendWhatsAppToPatient('${a.patientId}')"><i class="fab fa-whatsapp"></i></button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-// ===== PATIENTS =====
-function loadPatients(filter = '') {
-  const patients = getData('patients');
-  const tbody = document.getElementById('patientsTableBody');
-  if (!tbody) return;
-
-  let filtered = patients;
-  if (filter) {
-    const q = filter.toLowerCase();
-    filtered = patients.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.phone.includes(q) ||
-      p.id.toLowerCase().includes(q)
-    );
-  }
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-light);padding:40px;">No patients found</td></tr>';
-    return;
-  }
-
-  const appointments = getData('appointments');
-
-  tbody.innerHTML = filtered.map(p => {
-    const lastAppt = appointments
-      .filter(a => a.patientId === p.id)
-      .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
-    return `
-      <tr>
-        <td><code style="background:rgba(42,125,111,0.08);padding:2px 8px;border-radius:4px;font-size:0.8rem;">${p.id}</code></td>
-        <td><strong>${p.name}</strong></td>
-        <td>${p.age} / ${p.gender}</td>
-        <td>${p.phone}</td>
-        <td>${lastAppt ? formatDate(lastAppt.date) : 'N/A'}</td>
-        <td><span class="status-badge ${p.status || 'active'}">${capitalize(p.status || 'active')}</span></td>
-        <td>
-          <button class="action-btn view" title="View Details" onclick="viewPatientById('${p.id}')"><i class="fas fa-eye"></i></button>
-          <button class="action-btn edit" title="Write Prescription" onclick="openPrescription('${p.id}')"><i class="fas fa-file-prescription"></i></button>
-          <button class="action-btn whatsapp" title="WhatsApp" onclick="sendWhatsAppToPatient('${p.id}')"><i class="fab fa-whatsapp"></i></button>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-function filterPatients() {
-  const q = document.getElementById('patientSearch')?.value || '';
-  loadPatients(q);
-}
-
-function addPatientManual(e) {
-  e.preventDefault();
-  const patient = {
-    id: generateId(),
-    name: document.getElementById('mpName').value.trim(),
-    age: document.getElementById('mpAge').value,
-    gender: document.getElementById('mpGender').value,
-    phone: document.getElementById('mpPhone').value.trim(),
-    email: document.getElementById('mpEmail').value.trim(),
-    address: document.getElementById('mpAddress').value.trim(),
-    medicalHistory: document.getElementById('mpHistory').value.trim(),
-    createdAt: new Date().toISOString(),
-    status: 'active'
-  };
-
-  const patients = getData('patients');
-  patients.push(patient);
-  setData('patients', patients);
-
-  closeModal('addPatientModal');
-  loadPatients();
-  loadOverview();
-  showToast(`Patient ${patient.name} added successfully!`, 'success');
-
-  // Reset form
-  e.target.reset();
-}
-
-function viewPatientById(patientId) {
-  const patients = getData('patients');
-  const patient = patients.find(p => p.id === patientId);
-  if (!patient) { showToast('Patient not found', 'error'); return; }
-
-  const appointments = getData('appointments').filter(a => a.patientId === patientId);
-  const prescriptions = getData('prescriptions').filter(p => p.patientId === patientId);
-  const followups = getData('followups').filter(f => f.patientId === patientId);
-
-  const content = document.getElementById('patientDetailContent');
-  if (!content) return;
-
-  content.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
-      <div style="background:var(--light);padding:16px;border-radius:8px;">
-        <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Patient ID</div>
-        <div style="font-weight:600;">${patient.id}</div>
-      </div>
-      <div style="background:var(--light);padding:16px;border-radius:8px;">
-        <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Name</div>
-        <div style="font-weight:600;">${patient.name}</div>
-      </div>
-      <div style="background:var(--light);padding:16px;border-radius:8px;">
-        <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Age / Gender</div>
-        <div style="font-weight:600;">${patient.age} / ${patient.gender}</div>
-      </div>
-      <div style="background:var(--light);padding:16px;border-radius:8px;">
-        <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Phone</div>
-        <div style="font-weight:600;"><a href="tel:${patient.phone}" style="color:var(--primary);">${patient.phone}</a></div>
-      </div>
-      ${patient.email ? `<div style="background:var(--light);padding:16px;border-radius:8px;grid-column:span 2;">
-        <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Email</div>
-        <div style="font-weight:600;">${patient.email}</div>
-      </div>` : ''}
-      ${patient.address ? `<div style="background:var(--light);padding:16px;border-radius:8px;grid-column:span 2;">
-        <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Address</div>
-        <div style="font-weight:600;">${patient.address}</div>
-      </div>` : ''}
-      ${patient.medicalHistory ? `<div style="background:var(--light);padding:16px;border-radius:8px;grid-column:span 2;">
-        <div style="font-size:0.8rem;color:var(--text-light);margin-bottom:4px;">Medical History</div>
-        <div style="font-weight:600;">${patient.medicalHistory}</div>
-      </div>` : ''}
-    </div>
-
-    <div style="display:flex;gap:12px;margin-bottom:24px;">
-      <button class="btn btn-primary" onclick="closeModal('viewPatientModal');openPrescription('${patient.id}')" style="padding:10px 20px;font-size:0.85rem;">
-        <i class="fas fa-file-prescription"></i> Write Prescription
-      </button>
-      <button class="btn btn-outline" onclick="closeModal('viewPatientModal');openFollowup('${patient.id}')" style="padding:10px 20px;font-size:0.85rem;">
-        <i class="fas fa-redo"></i> Schedule Follow-up
-      </button>
-      <button class="btn btn-whatsapp" onclick="sendWhatsAppToPatient('${patient.id}')" style="padding:10px 20px;font-size:0.85rem;">
-        <i class="fab fa-whatsapp"></i> WhatsApp
-      </button>
-    </div>
-
-    ${appointments.length > 0 ? `
-      <h4 style="font-family:'DM Sans',sans-serif;margin-bottom:12px;">Appointment History</h4>
-      <div style="margin-bottom:20px;">
-        ${appointments.sort((a,b) => new Date(b.date) - new Date(a.date)).map(a => `
-          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--light);border-radius:8px;margin-bottom:8px;">
-            <div style="width:40px;height:40px;border-radius:8px;background:rgba(42,125,111,0.1);display:flex;align-items:center;justify-content:center;color:var(--primary);"><i class="fas fa-calendar"></i></div>
-            <div style="flex:1;">
-              <div style="font-weight:600;font-size:0.9rem;">${formatDate(a.date)} at ${a.time}</div>
-              <div style="font-size:0.82rem;color:var(--text-light);">${a.service} - ${a.complaint || 'N/A'}</div>
-            </div>
-            <span class="status-badge ${a.status}">${capitalize(a.status)}</span>
-          </div>
-        `).join('')}
-      </div>
-    ` : ''}
-
-    ${prescriptions.length > 0 ? `
-      <h4 style="font-family:'DM Sans',sans-serif;margin-bottom:12px;">Prescriptions</h4>
-      <div style="margin-bottom:20px;">
-        ${prescriptions.sort((a,b) => new Date(b.date) - new Date(a.date)).map(rx => `
-          <div style="padding:12px;background:var(--light);border-radius:8px;margin-bottom:8px;">
-            <div style="font-weight:600;font-size:0.9rem;">${formatDate(rx.date)}</div>
-            <div style="font-size:0.85rem;color:var(--text-light);margin-top:4px;"><strong>Diagnosis:</strong> ${rx.diagnosis}</div>
-            <div style="font-size:0.85rem;color:var(--text-light);"><strong>Treatment:</strong> ${rx.treatment}</div>
-            ${rx.medications ? `<div style="font-size:0.85rem;color:var(--text-light);"><strong>Medications:</strong> ${rx.medications}</div>` : ''}
-          </div>
-        `).join('')}
-      </div>
-    ` : ''}
-
-    ${followups.length > 0 ? `
-      <h4 style="font-family:'DM Sans',sans-serif;margin-bottom:12px;">Follow-ups</h4>
-      <div>
-        ${followups.sort((a,b) => new Date(b.date) - new Date(a.date)).map(f => `
-          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--light);border-radius:8px;margin-bottom:8px;">
-            <div style="width:40px;height:40px;border-radius:8px;background:rgba(34,197,94,0.1);display:flex;align-items:center;justify-content:center;color:#22C55E;"><i class="fas fa-redo"></i></div>
-            <div style="flex:1;">
-              <div style="font-weight:600;font-size:0.9rem;">${formatDate(f.date)} ${f.time ? 'at ' + f.time : ''}</div>
-              <div style="font-size:0.82rem;color:var(--text-light);">${f.notes}</div>
-            </div>
-            <span class="status-badge ${f.status}">${capitalize(f.status)}</span>
-          </div>
-        `).join('')}
-      </div>
-    ` : ''}
-  `;
-
-  openModal('viewPatientModal');
-}
-
-// ===== APPOINTMENTS =====
-function loadAppointments(filter = 'all') {
-  const appointments = getData('appointments');
-  const tbody = document.getElementById('appointmentsTableBody');
-  if (!tbody) return;
-
-  const today = new Date().toISOString().split('T')[0];
-  let filtered = appointments;
-
-  if (filter === 'today') filtered = appointments.filter(a => a.date === today);
-  else if (filter === 'upcoming') filtered = appointments.filter(a => a.date >= today && a.status !== 'completed');
-  else if (filter === 'completed') filtered = appointments.filter(a => a.status === 'completed');
-
-  filtered.sort((a, b) => new Date(b.date + ' ' + b.time) - new Date(a.date + ' ' + a.time));
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-light);padding:40px;">No appointments found</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(a => `
-    <tr>
-      <td><strong>${a.patientName}</strong></td>
-      <td>${a.patientPhone}</td>
-      <td>${formatDate(a.date)}</td>
-      <td>${a.time}</td>
-      <td>${a.service}</td>
-      <td>
-        <select onchange="updateAppointmentStatus('${a.id}', this.value)" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:0.82rem;font-family:'DM Sans',sans-serif;">
-          <option value="pending" ${a.status === 'pending' ? 'selected' : ''}>Pending</option>
-          <option value="active" ${a.status === 'active' ? 'selected' : ''}>Confirmed</option>
-          <option value="completed" ${a.status === 'completed' ? 'selected' : ''}>Completed</option>
-          <option value="cancelled" ${a.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-        </select>
-      </td>
-      <td>
-        <button class="action-btn view" title="View Patient" onclick="viewPatientById('${a.patientId}')"><i class="fas fa-eye"></i></button>
-        <button class="action-btn edit" title="Prescription" onclick="openPrescription('${a.patientId}')"><i class="fas fa-file-prescription"></i></button>
-        <button class="action-btn whatsapp" title="WhatsApp" onclick="sendAppointmentWhatsApp('${a.id}')"><i class="fab fa-whatsapp"></i></button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function filterAppointments() {
-  const filter = document.getElementById('appointmentFilter')?.value || 'all';
-  loadAppointments(filter);
-}
-
-function updateAppointmentStatus(apptId, status) {
-  const appointments = getData('appointments');
-  const idx = appointments.findIndex(a => a.id === apptId);
-  if (idx >= 0) {
-    appointments[idx].status = status;
-    setData('appointments', appointments);
-    showToast(`Appointment status updated to ${status}`, 'success');
-    loadOverview();
-  }
-}
-
-function sendAppointmentWhatsApp(apptId) {
-  const appointments = getData('appointments');
-  const appt = appointments.find(a => a.id === apptId);
-  if (!appt) return;
-
-  const msg = `Dear ${appt.patientName},\n\nThis is a reminder from Dr. Aarti Physio Clinic.\n\nYour appointment details:\nDate: ${formatDateFull(appt.date)}\nTime: ${appt.time}\nService: ${appt.service}\n\nClinic Address: Bus Stop, No.454, LIC Siva Complex, Vannakoil, Periyanaickenpalayam, Tamil Nadu 641047\n\nFor queries: +91 98432 22137\n\nThank you!`;
-
-  openWhatsApp(appt.patientPhone, msg);
-}
-
-// ===== DASHBOARD CALENDAR =====
-function renderDashCalendar() {
-  const grid = document.getElementById('dashCalendarGrid');
-  const monthYear = document.getElementById('dashCalendarMonthYear');
-  if (!grid || !monthYear) return;
-
-  const months = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
-
-  monthYear.textContent = `${months[dashMonth]} ${dashYear}`;
-
-  const firstDay = new Date(dashYear, dashMonth, 1).getDay();
-  const daysInMonth = new Date(dashYear, dashMonth + 1, 0).getDate();
-  const today = new Date();
-  const appointments = getData('appointments');
-
-  let html = '';
-
-  for (let i = 0; i < firstDay; i++) {
-    html += '<button class="calendar-day empty" disabled></button>';
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(dashYear, dashMonth, day);
-    const dateStr = `${dashYear}-${String(dashMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const isCurrentDay = date.toDateString() === today.toDateString();
-    const dayAppts = appointments.filter(a => a.date === dateStr);
-    const hasAppts = dayAppts.length > 0;
-
-    let classes = 'calendar-day';
-    if (isCurrentDay) classes += ' today';
-
-    html += `<button class="${classes}" onclick="showDayAppointments('${dateStr}')" style="position:relative;">
-      ${day}
-      ${hasAppts ? `<span style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--primary);"></span>` : ''}
-    </button>`;
-  }
-
-  grid.innerHTML = html;
-}
-
-function changeDashMonth(dir) {
-  dashMonth += dir;
-  if (dashMonth > 11) { dashMonth = 0; dashYear++; }
-  if (dashMonth < 0) { dashMonth = 11; dashYear--; }
-  renderDashCalendar();
-}
-
-function showDayAppointments(dateStr) {
-  const section = document.getElementById('dayAppointments');
-  const dateLabel = document.getElementById('dayAppointmentsDate');
-  const list = document.getElementById('dayAppointmentsList');
-  if (!section || !list) return;
-
-  const appointments = getData('appointments').filter(a => a.date === dateStr);
-  dateLabel.textContent = formatDateFull(dateStr);
-  section.style.display = 'block';
-
-  if (appointments.length === 0) {
-    list.innerHTML = '<p style="color:var(--text-light);padding:20px;text-align:center;">No appointments on this day</p>';
-    return;
-  }
-
-  list.innerHTML = appointments.sort((a, b) => a.time.localeCompare(b.time)).map(a => `
-    <div style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--light);border-radius:12px;margin-bottom:8px;">
-      <div style="width:48px;height:48px;border-radius:12px;background:rgba(42,125,111,0.1);display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700;">${a.time.split(' ')[0]}</div>
-      <div style="flex:1;">
-        <div style="font-weight:600;">${a.patientName}</div>
-        <div style="font-size:0.85rem;color:var(--text-light);">${a.service}</div>
-      </div>
-      <span class="status-badge ${a.status}">${capitalize(a.status)}</span>
-      <div>
-        <button class="action-btn view" onclick="viewPatientById('${a.patientId}')"><i class="fas fa-eye"></i></button>
-        <button class="action-btn whatsapp" onclick="sendAppointmentWhatsApp('${a.id}')"><i class="fab fa-whatsapp"></i></button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ===== PRESCRIPTIONS =====
-function openPrescription(patientId) {
-  const patients = getData('patients');
-  const patient = patients.find(p => p.id === patientId);
-  if (!patient) { showToast('Patient not found', 'error'); return; }
-
-  document.getElementById('rxPatientId').value = patientId;
-  document.getElementById('rxPatientName').value = patient.name;
-  document.getElementById('rxDate').value = new Date().toISOString().split('T')[0];
-  document.getElementById('rxDiagnosis').value = '';
-  document.getElementById('rxTreatment').value = '';
-  document.getElementById('rxMedications').value = '';
-  document.getElementById('rxInstructions').value = '';
-  document.getElementById('rxFollowupDate').value = '';
-  document.getElementById('rxFollowupNotes').value = '';
-
-  openModal('prescriptionModal');
-}
-
-function savePrescription(e) {
-  if (e) e.preventDefault();
-
-  const patientId = document.getElementById('rxPatientId').value;
-  const patients = getData('patients');
-  const patient = patients.find(p => p.id === patientId);
-
-  const prescription = {
-    id: 'RX' + Date.now().toString(36).toUpperCase(),
-    patientId,
-    patientName: patient?.name || 'Unknown',
-    patientPhone: patient?.phone || '',
-    date: document.getElementById('rxDate').value,
-    diagnosis: document.getElementById('rxDiagnosis').value.trim(),
-    treatment: document.getElementById('rxTreatment').value.trim(),
-    medications: document.getElementById('rxMedications').value.trim(),
-    instructions: document.getElementById('rxInstructions').value.trim(),
-    createdAt: new Date().toISOString()
-  };
-
-  const prescriptions = getData('prescriptions');
-  prescriptions.push(prescription);
-  setData('prescriptions', prescriptions);
-
-  // Handle follow-up if date provided
-  const fuDate = document.getElementById('rxFollowupDate').value;
-  if (fuDate) {
-    const followup = {
-      id: 'FU' + Date.now().toString(36).toUpperCase(),
-      patientId,
-      patientName: patient?.name || 'Unknown',
-      patientPhone: patient?.phone || '',
-      date: fuDate,
-      time: '',
-      notes: document.getElementById('rxFollowupNotes').value.trim() || 'Follow-up visit',
-      prescriptionId: prescription.id,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    };
-    const followups = getData('followups');
-    followups.push(followup);
-    setData('followups', followups);
-  }
-
-  closeModal('prescriptionModal');
-  loadPrescriptions();
-  loadFollowups();
-  loadOverview();
-  showToast('Prescription saved successfully!', 'success');
-
-  return prescription;
-}
-
-function savePrescriptionAndWhatsApp() {
-  const patientId = document.getElementById('rxPatientId').value;
-  const patients = getData('patients');
-  const patient = patients.find(p => p.id === patientId);
-  if (!patient) return;
-
-  const rx = savePrescription();
-  if (!rx) return;
-
-  const fuDate = document.getElementById('rxFollowupDate').value;
-  let msg = `Dear ${patient.name},\n\nPrescription from Dr. Aarti Physio Clinic:\n\nDate: ${formatDate(rx.date)}\nDiagnosis: ${rx.diagnosis}\nTreatment Plan: ${rx.treatment}`;
-
-  if (rx.medications) msg += `\nMedications: ${rx.medications}`;
-  if (rx.instructions) msg += `\nInstructions: ${rx.instructions}`;
-  if (fuDate) msg += `\n\nFollow-up Date: ${formatDate(fuDate)}`;
-
-  msg += `\n\nFor queries: +91 98432 22137\nDr. Aarti Physio Clinic, Periyanaickenpalayam`;
-
-  openWhatsApp(patient.phone, msg);
-}
-
-function loadPrescriptions(filter = '') {
-  const prescriptions = getData('prescriptions');
-  const tbody = document.getElementById('prescriptionsTableBody');
-  if (!tbody) return;
-
-  let filtered = prescriptions;
-  if (filter) {
-    const q = filter.toLowerCase();
-    filtered = prescriptions.filter(rx =>
-      rx.patientName.toLowerCase().includes(q) ||
-      rx.diagnosis.toLowerCase().includes(q)
-    );
-  }
-
-  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-light);padding:40px;">No prescriptions found</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(rx => `
-    <tr>
-      <td>${formatDate(rx.date)}</td>
-      <td><strong>${rx.patientName}</strong></td>
-      <td>${rx.diagnosis.substring(0, 50)}${rx.diagnosis.length > 50 ? '...' : ''}</td>
-      <td>${rx.treatment.substring(0, 50)}${rx.treatment.length > 50 ? '...' : ''}</td>
-      <td>
-        <button class="action-btn view" title="View Patient" onclick="viewPatientById('${rx.patientId}')"><i class="fas fa-eye"></i></button>
-        <button class="action-btn whatsapp" title="Send via WhatsApp" onclick="sendPrescriptionWhatsApp('${rx.id}')"><i class="fab fa-whatsapp"></i></button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function filterPrescriptions() {
-  const q = document.getElementById('prescriptionSearch')?.value || '';
-  loadPrescriptions(q);
-}
-
-function sendPrescriptionWhatsApp(rxId) {
-  const prescriptions = getData('prescriptions');
-  const rx = prescriptions.find(r => r.id === rxId);
-  if (!rx) return;
-
-  const msg = `Dear ${rx.patientName},\n\nPrescription from Dr. Aarti Physio Clinic:\n\nDate: ${formatDate(rx.date)}\nDiagnosis: ${rx.diagnosis}\nTreatment Plan: ${rx.treatment}${rx.medications ? '\nMedications: ' + rx.medications : ''}${rx.instructions ? '\nInstructions: ' + rx.instructions : ''}\n\nFor queries: +91 98432 22137\nDr. Aarti Physio Clinic, Periyanaickenpalayam`;
-
-  openWhatsApp(rx.patientPhone, msg);
-}
-
-// ===== FOLLOW-UPS =====
-function openFollowup(patientId) {
-  const patients = getData('patients');
-  const patient = patients.find(p => p.id === patientId);
-  if (!patient) { showToast('Patient not found', 'error'); return; }
-
-  document.getElementById('fuPatientId').value = patientId;
-  document.getElementById('fuPatientName').value = patient.name;
-  document.getElementById('fuDate').value = '';
-  document.getElementById('fuNotes').value = '';
-
-  openModal('followupModal');
-}
-
-function saveFollowup(e) {
-  if (e) e.preventDefault();
-
-  const patientId = document.getElementById('fuPatientId').value;
-  const patients = getData('patients');
-  const patient = patients.find(p => p.id === patientId);
-
-  const followup = {
-    id: 'FU' + Date.now().toString(36).toUpperCase(),
-    patientId,
-    patientName: patient?.name || 'Unknown',
-    patientPhone: patient?.phone || '',
-    date: document.getElementById('fuDate').value,
-    time: document.getElementById('fuTime').value,
-    notes: document.getElementById('fuNotes').value.trim(),
-    status: 'pending',
-    createdAt: new Date().toISOString()
-  };
-
-  const followups = getData('followups');
-  followups.push(followup);
-  setData('followups', followups);
-
-  // Also create an appointment for the follow-up
-  const appointments = getData('appointments');
-  appointments.push({
-    id: 'A' + Date.now().toString(36).toUpperCase(),
-    patientId,
-    patientName: patient?.name || 'Unknown',
-    patientPhone: patient?.phone || '',
-    date: followup.date,
-    time: followup.time,
-    service: 'Follow-up Visit',
-    complaint: followup.notes,
-    status: 'pending',
-    createdAt: new Date().toISOString()
-  });
-  setData('appointments', appointments);
-
-  closeModal('followupModal');
-  loadFollowups();
-  loadAppointments();
-  loadOverview();
-  renderDashCalendar();
-  showToast('Follow-up scheduled successfully!', 'success');
-
-  return followup;
-}
-
-function saveFollowupAndWhatsApp() {
-  const patientId = document.getElementById('fuPatientId').value;
-  const patients = getData('patients');
-  const patient = patients.find(p => p.id === patientId);
-  if (!patient) return;
-
-  const fu = saveFollowup();
-  if (!fu) return;
-
-  const msg = `Dear ${patient.name},\n\nThis is a reminder from Dr. Aarti Physio Clinic.\n\nYour follow-up visit is scheduled:\nDate: ${formatDateFull(fu.date)}${fu.time ? '\nTime: ' + fu.time : ''}\nReason: ${fu.notes}\n\nClinic Address: Bus Stop, No.454, LIC Siva Complex, Vannakoil, Periyanaickenpalayam, Tamil Nadu 641047\n\nFor queries: +91 98432 22137\n\nThank you!`;
-
-  openWhatsApp(patient.phone, msg);
-}
-
-function loadFollowups(filter = 'pending') {
-  const followups = getData('followups');
-  const tbody = document.getElementById('followupsTableBody');
-  if (!tbody) return;
-
-  let filtered = followups;
-  if (filter === 'pending') filtered = followups.filter(f => f.status === 'pending');
-  else if (filter === 'completed') filtered = followups.filter(f => f.status === 'completed');
-
-  filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-light);padding:40px;">No follow-ups found</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(f => `
-    <tr>
-      <td><strong>${f.patientName}</strong></td>
-      <td>${formatDate(f.date)} ${f.time ? 'at ' + f.time : ''}</td>
-      <td>${f.notes}</td>
-      <td>
-        <select onchange="updateFollowupStatus('${f.id}', this.value)" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:0.82rem;font-family:'DM Sans',sans-serif;">
-          <option value="pending" ${f.status === 'pending' ? 'selected' : ''}>Pending</option>
-          <option value="completed" ${f.status === 'completed' ? 'selected' : ''}>Completed</option>
-        </select>
-      </td>
-      <td>
-        <button class="action-btn view" title="View Patient" onclick="viewPatientById('${f.patientId}')"><i class="fas fa-eye"></i></button>
-        <button class="action-btn whatsapp" title="Remind via WhatsApp" onclick="sendFollowupReminder('${f.id}')"><i class="fab fa-whatsapp"></i></button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-function filterFollowups() {
-  const filter = document.getElementById('followupFilter')?.value || 'pending';
-  loadFollowups(filter);
-}
-
-function updateFollowupStatus(fuId, status) {
-  const followups = getData('followups');
-  const idx = followups.findIndex(f => f.id === fuId);
-  if (idx >= 0) {
-    followups[idx].status = status;
-    setData('followups', followups);
-    showToast(`Follow-up marked as ${status}`, 'success');
-    loadFollowups();
-    loadOverview();
-  }
-}
-
-function sendFollowupReminder(fuId) {
-  const followups = getData('followups');
-  const fu = followups.find(f => f.id === fuId);
-  if (!fu) return;
-
-  const msg = `Dear ${fu.patientName},\n\nGentle reminder from Dr. Aarti Physio Clinic.\n\nYour follow-up visit is scheduled:\nDate: ${formatDateFull(fu.date)}${fu.time ? '\nTime: ' + fu.time : ''}\nReason: ${fu.notes}\n\nClinic: Bus Stop, No.454, LIC Siva Complex, Vannakoil, Periyanaickenpalayam, TN 641047\nPhone: +91 98432 22137\n\nSee you soon!`;
-
-  openWhatsApp(fu.patientPhone, msg);
-}
-
-// ===== WHATSAPP HELPER =====
-function sendWhatsAppToPatient(patientId) {
-  const patients = getData('patients');
-  const patient = patients.find(p => p.id === patientId);
-  if (!patient) { showToast('Patient not found', 'error'); return; }
-
-  const msg = `Hello ${patient.name},\n\nThis is Dr. Aarti from Dr. Aarti Physio Clinic, Periyanaickenpalayam.\n\nHow are you feeling? Please let us know if you need any assistance.\n\nContact: +91 98432 22137`;
-
-  openWhatsApp(patient.phone, msg);
-}
-
-// ===== UTILITY =====
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}

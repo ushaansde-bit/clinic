@@ -3,483 +3,395 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Doctor Dashboard | Shree Physiotherapy Clinic</title>
+  <title>Dashboard | Shree Physiotherapy Clinic</title>
 
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- NAVBAR -->
+  <!-- ===== NAVBAR ===== -->
   <nav class="navbar" id="navbar">
     <div class="nav-container">
       <a href="index.html" class="nav-logo">
-        <img src="a1.jpg" alt="Shree Physiotherapy Clinic" class="logo-img">
-        <div class="logo-text-group">
-          <span class="logo-title">Shree Physiotherapy</span>
-          <span class="logo-sub">Dr. Aarti Ganesh</span>
-        </div>
+        <div class="logo-icon"><i class="fas fa-spa"></i></div>
+        <span class="logo-text"><span>Shree</span> Physiotherapy</span>
       </a>
+
       <ul class="nav-links" id="navLinks">
-        <li><a href="index.html#about">Meet Dr. Aarti</a></li>
-        <li><a href="index.html#services">Our Therapies</a></li>
-        <li><a href="reviews.html">Patient Voices</a></li>
-        <li><a href="index.html#contact">Connect With Us</a></li>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#services">Services</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
       </ul>
+
       <div class="nav-cta">
-        <a href="https://www.instagram.com/dr.aarti.physio" target="_blank" class="nav-insta" title="Instagram"><i class="fab fa-instagram"></i></a>
         <a href="book.html" class="btn btn-primary btn-nav"><i class="fas fa-calendar-check"></i> Book Now</a>
       </div>
-      <div class="hamburger" onclick="toggleMobileMenu()">
+
+      <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
         <span></span><span></span><span></span>
       </div>
     </div>
   </nav>
 
+  <!-- ===== DASHBOARD LAYOUT ===== -->
   <div class="dashboard-layout">
-    <!-- SIDEBAR -->
+
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h3>Dashboard</h3>
-        <p>Dr. Aarti Ganesh</p>
+        <h3><i class="fas fa-stethoscope"></i> Dashboard</h3>
       </div>
       <nav class="sidebar-nav">
-        <a href="#" class="active" onclick="showTab('overview')">
-          <span class="nav-icon"><i class="fas fa-chart-pie"></i></span> Overview
+        <a href="#" class="active" onclick="switchTab('overview'); return false;">
+          <span class="nav-icon"><i class="fas fa-chart-line"></i></span> Overview
         </a>
-        <a href="#" onclick="showTab('patients')">
+        <a href="#" onclick="switchTab('patients'); return false;">
           <span class="nav-icon"><i class="fas fa-users"></i></span> Patients
         </a>
-        <a href="#" onclick="showTab('appointments')">
-          <span class="nav-icon"><i class="fas fa-calendar"></i></span> Appointments
+        <a href="#" onclick="switchTab('appointments'); return false;">
+          <span class="nav-icon"><i class="fas fa-calendar-check"></i></span> Appointments
         </a>
-        <a href="#" onclick="showTab('calendar')">
-          <span class="nav-icon"><i class="fas fa-calendar-alt"></i></span> Calendar View
+        <a href="#" onclick="switchTab('calendar'); return false;">
+          <span class="nav-icon"><i class="fas fa-calendar"></i></span> Calendar View
         </a>
-        <a href="#" onclick="showTab('prescriptions')">
+        <a href="#" onclick="switchTab('prescriptions'); return false;">
           <span class="nav-icon"><i class="fas fa-file-prescription"></i></span> Prescriptions
         </a>
-        <a href="#" onclick="showTab('followups')">
-          <span class="nav-icon"><i class="fas fa-redo"></i></span> Follow-ups
+        <a href="#" onclick="switchTab('followups'); return false;">
+          <span class="nav-icon"><i class="fas fa-bell"></i></span> Follow-ups
         </a>
       </nav>
     </aside>
 
-    <!-- MAIN CONTENT -->
-    <main class="dashboard-main">
+    <!-- Main Content -->
+    <main class="dashboard-main main-content">
 
-      <!-- ===== OVERVIEW TAB ===== -->
+      <!-- TAB: Overview -->
       <div id="tab-overview" class="tab-content">
-        <div class="dashboard-header">
-          <h1>Welcome, Dr. Aarti</h1>
-          <div style="display:flex;gap:12px;">
-            <button class="btn btn-primary" onclick="showTab('appointments')"><i class="fas fa-calendar-check"></i> Today's Appointments</button>
-          </div>
-        </div>
-
-        <div class="dashboard-stats">
+        <h2 style="font-size:1.8rem; margin-bottom:28px;">Dashboard Overview</h2>
+        <div class="dashboard-stats stat-cards">
           <div class="stat-card">
             <div class="stat-icon teal"><i class="fas fa-users"></i></div>
             <div class="stat-info">
-              <h3 id="totalPatients">0</h3>
+              <h3><span id="statPatients">0</span></h3>
               <p>Total Patients</p>
             </div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon gold"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-icon gold"><i class="fas fa-calendar"></i></div>
             <div class="stat-info">
-              <h3 id="todayAppointments">0</h3>
+              <h3><span id="statToday">0</span></h3>
               <p>Today's Appointments</p>
             </div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon blue"><i class="fas fa-file-prescription"></i></div>
+            <div class="stat-icon green"><i class="fas fa-file-prescription"></i></div>
             <div class="stat-info">
-              <h3 id="totalPrescriptions">0</h3>
+              <h3><span id="statPrescriptions">0</span></h3>
               <p>Prescriptions</p>
             </div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon green"><i class="fas fa-redo"></i></div>
+            <div class="stat-icon" style="background:rgba(249,115,22,0.1); color:#F97316;"><i class="fas fa-bell"></i></div>
             <div class="stat-info">
-              <h3 id="pendingFollowups">0</h3>
+              <h3><span id="statFollowups">0</span></h3>
               <p>Pending Follow-ups</p>
             </div>
           </div>
         </div>
-
-        <!-- Recent Appointments -->
-        <div class="dashboard-card">
-          <div class="dashboard-card-header">
-            <h3>Recent Appointments</h3>
-            <button class="btn btn-outline" onclick="showTab('appointments')" style="padding:8px 16px; font-size:0.82rem;">View All</button>
-          </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Patient</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Service</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="recentAppointmentsBody">
-              <tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:40px;">No appointments yet</td></tr>
-            </tbody>
-          </table>
-        </div>
       </div>
 
-      <!-- ===== PATIENTS TAB ===== -->
+      <!-- TAB: Patients -->
       <div id="tab-patients" class="tab-content" style="display:none;">
-        <div class="dashboard-header">
-          <h1>Patient Records</h1>
-          <button class="btn btn-primary" onclick="openModal('addPatientModal')"><i class="fas fa-user-plus"></i> Add Patient</button>
-        </div>
-
-        <div class="dashboard-card">
-          <div class="dashboard-card-header">
-            <h3>All Patients</h3>
+        <div class="dashboard-card-header" style="margin-bottom:24px;">
+          <h2 style="font-size:1.8rem;">Patient Records</h2>
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
             <div class="search-input">
               <i class="fas fa-search" style="color:var(--text-light);"></i>
-              <input type="text" id="patientSearch" placeholder="Search patients..." oninput="filterPatients()">
+              <input type="text" id="patientSearch" placeholder="Search patients...">
             </div>
+            <button class="btn btn-primary" onclick="openModal('addPatientModal')" style="padding:10px 20px; font-size:0.88rem;">
+              <i class="fas fa-plus"></i> Add Patient
+            </button>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Age / Gender</th>
-                <th>Phone</th>
-                <th>Last Visit</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="patientsTableBody">
-              <tr><td colspan="7" style="text-align:center;color:var(--text-light);padding:40px;">No patients yet. Appointments will create patient records automatically.</td></tr>
-            </tbody>
-          </table>
+        </div>
+        <div class="dashboard-card">
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="patientsTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>Gender</th>
+                  <th>Phone</th>
+                  <th>Visits</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- ===== APPOINTMENTS TAB ===== -->
+      <!-- TAB: Appointments -->
       <div id="tab-appointments" class="tab-content" style="display:none;">
-        <div class="dashboard-header">
-          <h1>Appointments</h1>
-          <div style="display:flex;gap:12px;align-items:center;">
-            <select id="appointmentFilter" onchange="filterAppointments()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;">
-              <option value="all">All Appointments</option>
-              <option value="today">Today</option>
-              <option value="upcoming">Upcoming</option>
-              <option value="completed">Completed</option>
-            </select>
+        <div class="dashboard-card-header" style="margin-bottom:24px;">
+          <h2 style="font-size:1.8rem;">Appointments</h2>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <input type="date" id="appointmentFilter" style="padding:8px 14px; border:1px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.88rem; background:var(--white);">
           </div>
         </div>
-
         <div class="dashboard-card">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Patient</th>
-                <th>Phone</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Service</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="appointmentsTableBody">
-              <tr><td colspan="7" style="text-align:center;color:var(--text-light);padding:40px;">No appointments found</td></tr>
-            </tbody>
-          </table>
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="appointmentsTable">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Service</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- ===== CALENDAR TAB ===== -->
+      <!-- TAB: Calendar View -->
       <div id="tab-calendar" class="tab-content" style="display:none;">
-        <div class="dashboard-header">
-          <h1>Calendar View</h1>
-        </div>
-
+        <h2 style="font-size:1.8rem; margin-bottom:28px;">Calendar View</h2>
         <div class="dashboard-card">
-          <div class="calendar-wrapper" style="background:var(--white);">
-            <div class="calendar-header">
-              <h3 id="dashCalendarMonthYear">January 2025</h3>
-              <div class="calendar-nav">
-                <button onclick="changeDashMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-                <button onclick="changeDashMonth(1)"><i class="fas fa-chevron-right"></i></button>
-              </div>
+          <div class="calendar-header">
+            <h3 id="dashCalendarMonth"></h3>
+            <div class="calendar-nav">
+              <button onclick="changeDashMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+              <button onclick="changeDashMonth(1)"><i class="fas fa-chevron-right"></i></button>
             </div>
-            <div class="calendar-days-header">
-              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-            </div>
-            <div class="calendar-grid" id="dashCalendarGrid"></div>
           </div>
-
-          <div id="dayAppointments" style="margin-top:24px; display:none;">
-            <h4 style="font-family:'DM Sans',sans-serif; margin-bottom:16px;">Appointments on <span id="dayAppointmentsDate"></span></h4>
-            <div id="dayAppointmentsList"></div>
+          <div class="calendar-days-header">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
           </div>
+          <div class="calendar-grid" id="dashCalendarGrid"></div>
         </div>
       </div>
 
-      <!-- ===== PRESCRIPTIONS TAB ===== -->
+      <!-- TAB: Prescriptions -->
       <div id="tab-prescriptions" class="tab-content" style="display:none;">
-        <div class="dashboard-header">
-          <h1>Prescriptions</h1>
-        </div>
-
-        <div class="dashboard-card">
-          <div class="dashboard-card-header">
-            <h3>All Prescriptions</h3>
-            <div class="search-input">
-              <i class="fas fa-search" style="color:var(--text-light);"></i>
-              <input type="text" id="prescriptionSearch" placeholder="Search prescriptions..." oninput="filterPrescriptions()">
-            </div>
+        <div class="dashboard-card-header" style="margin-bottom:24px;">
+          <h2 style="font-size:1.8rem;">Prescriptions</h2>
+          <div class="search-input">
+            <i class="fas fa-search" style="color:var(--text-light);"></i>
+            <input type="text" id="prescriptionSearch" placeholder="Search prescriptions...">
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Patient</th>
-                <th>Diagnosis</th>
-                <th>Treatment Plan</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="prescriptionsTableBody">
-              <tr><td colspan="5" style="text-align:center;color:var(--text-light);padding:40px;">No prescriptions yet</td></tr>
-            </tbody>
-          </table>
+        </div>
+        <div class="dashboard-card">
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="prescriptionsTable">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Date</th>
+                  <th>Diagnosis</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <!-- ===== FOLLOW-UPS TAB ===== -->
+      <!-- TAB: Follow-ups -->
       <div id="tab-followups" class="tab-content" style="display:none;">
-        <div class="dashboard-header">
-          <h1>Follow-ups</h1>
-        </div>
-
-        <div class="dashboard-card">
-          <div class="dashboard-card-header">
-            <h3>Scheduled Follow-ups</h3>
-            <select id="followupFilter" onchange="filterFollowups()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;">
-              <option value="pending">Pending</option>
+        <div class="dashboard-card-header" style="margin-bottom:24px;">
+          <h2 style="font-size:1.8rem;">Follow-ups</h2>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <select id="followupFilter" style="padding:8px 14px; border:1px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.88rem; background:var(--white);">
               <option value="all">All</option>
-              <option value="completed">Completed</option>
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
             </select>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Patient</th>
-                <th>Follow-up Date</th>
-                <th>Notes</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="followupsTableBody">
-              <tr><td colspan="5" style="text-align:center;color:var(--text-light);padding:40px;">No follow-ups scheduled</td></tr>
-            </tbody>
-          </table>
+        </div>
+        <div class="dashboard-card">
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="followupsTable">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Date</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
     </main>
   </div>
 
-  <!-- ===== ADD PATIENT MODAL ===== -->
+  <!-- ===== MODALS ===== -->
+
+  <!-- Add Patient Modal -->
   <div class="modal-overlay" id="addPatientModal">
     <div class="modal">
-      <button class="modal-close" onclick="closeModal('addPatientModal')">&times;</button>
-      <h2><i class="fas fa-user-plus" style="color:var(--primary);margin-right:8px;"></i>Add New Patient</h2>
-
-      <form onsubmit="addPatientManual(event)">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Full Name *</label>
-            <input type="text" id="mpName" required placeholder="Patient name">
-          </div>
-          <div class="form-group">
-            <label>Age *</label>
-            <input type="number" id="mpAge" required min="1" max="120">
-          </div>
+      <button class="modal-close" onclick="closeModal('addPatientModal')"><i class="fas fa-times"></i></button>
+      <h2>Add New Patient</h2>
+      <form onsubmit="addPatient(event)">
+        <div class="form-group">
+          <label for="ptName">Full Name *</label>
+          <input type="text" id="ptName" required placeholder="Patient full name">
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Gender *</label>
-            <select id="mpGender" required>
-              <option value="">Select</option>
-              <option value="Female">Female</option>
+            <label for="ptAge">Age *</label>
+            <input type="number" id="ptAge" required min="1" max="120" placeholder="Age">
+          </div>
+          <div class="form-group">
+            <label for="ptGender">Gender *</label>
+            <select id="ptGender" required>
+              <option value="">Select Gender</option>
               <option value="Male">Male</option>
+              <option value="Female">Female</option>
               <option value="Other">Other</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>Phone *</label>
-            <input type="tel" id="mpPhone" required placeholder="+91 XXXXX XXXXX">
-          </div>
         </div>
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="mpEmail" placeholder="email@example.com">
+          <label for="ptPhone">Phone *</label>
+          <input type="tel" id="ptPhone" required placeholder="Phone number">
         </div>
         <div class="form-group">
-          <label>Address</label>
-          <input type="text" id="mpAddress" placeholder="Address">
+          <label for="ptEmail">Email</label>
+          <input type="email" id="ptEmail" placeholder="Email address (optional)">
         </div>
         <div class="form-group">
-          <label>Medical History</label>
-          <textarea id="mpHistory" placeholder="Any existing conditions..."></textarea>
+          <label for="ptAddress">Address</label>
+          <textarea id="ptAddress" rows="3" placeholder="Full address"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
           <i class="fas fa-save"></i> Save Patient
         </button>
       </form>
     </div>
   </div>
 
-  <!-- ===== VIEW PATIENT MODAL ===== -->
+  <!-- View Patient Modal -->
   <div class="modal-overlay" id="viewPatientModal">
     <div class="modal" style="max-width:700px;">
-      <button class="modal-close" onclick="closeModal('viewPatientModal')">&times;</button>
-      <h2><i class="fas fa-user" style="color:var(--primary);margin-right:8px;"></i>Patient Details</h2>
-
-      <div id="patientDetailContent">
-        <!-- Populated by JS -->
+      <button class="modal-close" onclick="closeModal('viewPatientModal')"><i class="fas fa-times"></i></button>
+      <h2>Patient Details</h2>
+      <div id="patientDetails" style="margin-bottom:24px;"></div>
+      <h3 style="font-size:1.1rem; margin-bottom:12px;">Visit History</h3>
+      <div id="visitHistory" style="margin-bottom:24px;"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btnWriteRx" style="padding:10px 20px; font-size:0.85rem;">
+          <i class="fas fa-file-prescription"></i> Write Prescription
+        </button>
+        <button class="btn btn-secondary" id="btnScheduleFu" style="padding:10px 20px; font-size:0.85rem;">
+          <i class="fas fa-bell"></i> Schedule Follow-up
+        </button>
+        <button class="btn btn-whatsapp" id="btnPatientWa" style="padding:10px 20px; font-size:0.85rem;">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- ===== PRESCRIPTION MODAL ===== -->
+  <!-- Write Prescription Modal -->
   <div class="modal-overlay" id="prescriptionModal">
-    <div class="modal" style="max-width:700px;">
-      <button class="modal-close" onclick="closeModal('prescriptionModal')">&times;</button>
-      <h2><i class="fas fa-file-prescription" style="color:var(--primary);margin-right:8px;"></i>Write Prescription</h2>
-
+    <div class="modal" style="max-width:650px;">
+      <button class="modal-close" onclick="closeModal('prescriptionModal')"><i class="fas fa-times"></i></button>
+      <h2>Write Prescription</h2>
+      <p style="color:var(--primary); font-weight:600; margin-bottom:20px;" id="rxPatientName"></p>
       <form onsubmit="savePrescription(event)">
         <input type="hidden" id="rxPatientId">
         <div class="form-group">
-          <label>Patient</label>
-          <input type="text" id="rxPatientName" readonly style="background:var(--light);">
+          <label for="rxDiagnosis">Diagnosis *</label>
+          <textarea id="rxDiagnosis" rows="3" required placeholder="Primary diagnosis and findings..."></textarea>
         </div>
         <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="rxDate" required>
+          <label for="rxTreatment">Treatment Plan *</label>
+          <textarea id="rxTreatment" rows="3" required placeholder="Treatment protocol, modalities, frequency..."></textarea>
         </div>
         <div class="form-group">
-          <label>Diagnosis *</label>
-          <textarea id="rxDiagnosis" required placeholder="Enter diagnosis..."></textarea>
+          <label for="rxMedications">Medications</label>
+          <textarea id="rxMedications" rows="3" placeholder="Medicines, dosage, duration..."></textarea>
         </div>
         <div class="form-group">
-          <label>Treatment Plan *</label>
-          <textarea id="rxTreatment" required placeholder="Treatment details, exercises, therapy plan..."></textarea>
+          <label for="rxInstructions">Instructions</label>
+          <textarea id="rxInstructions" rows="3" placeholder="Home exercises, precautions, lifestyle changes..."></textarea>
         </div>
-        <div class="form-group">
-          <label>Medications (if any)</label>
-          <textarea id="rxMedications" placeholder="Medication name, dosage, frequency..."></textarea>
-        </div>
-        <div class="form-group">
-          <label>Special Instructions</label>
-          <textarea id="rxInstructions" placeholder="Home exercises, precautions, lifestyle changes..."></textarea>
-        </div>
-
-        <div style="border-top:1px solid var(--border);padding-top:20px;margin-top:8px;">
-          <h4 style="font-family:'DM Sans',sans-serif;margin-bottom:16px;color:var(--primary);">
-            <i class="fas fa-redo"></i> Schedule Follow-up
-          </h4>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Follow-up Date</label>
-              <input type="date" id="rxFollowupDate">
-            </div>
-            <div class="form-group">
-              <label>Follow-up Notes</label>
-              <input type="text" id="rxFollowupNotes" placeholder="Reason for follow-up">
-            </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="rxFollowupDate">Follow-up Date (optional)</label>
+            <input type="date" id="rxFollowupDate">
+          </div>
+          <div class="form-group">
+            <label for="rxFollowupReason">Follow-up Reason</label>
+            <input type="text" id="rxFollowupReason" placeholder="Reason for follow-up">
           </div>
         </div>
-
-        <div style="display:flex;gap:12px;margin-top:16px;">
-          <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;">
-            <i class="fas fa-save"></i> Save Prescription
-          </button>
-          <button type="button" class="btn btn-whatsapp" style="flex:1;justify-content:center;" onclick="savePrescriptionAndWhatsApp()">
-            <i class="fab fa-whatsapp"></i> Save & Send via WhatsApp
-          </button>
-        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+          <i class="fas fa-save"></i> Save Prescription
+        </button>
       </form>
     </div>
   </div>
 
-  <!-- ===== FOLLOW-UP MODAL ===== -->
+  <!-- Schedule Follow-up Modal -->
   <div class="modal-overlay" id="followupModal">
     <div class="modal">
-      <button class="modal-close" onclick="closeModal('followupModal')">&times;</button>
-      <h2><i class="fas fa-redo" style="color:var(--primary);margin-right:8px;"></i>Schedule Follow-up</h2>
-
+      <button class="modal-close" onclick="closeModal('followupModal')"><i class="fas fa-times"></i></button>
+      <h2>Schedule Follow-up</h2>
+      <p style="color:var(--primary); font-weight:600; margin-bottom:20px;" id="fuPatientName"></p>
       <form onsubmit="saveFollowup(event)">
         <input type="hidden" id="fuPatientId">
         <div class="form-group">
-          <label>Patient</label>
-          <input type="text" id="fuPatientName" readonly style="background:var(--light);">
-        </div>
-        <div class="form-group">
-          <label>Follow-up Date *</label>
+          <label for="fuDate">Follow-up Date *</label>
           <input type="date" id="fuDate" required>
         </div>
         <div class="form-group">
-          <label>Preferred Time</label>
-          <select id="fuTime">
-            <option value="09:00 AM">09:00 AM</option>
-            <option value="09:30 AM">09:30 AM</option>
-            <option value="10:00 AM">10:00 AM</option>
-            <option value="10:30 AM">10:30 AM</option>
-            <option value="11:00 AM">11:00 AM</option>
-            <option value="11:30 AM">11:30 AM</option>
-            <option value="12:00 PM">12:00 PM</option>
-            <option value="02:00 PM">02:00 PM</option>
-            <option value="02:30 PM">02:30 PM</option>
-            <option value="03:00 PM">03:00 PM</option>
-            <option value="03:30 PM">03:30 PM</option>
-            <option value="04:00 PM">04:00 PM</option>
-            <option value="04:30 PM">04:30 PM</option>
-            <option value="05:00 PM">05:00 PM</option>
-            <option value="05:30 PM">05:30 PM</option>
-            <option value="06:00 PM">06:00 PM</option>
-          </select>
+          <label for="fuReason">Reason *</label>
+          <input type="text" id="fuReason" required placeholder="Reason for follow-up">
         </div>
         <div class="form-group">
-          <label>Notes *</label>
-          <textarea id="fuNotes" required placeholder="Reason for follow-up, what to check..."></textarea>
+          <label for="fuNotes">Notes</label>
+          <textarea id="fuNotes" rows="3" placeholder="Additional notes..."></textarea>
         </div>
-
-        <div style="display:flex;gap:12px;">
-          <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;">
-            <i class="fas fa-save"></i> Save Follow-up
-          </button>
-          <button type="button" class="btn btn-whatsapp" style="flex:1;justify-content:center;" onclick="saveFollowupAndWhatsApp()">
-            <i class="fab fa-whatsapp"></i> Save & Notify Patient
-          </button>
-        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+          <i class="fas fa-calendar-plus"></i> Schedule Follow-up
+        </button>
       </form>
     </div>
   </div>
 
-  <!-- TOAST -->
+  <!-- Toast -->
   <div class="toast" id="toast">
-    <i class="fas fa-info-circle"></i>
-    <span id="toastMessage">Notification</span>
+    <span id="toastMessage"></span>
   </div>
+
+  <!-- WhatsApp Float -->
+  <a href="https://wa.me/919092294466?text=Hi%20Dr.%20Aarti%2C%20I%20would%20like%20to%20enquire%20about%20physiotherapy%20treatment." target="_blank" class="whatsapp-float">
+    <i class="fab fa-whatsapp"></i>
+    <span class="tooltip">Chat with us!</span>
+  </a>
 
   <script src="js/main.js"></script>
   <script src="js/dashboard.js"></script>
