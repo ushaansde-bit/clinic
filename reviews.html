@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Feedback | Shree Physiotherapy Clinic</title>
+  <meta name="description" content="Share your experience at Shree Physiotherapy Clinic. Read patient reviews and feedback for Dr. Aarti Ganesh, Periyanaickenpalayam, Coimbatore.">
+  <meta name="keywords" content="shree physiotherapy clinic reviews, Dr Aarti Ganesh reviews, physiotherapy feedback coimbatore, patient testimonials physiotherapy, best physiotherapist reviews periyanaickenpalayam">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <img src="a1.jpg" alt="Shree Physiotherapy Clinic" class="logo-img">
+        <div class="logo-text-group">
+          <span class="logo-title">Shree Physiotherapy</span>
+          <span class="logo-sub">Dr. Aarti Ganesh</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html#about">Meet Dr. Aarti</a></li>
+        <li><a href="index.html#services">Our Therapies</a></li>
+        <li><a href="index.html#testimonials">Success Stories</a></li>
+        <li><a href="blog.html">Health Insights</a></li>
+        <li><a href="reviews.html" class="active">Patient Voices</a></li>
+        <li><a href="index.html#contact">Connect With Us</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="https://www.instagram.com/dr.aarti.physio" target="_blank" class="nav-insta" title="Follow @dr.aarti.physio"><i class="fab fa-instagram"></i></a>
+        <a href="book.html" class="btn btn-primary btn-nav"><i class="fas fa-calendar-check"></i> Book Now</a>
+      </div>
+      <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>Patient Feedback</h1>
+      <p>Your voice matters. Share your recovery experience at Shree Physiotherapy Clinic.</p>
+    </div>
+  </div>
+
+  <section class="reviews-section section-padding">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="tag">Your Experience</span>
+        <h2>Share Your Recovery Story</h2>
+        <p>Help others discover the care and expertise at Shree Physiotherapy Clinic by sharing your feedback.</p>
+      </div>
+
+      <!-- Existing Reviews Display -->
+      <div class="reviews-grid" id="reviewsGrid">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Write a Review -->
+      <div class="review-form-wrapper fade-in">
+        <div class="review-form-card">
+          <h3><i class="fas fa-pen" style="color:var(--primary);margin-right:8px;"></i> Write Your Feedback</h3>
+          <form id="reviewForm" onsubmit="submitReview(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="reviewName">Your Name *</label>
+                <input type="text" id="reviewName" required placeholder="Your name">
+              </div>
+              <div class="form-group">
+                <label>Your Rating *</label>
+                <div class="star-rating" id="starRating">
+                  <span class="star" data-value="1">&#9733;</span>
+                  <span class="star" data-value="2">&#9733;</span>
+                  <span class="star" data-value="3">&#9733;</span>
+                  <span class="star" data-value="4">&#9733;</span>
+                  <span class="star" data-value="5">&#9733;</span>
+                </div>
+                <input type="hidden" id="reviewRating" value="0">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="reviewService">Service Availed</label>
+              <select id="reviewService">
+                <option value="">Select Service</option>
+                <option value="Fascial Manipulation">Fascial Manipulation</option>
+                <option value="Orthopedic Rehabilitation">Orthopedic Rehabilitation</option>
+                <option value="Neuro Rehabilitation">Neuro Rehabilitation</option>
+                <option value="Women's Health Physio">Women's Health Physio</option>
+                <option value="Elderly Home Care">Elderly Home Care</option>
+                <option value="General Consultation">General Consultation</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="reviewText">Your Feedback *</label>
+              <textarea id="reviewText" required placeholder="Share your experience at Shree Physiotherapy Clinic..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+              <i class="fas fa-paper-plane"></i> Submit Feedback
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"><i class="fas fa-info-circle"></i><span id="toastMessage">Notification</span></div>
+
+  <a href="https://wa.me/919843222137?text=Hello%20Shree%20Physiotherapy%20Clinic,%20I%20would%20like%20to%20book%20an%20appointment." target="_blank" class="whatsapp-float">
+    <i class="fab fa-whatsapp"></i>
+    <span class="tooltip">Chat with Shree Physio</span>
+  </a>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

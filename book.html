@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Appointment | Shree Physiotherapy Clinic</title>
+  <meta name="description" content="Book your physiotherapy appointment with Dr. Aarti Ganesh at Shree Physiotherapy Clinic online.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <img src="a1.jpg" alt="Shree Physiotherapy Clinic" class="logo-img">
+        <div class="logo-text-group">
+          <span class="logo-title">Shree Physiotherapy</span>
+          <span class="logo-sub">Dr. Aarti Ganesh</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html#about">Meet Dr. Aarti</a></li>
+        <li><a href="index.html#services">Our Therapies</a></li>
+        <li><a href="index.html#testimonials">Success Stories</a></li>
+        <li><a href="blog.html">Health Insights</a></li>
+        <li><a href="reviews.html">Patient Voices</a></li>
+        <li><a href="index.html#contact">Connect With Us</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="https://www.instagram.com/dr.aarti.physio" target="_blank" class="nav-insta" title="Follow @dr.aarti.physio"><i class="fab fa-instagram"></i></a>
+        <a href="book.html" class="btn btn-primary btn-nav"><i class="fas fa-calendar-check"></i> Book Now</a>
+      </div>
+      <div class="hamburger" onclick="toggleMobileMenu()"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>Book Your Appointment at Shree Physiotherapy Clinic</h1>
+      <p>Select a date and time that works for you. We'll confirm your booking via WhatsApp.</p>
+    </div>
+  </div>
+
+  <section class="booking-section">
+    <div class="container">
+      <div class="booking-layout">
+        <div class="calendar-wrapper">
+          <div class="calendar-header">
+            <h3 id="calendarMonthYear">January 2025</h3>
+            <div class="calendar-nav">
+              <button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+              <button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="calendar-days-header">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+          <div class="time-slots" id="timeSlotsSection" style="display:none;">
+            <h4>Available Time Slots for <span id="selectedDateText"></span></h4>
+            <div class="time-slots-grid" id="timeSlotsGrid"></div>
+          </div>
+        </div>
+
+        <div class="patient-form">
+          <h3><i class="fas fa-user-plus" style="color:var(--primary);margin-right:8px;"></i>Patient Details</h3>
+          <form id="bookingForm" onsubmit="submitBooking(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="patientName">Full Name *</label>
+                <input type="text" id="patientName" required placeholder="Enter your full name">
+              </div>
+              <div class="form-group">
+                <label for="patientAge">Age *</label>
+                <input type="number" id="patientAge" required placeholder="Age" min="1" max="120">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="patientGender">Gender *</label>
+                <select id="patientGender" required>
+                  <option value="">Select Gender</option>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="patientPhone">Phone Number *</label>
+                <input type="tel" id="patientPhone" required placeholder="+91 XXXXX XXXXX" pattern="[0-9+\s-]{10,15}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="patientEmail">Email (Optional)</label>
+              <input type="email" id="patientEmail" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+              <label for="patientAddress">Address</label>
+              <input type="text" id="patientAddress" placeholder="Your address">
+            </div>
+            <div class="form-group">
+              <label for="serviceType">Service Required *</label>
+              <select id="serviceType" required>
+                <option value="">Select Service</option>
+                <option value="Fascial Manipulation">Fascial Manipulation</option>
+                <option value="Orthopedic Rehabilitation">Orthopedic Rehabilitation</option>
+                <option value="Neuro Rehabilitation">Neuro Rehabilitation</option>
+                <option value="Women's Health Physio">Women's Health Physio</option>
+                <option value="Elderly Home Care">Elderly Home Care</option>
+                <option value="Pediatric Physiotherapy">Pediatric Physiotherapy</option>
+                <option value="General Consultation">General Consultation</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="patientComplaint">Chief Complaint *</label>
+              <textarea id="patientComplaint" required placeholder="Describe your condition..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="medicalHistory">Medical History (Optional)</label>
+              <textarea id="medicalHistory" placeholder="Any existing conditions, surgeries, medications..."></textarea>
+            </div>
+            <div id="bookingSummary" style="display:none;background:rgba(42,125,111,0.05);padding:16px;border-radius:8px;margin-bottom:20px;border:1px solid rgba(42,125,111,0.15);">
+              <h4 style="font-family:'DM Sans',sans-serif;margin-bottom:8px;color:var(--primary);"><i class="fas fa-calendar-check"></i> Booking Summary</h4>
+              <p style="font-size:0.9rem;color:var(--text-light);">Date: <strong id="summaryDate">-</strong><br>Time: <strong id="summaryTime">-</strong></p>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="submitBtn" disabled>
+              <i class="fas fa-check-circle"></i> Confirm Appointment
+            </button>
+            <p style="text-align:center;margin-top:12px;font-size:0.82rem;color:var(--text-light);">You'll receive a WhatsApp confirmation after booking.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal-overlay" id="confirmationModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('confirmationModal')">&times;</button>
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:2rem;color:#22C55E;"><i class="fas fa-check-circle"></i></div>
+        <h2 style="font-size:1.5rem;color:var(--dark);">Appointment Booked!</h2>
+        <p style="color:var(--text-light);margin-top:8px;">Your appointment at Shree Physiotherapy Clinic has been successfully scheduled.</p>
+      </div>
+      <div style="background:var(--light);border-radius:12px;padding:20px;margin-bottom:24px;">
+        <div style="display:grid;gap:8px;font-size:0.9rem;">
+          <div><strong>Patient:</strong> <span id="confName"></span></div>
+          <div><strong>Date:</strong> <span id="confDate"></span></div>
+          <div><strong>Time:</strong> <span id="confTime"></span></div>
+          <div><strong>Service:</strong> <span id="confService"></span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <a id="whatsappConfirmLink" href="#" target="_blank" class="btn btn-whatsapp" style="flex:1;justify-content:center;"><i class="fab fa-whatsapp"></i> Confirm via WhatsApp</a>
+        <a href="index.html" class="btn btn-outline" style="flex:1;justify-content:center;"><i class="fas fa-home"></i> Go Home</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><i class="fas fa-info-circle"></i><span id="toastMessage">Notification</span></div>
+
+  <a href="https://wa.me/919843222137?text=Hello%20Shree%20Physiotherapy%20Clinic,%20I%20would%20like%20to%20book%20an%20appointment." target="_blank" class="whatsapp-float">
+    <i class="fab fa-whatsapp"></i>
+    <span class="tooltip">Chat with Shree Physio</span>
+  </a>
+
+  <script src="js/main.js"></script>
+  <script src="js/booking.js"></script>
+</body>
+</html>
