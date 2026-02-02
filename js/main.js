@@ -23,23 +23,33 @@
   /* ----------------------------------------------------------
      2. MOBILE MENU TOGGLE
      ---------------------------------------------------------- */
-  window.toggleMobileMenu = function () {
-    var navLinks = document.getElementById("navLinks");
-    if (navLinks) {
-      navLinks.classList.toggle("active");
-    }
-  };
+  function setupHamburger() {
+    var hamburger = document.getElementById("hamburger");
+    var navMenu = document.getElementById("navMenu");
+    if (!hamburger || !navMenu) return;
 
-  function setupMobileMenuClose() {
-    var navLinks = document.getElementById("navLinks");
-    if (!navLinks) return;
-    var links = navLinks.querySelectorAll("a");
+    hamburger.addEventListener("click", function () {
+      navMenu.classList.toggle("active");
+      hamburger.classList.toggle("active");
+    });
+
+    // Close menu on link click
+    var links = navMenu.querySelectorAll("a");
     links.forEach(function (link) {
       link.addEventListener("click", function () {
-        navLinks.classList.remove("active");
+        navMenu.classList.remove("active");
+        hamburger.classList.remove("active");
       });
     });
   }
+
+  // Legacy support for inline onclick
+  window.toggleMobileMenu = function () {
+    var navMenu = document.getElementById("navMenu");
+    var hamburger = document.getElementById("hamburger");
+    if (navMenu) navMenu.classList.toggle("active");
+    if (hamburger) hamburger.classList.toggle("active");
+  };
 
   /* ----------------------------------------------------------
      3. SMOOTH SCROLL
@@ -55,10 +65,7 @@
         var navbarOffset = 80;
         var targetPosition =
           target.getBoundingClientRect().top + window.pageYOffset - navbarOffset;
-        window.scrollTo({
-          top: targetPosition,
-          behavior: "smooth",
-        });
+        window.scrollTo({ top: targetPosition, behavior: "smooth" });
       });
     });
   }
@@ -88,7 +95,61 @@
   }
 
   /* ----------------------------------------------------------
-     5. TOAST NOTIFICATIONS
+     5. STAT COUNTER ANIMATION
+     ---------------------------------------------------------- */
+  function setupStatCounters() {
+    var counters = document.querySelectorAll("[data-count]");
+    if (counters.length === 0) return;
+
+    var observer = new IntersectionObserver(
+      function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+            obs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    counters.forEach(function (el) {
+      observer.observe(el);
+    });
+  }
+
+  function animateCounter(el) {
+    var target = parseInt(el.getAttribute("data-count"), 10);
+    var duration = 2000;
+    var start = 0;
+    var startTime = null;
+    var suffix = "";
+
+    if (target >= 1000) {
+      suffix = "+";
+    } else if (target === 98) {
+      suffix = "%";
+    } else if (target <= 15) {
+      suffix = "+";
+    }
+
+    function step(timestamp) {
+      if (!startTime) startTime = timestamp;
+      var progress = Math.min((timestamp - startTime) / duration, 1);
+      var current = Math.floor(progress * target);
+      el.textContent = current + suffix;
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = target + suffix;
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  /* ----------------------------------------------------------
+     6. TOAST NOTIFICATIONS
      ---------------------------------------------------------- */
   var toastTimeout = null;
 
@@ -109,7 +170,6 @@
       toast.classList.add(type);
     }
 
-    // Force reflow so re-adding 'show' triggers transition
     void toast.offsetWidth;
     toast.classList.add("show");
 
@@ -120,20 +180,16 @@
   };
 
   /* ----------------------------------------------------------
-     6. MODAL HELPERS
+     7. MODAL HELPERS
      ---------------------------------------------------------- */
   window.openModal = function (id) {
     var modal = document.getElementById(id);
-    if (modal) {
-      modal.classList.add("active");
-    }
+    if (modal) modal.classList.add("active");
   };
 
   window.closeModal = function (id) {
     var modal = document.getElementById(id);
-    if (modal) {
-      modal.classList.remove("active");
-    }
+    if (modal) modal.classList.remove("active");
   };
 
   function setupModalOverlayClose() {
@@ -148,7 +204,7 @@
   }
 
   /* ----------------------------------------------------------
-     7. LOCALSTORAGE HELPERS
+     8. LOCALSTORAGE HELPERS
      ---------------------------------------------------------- */
   window.getData = function (key) {
     try {
@@ -173,7 +229,7 @@
   };
 
   /* ----------------------------------------------------------
-     8. DATE FORMATTING
+     9. DATE FORMATTING
      ---------------------------------------------------------- */
   window.formatDate = function (date) {
     var d = new Date(date);
@@ -186,24 +242,14 @@
   window.formatDateFull = function (date) {
     var d = new Date(date);
     var months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December",
     ];
     return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
   };
 
   /* ----------------------------------------------------------
-     9. WHATSAPP HELPER
+     10. WHATSAPP HELPER
      ---------------------------------------------------------- */
   window.openWhatsApp = function (phone, message) {
     var p = phone || "919092294466";
@@ -216,17 +262,15 @@
   };
 
   /* ----------------------------------------------------------
-     10. GOOGLE REVIEWS SYSTEM
+     11. GOOGLE REVIEWS SYSTEM
      ---------------------------------------------------------- */
-
-  // Default reviews (hard-coded, never stored in localStorage)
   var DEFAULT_REVIEWS = [
     {
       id: "default_1",
       name: "Priya S",
       rating: 5,
       service: "Fascial Manipulation",
-      text: "Dr. Aarti's fascial manipulation therapy is incredible! I had been suffering from chronic shoulder pain for over two years and nothing seemed to help. After just a few sessions, I felt a remarkable improvement. Her deep understanding of the fascial system and gentle yet effective approach made all the difference. Highly recommend Shree Physiotherapy to anyone dealing with persistent pain.",
+      text: "Dr. Aarthi's fascial manipulation therapy is incredible! I had been suffering from chronic shoulder pain for over two years and nothing seemed to help. After just a few sessions, I felt a remarkable improvement. Her deep understanding of the fascial system and gentle yet effective approach made all the difference. Highly recommend Shree Physiotherapy to anyone dealing with persistent pain.",
       date: "2025-01-15",
     },
     {
@@ -242,7 +286,7 @@
       name: "Lakshmi R",
       rating: 5,
       service: "Women's Health Physio",
-      text: "As a woman, I was looking for a female physiotherapist who truly understands women's health issues. Dr. Aarti provided exceptional care for my postpartum recovery. She was patient, knowledgeable, and created a safe, comfortable environment. Her pelvic floor rehabilitation programme gave me my confidence back. I cannot thank her enough.",
+      text: "As a woman, I was looking for a female physiotherapist who truly understands women's health issues. Dr. Aarthi provided exceptional care for my postpartum recovery. She was patient, knowledgeable, and created a safe, comfortable environment. Her pelvic floor rehabilitation programme gave me my confidence back. I cannot thank her enough.",
       date: "2025-03-10",
     },
     {
@@ -261,9 +305,8 @@
     var starRating = document.getElementById("starRating");
     if (!starRating) return;
 
-    var stars = starRating.querySelectorAll("span, i, .star");
+    var stars = starRating.querySelectorAll("i, .star");
 
-    // If the container has no child star elements, create them
     if (stars.length === 0) {
       starRating.innerHTML = "";
       for (var i = 1; i <= 5; i++) {
@@ -281,19 +324,14 @@
     }
 
     stars.forEach(function (star) {
-      // Click to select rating
       star.addEventListener("click", function () {
-        selectedRating = parseInt(this.getAttribute("data-value"), 10);
+        selectedRating = parseInt(this.getAttribute("data-rating") || this.getAttribute("data-value"), 10);
         highlightStars(stars, selectedRating);
       });
-
-      // Hover preview
       star.addEventListener("mouseenter", function () {
-        var hoverVal = parseInt(this.getAttribute("data-value"), 10);
+        var hoverVal = parseInt(this.getAttribute("data-rating") || this.getAttribute("data-value"), 10);
         highlightStars(stars, hoverVal);
       });
-
-      // Mouse leave - revert to selected
       star.addEventListener("mouseleave", function () {
         highlightStars(stars, selectedRating);
       });
@@ -302,7 +340,7 @@
 
   function highlightStars(stars, count) {
     stars.forEach(function (star) {
-      var val = parseInt(star.getAttribute("data-value"), 10);
+      var val = parseInt(star.getAttribute("data-rating") || star.getAttribute("data-value"), 10);
       if (val <= count) {
         star.style.color = "#f5a623";
         star.classList.add("active");
@@ -336,7 +374,6 @@
     var userReviews = getData("reviews");
     var allReviews = DEFAULT_REVIEWS.concat(userReviews);
 
-    // Sort by date descending (newest first)
     allReviews.sort(function (a, b) {
       return new Date(b.date) - new Date(a.date);
     });
@@ -349,16 +386,10 @@
 
       card.innerHTML =
         '<div class="review-header">' +
-        '  <div class="review-avatar">' +
-        getInitial(review.name) +
-        "</div>" +
+        '  <div class="review-avatar">' + getInitial(review.name) + "</div>" +
         '  <div class="review-info">' +
-        '    <h4 class="review-name">' +
-        escapeHTML(review.name) +
-        "</h4>" +
-        '    <div class="review-stars">' +
-        buildStarsHTML(review.rating) +
-        "</div>" +
+        '    <h4 class="review-name">' + escapeHTML(review.name) + "</h4>" +
+        '    <div class="review-stars">' + buildStarsHTML(review.rating) + "</div>" +
         "  </div>" +
         '  <div class="google-badge">' +
         '    <svg viewBox="0 0 24 24" width="20" height="20">' +
@@ -369,20 +400,14 @@
         "    </svg>" +
         "  </div>" +
         "</div>" +
-        '<span class="review-service">' +
-        escapeHTML(review.service) +
-        "</span>" +
-        '<p class="review-text">' +
-        escapeHTML(review.text) +
-        "</p>" +
-        '<span class="review-date">' +
-        formatDateFull(review.date) +
-        "</span>";
+        '<span class="review-service">' + escapeHTML(review.service) + "</span>" +
+        '<p class="review-text">' + escapeHTML(review.text) + "</p>" +
+        '<span class="review-date">' + formatDateFull(review.date) + "</span>";
 
       grid.appendChild(card);
     });
 
-    // Observe newly added fade-in cards
+    // Observe new cards for animation
     var newCards = grid.querySelectorAll(".fade-in:not(.visible)");
     if (newCards.length > 0) {
       var cardObserver = new IntersectionObserver(
@@ -419,16 +444,8 @@
       showToast("Please select a star rating.", "error");
       return;
     }
-    if (!name) {
-      showToast("Please enter your name.", "error");
-      return;
-    }
-    if (!service) {
-      showToast("Please select a service.", "error");
-      return;
-    }
-    if (!text) {
-      showToast("Please write your review.", "error");
+    if (!name || !service || !text) {
+      showToast("Please fill in all fields.", "error");
       return;
     }
 
@@ -445,10 +462,8 @@
     reviews.push(review);
     setData("reviews", reviews);
 
-    // Re-render reviews
     loadReviews();
 
-    // Reset form
     nameInput.value = "";
     if (serviceInput.tagName === "SELECT") {
       serviceInput.selectedIndex = 0;
@@ -460,7 +475,7 @@
 
     var starRating = document.getElementById("starRating");
     if (starRating) {
-      var stars = starRating.querySelectorAll("span, i, .star");
+      var stars = starRating.querySelectorAll("i, .star");
       highlightStars(stars, 0);
     }
 
@@ -468,36 +483,33 @@
   };
 
   /* ----------------------------------------------------------
-     11. BLOG PREVIEW
+     12. BLOG PREVIEW
      ---------------------------------------------------------- */
   var BLOG_PREVIEWS = [
     {
       title: "5 Proven Ways to Relieve Lower Back Pain",
-      image:
-        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&h=400&fit=crop",
-      summary:
-        "Lower back pain affects millions of people worldwide. Discover five evidence-based physiotherapy techniques that can help you find lasting relief without medication or surgery.",
+      icon: "fas fa-spine",
+      summary: "Lower back pain affects millions of people worldwide. Discover five evidence-based physiotherapy techniques that can help you find lasting relief without medication or surgery.",
       category: "Pain Management",
+      categoryIcon: "fas fa-hand-holding-medical",
       readTime: "5 min read",
       date: "2025-04-20",
     },
     {
       title: "What is Fascial Manipulation?",
-      image:
-        "https://images.unsplash.com/photo-1573883430060-094e86d30600?w=600&h=400&fit=crop",
-      summary:
-        "Fascial manipulation is a revolutionary manual therapy technique that targets the body's connective tissue. Learn how this specialised treatment can address chronic pain at its source.",
+      icon: "fas fa-hand-sparkles",
+      summary: "Fascial manipulation is a revolutionary manual therapy technique that targets the body's connective tissue. Learn how this specialised treatment can address chronic pain at its source.",
       category: "Fascial Therapy",
+      categoryIcon: "fas fa-hand-sparkles",
       readTime: "7 min read",
       date: "2025-03-28",
     },
     {
       title: "Women's Health Physiotherapy Guide",
-      image:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
-      summary:
-        "From prenatal care to postpartum recovery and pelvic floor rehabilitation, women's health physiotherapy offers specialised solutions for every stage of life.",
+      icon: "fas fa-person-dress",
+      summary: "From prenatal care to postpartum recovery and pelvic floor rehabilitation, women's health physiotherapy offers specialised solutions for every stage of life.",
       category: "Women's Health",
+      categoryIcon: "fas fa-person-dress",
       readTime: "6 min read",
       date: "2025-03-15",
     },
@@ -515,31 +527,17 @@
 
       card.innerHTML =
         '<div class="blog-card-image">' +
-        '  <img src="' +
-        blog.image +
-        '" alt="' +
-        escapeHTML(blog.title) +
-        '" loading="lazy">' +
-        '  <span class="blog-category-badge">' +
-        escapeHTML(blog.category) +
-        "</span>" +
+        '  <div class="blog-card-icon"><i class="' + (blog.categoryIcon || 'fas fa-newspaper') + '"></i></div>' +
+        '  <span class="blog-category-badge">' + escapeHTML(blog.category) + "</span>" +
         "</div>" +
         '<div class="blog-card-content">' +
         '  <div class="blog-card-meta">' +
-        '    <span class="blog-date">' +
-        formatDateFull(blog.date) +
-        "</span>" +
-        '    <span class="blog-read-time">' +
-        escapeHTML(blog.readTime) +
-        "</span>" +
+        '    <span class="blog-date">' + formatDateFull(blog.date) + "</span>" +
+        '    <span class="blog-read-time">' + escapeHTML(blog.readTime) + "</span>" +
         "  </div>" +
-        "  <h3>" +
-        escapeHTML(blog.title) +
-        "</h3>" +
-        "  <p>" +
-        escapeHTML(blog.summary) +
-        "</p>" +
-        '  <a href="blog.html" class="read-more-link">Read More &rarr;</a>' +
+        "  <h3>" + escapeHTML(blog.title) + "</h3>" +
+        "  <p>" + escapeHTML(blog.summary) + "</p>" +
+        '  <a href="#blog" class="read-more-link">Read More &rarr;</a>' +
         "</div>";
 
       grid.appendChild(card);
@@ -547,7 +545,7 @@
   }
 
   /* ----------------------------------------------------------
-     UTILITY: Escape HTML to prevent XSS
+     UTILITY: Escape HTML
      ---------------------------------------------------------- */
   function escapeHTML(str) {
     if (!str) return "";
@@ -557,36 +555,20 @@
   }
 
   /* ----------------------------------------------------------
-     12. DOM CONTENT LOADED - INITIALISATION
+     13. DOM CONTENT LOADED
      ---------------------------------------------------------- */
   document.addEventListener("DOMContentLoaded", function () {
-    // Star rating system
     initStarRating();
-
-    // Load and render Google reviews
     loadReviews();
-
-    // Render blog preview cards
     renderBlogPreview();
-
-    // Intersection Observer for scroll animations
     setupScrollAnimations();
-
-    // Navbar scroll effect
+    setupStatCounters();
     window.addEventListener("scroll", handleNavbarScroll);
-    // Run once on load in case page is already scrolled
     handleNavbarScroll();
-
-    // Smooth scroll for anchor links
     setupSmoothScroll();
-
-    // Mobile menu close on link click
-    setupMobileMenuClose();
-
-    // Modal overlay close on background click
+    setupHamburger();
     setupModalOverlayClose();
 
-    // Attach review form submit if form exists
     var reviewForm = document.getElementById("reviewForm");
     if (reviewForm) {
       reviewForm.addEventListener("submit", submitReview);

@@ -4,249 +4,218 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard | Shree Physiotherapy Clinic</title>
-
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Font Awesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- ===== NAVBAR ===== -->
-  <nav class="navbar" id="navbar">
-    <div class="nav-container">
-      <a href="index.html" class="nav-logo">
-        <div class="logo-icon"><i class="fas fa-spa"></i></div>
-        <span class="logo-text"><span>Shree</span> Physiotherapy</span>
-      </a>
-
-      <ul class="nav-links" id="navLinks">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="index.html#services">Services</a></li>
-        <li><a href="index.html#contact">Contact</a></li>
-      </ul>
-
-      <div class="nav-cta">
-        <a href="book.html" class="btn btn-primary btn-nav"><i class="fas fa-calendar-check"></i> Book Now</a>
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <div style="width:64px;height:64px;background:rgba(27,77,62,0.08);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.6rem;color:var(--primary);">
+        <i class="fas fa-stethoscope"></i>
       </div>
-
-      <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
-        <span></span><span></span><span></span>
-      </div>
+      <h2>Doctor Dashboard</h2>
+      <p class="login-subtitle">Shree Physiotherapy Clinic</p>
+      <p class="login-error" id="loginError">Invalid password. Please try again.</p>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter dashboard password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+          <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+      </form>
     </div>
-  </nav>
+  </div>
 
-  <!-- ===== DASHBOARD LAYOUT ===== -->
-  <div class="dashboard-layout">
+  <!-- Dashboard (hidden until login) -->
+  <div id="dashboardApp" style="display:none;">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <h3><i class="fas fa-stethoscope"></i> Dashboard</h3>
+    <nav class="navbar" id="navbar">
+      <div class="container nav-container">
+        <a href="index.html" class="nav-brand">
+          <span class="brand-name">Dr. Aarthi Ganesh</span>
+          <span class="brand-subtitle">Shree Physiotherapy Clinic</span>
+        </a>
+        <ul class="nav-menu" id="navMenu">
+          <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+          <li class="nav-item"><a href="index.html#services" class="nav-link">Services</a></li>
+          <li class="nav-item"><a href="index.html#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="nav-cta">
+          <a href="book.html" class="btn btn-primary">Book Now</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+        </button>
       </div>
-      <nav class="sidebar-nav">
-        <a href="#" class="active" onclick="switchTab('overview'); return false;">
-          <span class="nav-icon"><i class="fas fa-chart-line"></i></span> Overview
-        </a>
-        <a href="#" onclick="switchTab('patients'); return false;">
-          <span class="nav-icon"><i class="fas fa-users"></i></span> Patients
-        </a>
-        <a href="#" onclick="switchTab('appointments'); return false;">
-          <span class="nav-icon"><i class="fas fa-calendar-check"></i></span> Appointments
-        </a>
-        <a href="#" onclick="switchTab('calendar'); return false;">
-          <span class="nav-icon"><i class="fas fa-calendar"></i></span> Calendar View
-        </a>
-        <a href="#" onclick="switchTab('prescriptions'); return false;">
-          <span class="nav-icon"><i class="fas fa-file-prescription"></i></span> Prescriptions
-        </a>
-        <a href="#" onclick="switchTab('followups'); return false;">
-          <span class="nav-icon"><i class="fas fa-bell"></i></span> Follow-ups
-        </a>
-      </nav>
-    </aside>
+    </nav>
 
-    <!-- Main Content -->
-    <main class="dashboard-main main-content">
+    <div class="dashboard-layout">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h3><i class="fas fa-stethoscope"></i> Dashboard</h3>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="#" class="active" onclick="switchTab('overview'); return false;">
+            <span class="nav-icon"><i class="fas fa-chart-line"></i></span> Overview
+          </a>
+          <a href="#" onclick="switchTab('patients'); return false;">
+            <span class="nav-icon"><i class="fas fa-users"></i></span> Patients
+          </a>
+          <a href="#" onclick="switchTab('appointments'); return false;">
+            <span class="nav-icon"><i class="fas fa-calendar-check"></i></span> Appointments
+          </a>
+          <a href="#" onclick="switchTab('calendar'); return false;">
+            <span class="nav-icon"><i class="fas fa-calendar"></i></span> Calendar View
+          </a>
+          <a href="#" onclick="switchTab('prescriptions'); return false;">
+            <span class="nav-icon"><i class="fas fa-file-prescription"></i></span> Prescriptions
+          </a>
+          <a href="#" onclick="switchTab('followups'); return false;">
+            <span class="nav-icon"><i class="fas fa-bell"></i></span> Follow-ups
+          </a>
+        </nav>
+      </aside>
 
-      <!-- TAB: Overview -->
-      <div id="tab-overview" class="tab-content">
-        <h2 style="font-size:1.8rem; margin-bottom:28px;">Dashboard Overview</h2>
-        <div class="dashboard-stats stat-cards">
-          <div class="stat-card">
-            <div class="stat-icon teal"><i class="fas fa-users"></i></div>
-            <div class="stat-info">
-              <h3><span id="statPatients">0</span></h3>
-              <p>Total Patients</p>
+      <main class="dashboard-main">
+        <!-- Mobile Tab Nav -->
+        <div class="mobile-tab-nav" id="mobileTabNav">
+          <button class="active" onclick="switchTab('overview')">Overview</button>
+          <button onclick="switchTab('patients')">Patients</button>
+          <button onclick="switchTab('appointments')">Appointments</button>
+          <button onclick="switchTab('calendar')">Calendar</button>
+          <button onclick="switchTab('prescriptions')">Prescriptions</button>
+          <button onclick="switchTab('followups')">Follow-ups</button>
+        </div>
+
+        <!-- TAB: Overview -->
+        <div id="tab-overview" class="tab-content">
+          <h2 style="font-size:1.8rem;margin-bottom:28px;">Dashboard Overview</h2>
+          <div class="stat-cards">
+            <div class="stat-card">
+              <div class="stat-icon teal"><i class="fas fa-users"></i></div>
+              <div class="stat-info"><h3><span id="statPatients">0</span></h3><p>Total Patients</p></div>
             </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon gold"><i class="fas fa-calendar"></i></div>
-            <div class="stat-info">
-              <h3><span id="statToday">0</span></h3>
-              <p>Today's Appointments</p>
+            <div class="stat-card">
+              <div class="stat-icon gold"><i class="fas fa-calendar"></i></div>
+              <div class="stat-info"><h3><span id="statToday">0</span></h3><p>Today's Appointments</p></div>
             </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon green"><i class="fas fa-file-prescription"></i></div>
-            <div class="stat-info">
-              <h3><span id="statPrescriptions">0</span></h3>
-              <p>Prescriptions</p>
+            <div class="stat-card">
+              <div class="stat-icon green"><i class="fas fa-file-prescription"></i></div>
+              <div class="stat-info"><h3><span id="statPrescriptions">0</span></h3><p>Prescriptions</p></div>
             </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background:rgba(249,115,22,0.1); color:#F97316;"><i class="fas fa-bell"></i></div>
-            <div class="stat-info">
-              <h3><span id="statFollowups">0</span></h3>
-              <p>Pending Follow-ups</p>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:rgba(249,115,22,0.1);color:#F97316;"><i class="fas fa-bell"></i></div>
+              <div class="stat-info"><h3><span id="statFollowups">0</span></h3><p>Pending Follow-ups</p></div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- TAB: Patients -->
-      <div id="tab-patients" class="tab-content" style="display:none;">
-        <div class="dashboard-card-header" style="margin-bottom:24px;">
-          <h2 style="font-size:1.8rem;">Patient Records</h2>
-          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+        <!-- TAB: Patients -->
+        <div id="tab-patients" class="tab-content" style="display:none;">
+          <div class="dashboard-card-header" style="margin-bottom:24px;">
+            <h2 style="font-size:1.8rem;">Patient Records</h2>
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+              <div class="search-input">
+                <i class="fas fa-search" style="color:var(--text-muted);"></i>
+                <input type="text" id="patientSearch" placeholder="Search patients...">
+              </div>
+              <button class="btn btn-primary" onclick="openModal('addPatientModal')" style="padding:10px 20px;font-size:0.88rem;">
+                <i class="fas fa-plus"></i> Add Patient
+              </button>
+            </div>
+          </div>
+          <div class="dashboard-card">
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="patientsTable">
+                <thead><tr><th>Name</th><th>Age</th><th>Gender</th><th>Phone</th><th>Visits</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Appointments -->
+        <div id="tab-appointments" class="tab-content" style="display:none;">
+          <div class="dashboard-card-header" style="margin-bottom:24px;">
+            <h2 style="font-size:1.8rem;">Appointments</h2>
+            <input type="date" id="appointmentFilter" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+          </div>
+          <div class="dashboard-card">
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="appointmentsTable">
+                <thead><tr><th>Patient</th><th>Date</th><th>Time</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Calendar View -->
+        <div id="tab-calendar" class="tab-content" style="display:none;">
+          <h2 style="font-size:1.8rem;margin-bottom:28px;">Calendar View</h2>
+          <div class="dashboard-card" style="padding:24px;">
+            <div class="calendar-header">
+              <h3 id="dashCalendarMonth"></h3>
+              <div class="calendar-nav">
+                <button onclick="changeDashMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                <button onclick="changeDashMonth(1)"><i class="fas fa-chevron-right"></i></button>
+              </div>
+            </div>
+            <div class="calendar-days-header">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div class="calendar-grid" id="dashCalendarGrid"></div>
+          </div>
+        </div>
+
+        <!-- TAB: Prescriptions -->
+        <div id="tab-prescriptions" class="tab-content" style="display:none;">
+          <div class="dashboard-card-header" style="margin-bottom:24px;">
+            <h2 style="font-size:1.8rem;">Prescriptions</h2>
             <div class="search-input">
-              <i class="fas fa-search" style="color:var(--text-light);"></i>
-              <input type="text" id="patientSearch" placeholder="Search patients...">
-            </div>
-            <button class="btn btn-primary" onclick="openModal('addPatientModal')" style="padding:10px 20px; font-size:0.88rem;">
-              <i class="fas fa-plus"></i> Add Patient
-            </button>
-          </div>
-        </div>
-        <div class="dashboard-card">
-          <div style="overflow-x:auto;">
-            <table class="data-table" id="patientsTable">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Age</th>
-                  <th>Gender</th>
-                  <th>Phone</th>
-                  <th>Visits</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: Appointments -->
-      <div id="tab-appointments" class="tab-content" style="display:none;">
-        <div class="dashboard-card-header" style="margin-bottom:24px;">
-          <h2 style="font-size:1.8rem;">Appointments</h2>
-          <div style="display:flex; gap:12px; align-items:center;">
-            <input type="date" id="appointmentFilter" style="padding:8px 14px; border:1px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.88rem; background:var(--white);">
-          </div>
-        </div>
-        <div class="dashboard-card">
-          <div style="overflow-x:auto;">
-            <table class="data-table" id="appointmentsTable">
-              <thead>
-                <tr>
-                  <th>Patient</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Service</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: Calendar View -->
-      <div id="tab-calendar" class="tab-content" style="display:none;">
-        <h2 style="font-size:1.8rem; margin-bottom:28px;">Calendar View</h2>
-        <div class="dashboard-card">
-          <div class="calendar-header">
-            <h3 id="dashCalendarMonth"></h3>
-            <div class="calendar-nav">
-              <button onclick="changeDashMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-              <button onclick="changeDashMonth(1)"><i class="fas fa-chevron-right"></i></button>
+              <i class="fas fa-search" style="color:var(--text-muted);"></i>
+              <input type="text" id="prescriptionSearch" placeholder="Search prescriptions...">
             </div>
           </div>
-          <div class="calendar-days-header">
-            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+          <div class="dashboard-card">
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="prescriptionsTable">
+                <thead><tr><th>Patient</th><th>Date</th><th>Diagnosis</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
-          <div class="calendar-grid" id="dashCalendarGrid"></div>
         </div>
-      </div>
 
-      <!-- TAB: Prescriptions -->
-      <div id="tab-prescriptions" class="tab-content" style="display:none;">
-        <div class="dashboard-card-header" style="margin-bottom:24px;">
-          <h2 style="font-size:1.8rem;">Prescriptions</h2>
-          <div class="search-input">
-            <i class="fas fa-search" style="color:var(--text-light);"></i>
-            <input type="text" id="prescriptionSearch" placeholder="Search prescriptions...">
-          </div>
-        </div>
-        <div class="dashboard-card">
-          <div style="overflow-x:auto;">
-            <table class="data-table" id="prescriptionsTable">
-              <thead>
-                <tr>
-                  <th>Patient</th>
-                  <th>Date</th>
-                  <th>Diagnosis</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB: Follow-ups -->
-      <div id="tab-followups" class="tab-content" style="display:none;">
-        <div class="dashboard-card-header" style="margin-bottom:24px;">
-          <h2 style="font-size:1.8rem;">Follow-ups</h2>
-          <div style="display:flex; gap:12px; align-items:center;">
-            <select id="followupFilter" style="padding:8px 14px; border:1px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.88rem; background:var(--white);">
+        <!-- TAB: Follow-ups -->
+        <div id="tab-followups" class="tab-content" style="display:none;">
+          <div class="dashboard-card-header" style="margin-bottom:24px;">
+            <h2 style="font-size:1.8rem;">Follow-ups</h2>
+            <select id="followupFilter" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
               <option value="all">All</option>
               <option value="Pending">Pending</option>
               <option value="Completed">Completed</option>
             </select>
           </div>
-        </div>
-        <div class="dashboard-card">
-          <div style="overflow-x:auto;">
-            <table class="data-table" id="followupsTable">
-              <thead>
-                <tr>
-                  <th>Patient</th>
-                  <th>Date</th>
-                  <th>Reason</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+          <div class="dashboard-card">
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="followupsTable">
+                <thead><tr><th>Patient</th><th>Date</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
-
-    </main>
+      </main>
+    </div>
   </div>
-
-  <!-- ===== MODALS ===== -->
 
   <!-- Add Patient Modal -->
   <div class="modal-overlay" id="addPatientModal">
@@ -285,7 +254,7 @@
           <label for="ptAddress">Address</label>
           <textarea id="ptAddress" rows="3" placeholder="Full address"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
           <i class="fas fa-save"></i> Save Patient
         </button>
       </form>
@@ -298,16 +267,16 @@
       <button class="modal-close" onclick="closeModal('viewPatientModal')"><i class="fas fa-times"></i></button>
       <h2>Patient Details</h2>
       <div id="patientDetails" style="margin-bottom:24px;"></div>
-      <h3 style="font-size:1.1rem; margin-bottom:12px;">Visit History</h3>
+      <h3 style="font-size:1.1rem;margin-bottom:12px;">Visit History</h3>
       <div id="visitHistory" style="margin-bottom:24px;"></div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn btn-primary" id="btnWriteRx" style="padding:10px 20px; font-size:0.85rem;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btnWriteRx" style="padding:10px 20px;font-size:0.85rem;">
           <i class="fas fa-file-prescription"></i> Write Prescription
         </button>
-        <button class="btn btn-secondary" id="btnScheduleFu" style="padding:10px 20px; font-size:0.85rem;">
+        <button class="btn btn-secondary" id="btnScheduleFu" style="padding:10px 20px;font-size:0.85rem;">
           <i class="fas fa-bell"></i> Schedule Follow-up
         </button>
-        <button class="btn btn-whatsapp" id="btnPatientWa" style="padding:10px 20px; font-size:0.85rem;">
+        <button class="btn btn-whatsapp" id="btnPatientWa" style="padding:10px 20px;font-size:0.85rem;">
           <i class="fab fa-whatsapp"></i> WhatsApp
         </button>
       </div>
@@ -319,7 +288,7 @@
     <div class="modal" style="max-width:650px;">
       <button class="modal-close" onclick="closeModal('prescriptionModal')"><i class="fas fa-times"></i></button>
       <h2>Write Prescription</h2>
-      <p style="color:var(--primary); font-weight:600; margin-bottom:20px;" id="rxPatientName"></p>
+      <p style="color:var(--primary);font-weight:600;margin-bottom:20px;" id="rxPatientName"></p>
       <form onsubmit="savePrescription(event)">
         <input type="hidden" id="rxPatientId">
         <div class="form-group">
@@ -348,7 +317,7 @@
             <input type="text" id="rxFollowupReason" placeholder="Reason for follow-up">
           </div>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
           <i class="fas fa-save"></i> Save Prescription
         </button>
       </form>
@@ -360,7 +329,7 @@
     <div class="modal">
       <button class="modal-close" onclick="closeModal('followupModal')"><i class="fas fa-times"></i></button>
       <h2>Schedule Follow-up</h2>
-      <p style="color:var(--primary); font-weight:600; margin-bottom:20px;" id="fuPatientName"></p>
+      <p style="color:var(--primary);font-weight:600;margin-bottom:20px;" id="fuPatientName"></p>
       <form onsubmit="saveFollowup(event)">
         <input type="hidden" id="fuPatientId">
         <div class="form-group">
@@ -375,22 +344,17 @@
           <label for="fuNotes">Notes</label>
           <textarea id="fuNotes" rows="3" placeholder="Additional notes..."></textarea>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
           <i class="fas fa-calendar-plus"></i> Schedule Follow-up
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Toast -->
-  <div class="toast" id="toast">
-    <span id="toastMessage"></span>
-  </div>
+  <div class="toast" id="toast"><span id="toastMessage"></span></div>
 
-  <!-- WhatsApp Float -->
-  <a href="https://wa.me/919092294466?text=Hi%20Dr.%20Aarti%2C%20I%20would%20like%20to%20enquire%20about%20physiotherapy%20treatment." target="_blank" class="whatsapp-float">
+  <a href="https://wa.me/919092294466" target="_blank" class="whatsapp-float">
     <i class="fab fa-whatsapp"></i>
-    <span class="tooltip">Chat with us!</span>
   </a>
 
   <script src="js/main.js"></script>

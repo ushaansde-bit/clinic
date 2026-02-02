@@ -260,7 +260,7 @@ function submitBooking(event) {
         patientPhone: patientPhone,
         patientEmail: patientEmail,
         patientAddress: patientAddress,
-        serviceType: serviceType,
+        service: serviceType,
         patientComplaint: patientComplaint,
         medicalHistory: medicalHistory,
         date: selectedDate.toISOString(),
@@ -269,55 +269,41 @@ function submitBooking(event) {
         createdAt: new Date().toISOString()
     };
 
-    // Save appointment to localStorage
-    const appointments = getData('appointments');
-    appointments.push(appointment);
-    setData('appointments', appointments);
-
     // Create or update patient record
     const patients = getData('patients');
     let existingPatient = patients.find(p => p.phone === patientPhone);
 
     if (existingPatient) {
-        // Update existing patient info
         existingPatient.name = patientName;
         existingPatient.age = patientAge;
         existingPatient.gender = patientGender;
         existingPatient.email = patientEmail;
         existingPatient.address = patientAddress;
-        if (!existingPatient.visits) {
-            existingPatient.visits = [];
-        }
-        existingPatient.visits.push({
-            appointmentId: appointment.id,
-            date: appointment.date,
-            time: appointment.time,
-            service: serviceType,
-            complaint: patientComplaint,
-            status: 'Scheduled'
-        });
     } else {
-        const newPatient = {
+        existingPatient = {
             id: generateId(),
             name: patientName,
-            age: patientAge,
+            age: parseInt(patientAge),
             gender: patientGender,
             phone: patientPhone,
             email: patientEmail,
             address: patientAddress,
-            visits: [{
-                appointmentId: appointment.id,
-                date: appointment.date,
-                time: appointment.time,
-                service: serviceType,
-                complaint: patientComplaint,
-                status: 'Scheduled'
-            }]
+            createdAt: new Date().toISOString()
         };
-        patients.push(newPatient);
+        patients.push(existingPatient);
     }
 
     setData('patients', patients);
+
+    // Link appointment to patient
+    appointment.patientId = existingPatient.id;
+    appointment.name = patientName;
+    appointment.phone = patientPhone;
+
+    // Save appointment to localStorage
+    const appointments = getData('appointments');
+    appointments.push(appointment);
+    setData('appointments', appointments);
 
     // Format the display date
     const displayDate = formatDateFull(selectedDate.toISOString());

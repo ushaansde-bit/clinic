@@ -9,6 +9,41 @@ let currentDashMonth = new Date().getMonth();
 let currentDashYear = new Date().getFullYear();
 
 /* ============================================
+   0. LOGIN
+   ============================================ */
+const DASHBOARD_PASSWORD = 'shree2025';
+
+function handleLogin(event) {
+  event.preventDefault();
+  const passwordInput = document.getElementById('loginPassword');
+  const errorEl = document.getElementById('loginError');
+  const password = passwordInput ? passwordInput.value : '';
+
+  if (password === DASHBOARD_PASSWORD) {
+    sessionStorage.setItem('dashLoggedIn', 'true');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardApp').style.display = 'block';
+    if (errorEl) errorEl.style.display = 'none';
+    switchTab('overview');
+  } else {
+    if (errorEl) errorEl.style.display = 'block';
+    if (passwordInput) {
+      passwordInput.value = '';
+      passwordInput.focus();
+    }
+  }
+}
+
+function checkSession() {
+  if (sessionStorage.getItem('dashLoggedIn') === 'true') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardApp').style.display = 'block';
+    return true;
+  }
+  return false;
+}
+
+/* ============================================
    1. TAB NAVIGATION
    ============================================ */
 function switchTab(tabName) {
@@ -33,6 +68,12 @@ function switchTab(tabName) {
   if (index >= 0 && links[index]) {
     links[index].classList.add('active');
   }
+
+  // Update mobile tab nav active state
+  const mobileButtons = document.querySelectorAll('.mobile-tab-nav button');
+  mobileButtons.forEach((btn, i) => {
+    btn.classList.toggle('active', i === index);
+  });
 
   // Refresh relevant data on switch
   switch (tabName) {
@@ -659,13 +700,13 @@ function printPrescription(id) {
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #2D2D2D; padding: 40px; line-height: 1.6; }
-        .header { text-align: center; padding-bottom: 20px; border-bottom: 3px solid #2A7D6F; margin-bottom: 24px; }
-        .header h1 { font-size: 1.5rem; color: #2A7D6F; margin-bottom: 4px; }
+        .header { text-align: center; padding-bottom: 20px; border-bottom: 3px solid #1B4D3E; margin-bottom: 24px; }
+        .header h1 { font-size: 1.5rem; color: #1B4D3E; margin-bottom: 4px; }
         .header p { font-size: 0.85rem; color: #6B7280; }
         .patient-info { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #E5E7EB; margin-bottom: 20px; font-size: 0.9rem; }
         .patient-info div { margin-right: 24px; }
         .section { margin-bottom: 18px; }
-        .section-label { font-weight: 700; color: #2A7D6F; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .section-label { font-weight: 700; color: #1B4D3E; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
         .section-content { font-size: 0.92rem; white-space: pre-wrap; }
         .footer { margin-top: 40px; padding-top: 20px; border-top: 2px solid #E5E7EB; display: flex; justify-content: space-between; font-size: 0.82rem; color: #6B7280; }
         .signature { text-align: right; margin-top: 48px; }
@@ -922,7 +963,10 @@ function escapeHtml(text) {
    8. DOMContentLoaded - INIT
    ============================================ */
 document.addEventListener('DOMContentLoaded', () => {
-  switchTab('overview');
+  const loggedIn = checkSession();
+  if (loggedIn) {
+    switchTab('overview');
+  }
   refreshDashboard();
   loadPatients();
   loadAppointments();
