@@ -33,7 +33,6 @@
                 <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
                 <li class="nav-item"><a href="#services" class="nav-link">Services</a></li>
                 <li class="nav-item"><a href="#testimonials" class="nav-link">Testimonials</a></li>
-                <li class="nav-item"><a href="#reviews" class="nav-link">Reviews</a></li>
                 <li class="nav-item"><a href="#blog" class="nav-link">Blog</a></li>
                 <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
@@ -55,18 +54,17 @@
         <div class="container hero-container">
             <div class="hero-content fade-in">
                 <span class="hero-badge"><i class="fas fa-award"></i> Gold Medalist Physiotherapist</span>
-                <h1 class="hero-title">Dr. Aarthi Ganesh</h1>
-                <p class="hero-tagline">Healing Hands, Lasting Relief</p>
+                <h1 class="hero-title">Healing Hands,<br><span class="hero-title-accent">Lasting Relief</span></h1>
                 <p class="hero-description">
                     Internationally certified Fascial Manipulation expert trained in Italy, dedicated to providing
                     advanced physiotherapy treatments. Specializing in women's health and elderly home care with
                     over a decade of clinical excellence in Periyanaickenpalayam.
                 </p>
                 <div class="hero-buttons">
-                    <a href="book.html" class="btn btn-primary btn-lg">
+                    <a href="book.html" class="btn btn-accent btn-lg">
                         <i class="fas fa-calendar-check"></i> Book Appointment
                     </a>
-                    <a href="https://wa.me/919092294466" class="btn btn-outline btn-lg" target="_blank" rel="noopener noreferrer">
+                    <a href="https://wa.me/919092294466" class="btn btn-outline-light btn-lg" target="_blank" rel="noopener noreferrer">
                         <i class="fab fa-whatsapp"></i> WhatsApp Us
                     </a>
                 </div>
@@ -85,12 +83,43 @@
                     </div>
                 </div>
             </div>
+            <div class="hero-image fade-in">
+                <div class="hero-image-wrapper">
+                    <img src="a1.jpg" alt="Shree Physiotherapy Clinic" loading="eager">
+                </div>
+                <div class="hero-skill-badges">
+                    <span class="skill-badge"><i class="fas fa-medal"></i> Gold Medalist</span>
+                    <span class="skill-badge"><i class="fas fa-hand-sparkles"></i> Fascial Manipulation</span>
+                    <span class="skill-badge"><i class="fas fa-globe-europe"></i> Italy Certified</span>
+                    <span class="skill-badge"><i class="fas fa-person-dress"></i> Women's Health</span>
+                    <span class="skill-badge"><i class="fas fa-house-chimney-medical"></i> Home Care</span>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- ======================== ABOUT SECTION ======================== -->
     <section class="about section" id="about">
         <div class="container about-container">
+            <div class="about-image fade-in">
+                <div class="about-image-wrapper">
+                    <img src="a1.jpg" alt="Shree Physiotherapy Clinic" loading="lazy">
+                </div>
+                <div class="about-credentials">
+                    <div class="credential-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>MPT - Gold Medalist</span>
+                    </div>
+                    <div class="credential-item">
+                        <i class="fas fa-certificate"></i>
+                        <span>Fascial Manipulation - Italy</span>
+                    </div>
+                    <div class="credential-item">
+                        <i class="fas fa-stethoscope"></i>
+                        <span>10+ Years Clinical Experience</span>
+                    </div>
+                </div>
+            </div>
             <div class="about-content fade-in">
                 <span class="section-tag">About the Doctor</span>
                 <h2 class="section-title">A Gold Medalist Physiotherapist</h2>
@@ -130,7 +159,7 @@
                         <p>Dedicated elderly home care services</p>
                     </div>
                 </div>
-                <a href="book.html" class="btn btn-primary">
+                <a href="book.html" class="btn btn-accent">
                     <i class="fas fa-calendar-check"></i> Book a Consultation
                 </a>
             </div>
@@ -320,58 +349,6 @@
         </div>
     </section>
 
-    <!-- ======================== GOOGLE REVIEWS ======================== -->
-    <section class="reviews section" id="reviews">
-        <div class="container">
-            <div class="section-header fade-in">
-                <span class="section-tag">Your Feedback</span>
-                <h2 class="section-title">Rate Our Clinic</h2>
-                <p class="section-subtitle">Share your experience and help others find quality physiotherapy care.</p>
-            </div>
-
-            <div class="reviewsGrid" id="reviewsGrid"></div>
-
-            <div class="review-form-container fade-in">
-                <h3 class="review-form-title">Write a Review</h3>
-                <form class="review-form" id="reviewForm">
-                    <div class="form-group">
-                        <label for="reviewName">Your Name</label>
-                        <input type="text" id="reviewName" name="reviewName" placeholder="Enter your full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Your Rating</label>
-                        <div class="star-rating" id="starRating">
-                            <i class="fas fa-star" data-rating="1"></i>
-                            <i class="fas fa-star" data-rating="2"></i>
-                            <i class="fas fa-star" data-rating="3"></i>
-                            <i class="fas fa-star" data-rating="4"></i>
-                            <i class="fas fa-star" data-rating="5"></i>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="reviewService">Service</label>
-                        <select id="reviewService" name="reviewService" required>
-                            <option value="" disabled selected>Select a service</option>
-                            <option value="Fascial Manipulation">Fascial Manipulation</option>
-                            <option value="Orthopedic Rehabilitation">Orthopedic Rehabilitation</option>
-                            <option value="Neuro Rehabilitation">Neuro Rehabilitation</option>
-                            <option value="Women's Health Physio">Women's Health Physio</option>
-                            <option value="Elderly Home Care">Elderly Home Care</option>
-                            <option value="Pediatric Physiotherapy">Pediatric Physiotherapy</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="reviewText">Your Review</label>
-                        <textarea id="reviewText" name="reviewText" rows="4" placeholder="Share your experience with us..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane"></i> Submit Review
-                    </button>
-                </form>
-            </div>
-        </div>
-    </section>
-
     <!-- ======================== BLOG PREVIEW ======================== -->
     <section class="blog section" id="blog">
         <div class="container">
@@ -477,7 +454,6 @@
                         <li><a href="#about">About</a></li>
                         <li><a href="#services">Services</a></li>
                         <li><a href="#testimonials">Testimonials</a></li>
-                        <li><a href="#reviews">Reviews</a></li>
                         <li><a href="#blog">Blog</a></li>
                         <li><a href="#contact">Contact</a></li>
                     </ul>

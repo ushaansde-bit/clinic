@@ -11,7 +11,7 @@ let currentDashYear = new Date().getFullYear();
 /* ============================================
    0. LOGIN
    ============================================ */
-const DASHBOARD_PASSWORD = 'shree2025';
+const DASHBOARD_PASSWORD = 'doctor123';
 
 function handleLogin(event) {
   event.preventDefault();
