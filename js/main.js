@@ -483,65 +483,235 @@
   };
 
   /* ----------------------------------------------------------
-     12. BLOG PREVIEW
+     12. BLOG PREVIEW — RSS-fed with static fallback
      ---------------------------------------------------------- */
-  var BLOG_PREVIEWS = [
-    {
-      title: "5 Proven Ways to Relieve Lower Back Pain",
-      icon: "fas fa-spine",
-      summary: "Lower back pain affects millions of people worldwide. Discover five evidence-based physiotherapy techniques that can help you find lasting relief without medication or surgery.",
-      category: "Pain Management",
-      categoryIcon: "fas fa-hand-holding-medical",
-      readTime: "5 min read",
-      date: "2025-04-20",
-    },
-    {
-      title: "What is Fascial Manipulation?",
-      icon: "fas fa-hand-sparkles",
-      summary: "Fascial manipulation is a revolutionary manual therapy technique that targets the body's connective tissue. Learn how this specialised treatment can address chronic pain at its source.",
-      category: "Fascial Therapy",
-      categoryIcon: "fas fa-hand-sparkles",
-      readTime: "7 min read",
-      date: "2025-03-28",
-    },
-    {
-      title: "Women's Health Physiotherapy Guide",
-      icon: "fas fa-person-dress",
-      summary: "From prenatal care to postpartum recovery and pelvic floor rehabilitation, women's health physiotherapy offers specialised solutions for every stage of life.",
-      category: "Women's Health",
-      categoryIcon: "fas fa-person-dress",
-      readTime: "6 min read",
-      date: "2025-03-15",
-    },
+  var RSS_FEEDS = [
+    "https://www.physio-pedia.com/Special:RecentChanges?feed=rss",
+    "https://medlineplus.gov/feeds/topic/exerciseandphysicalfitness.xml",
+    "https://pubmed.ncbi.nlm.nih.gov/rss/search/1sOgWz3rOJMVMSbiAAiD0QOVG1iqHZfsO3GBnociXMrX2xLSmR/?limit=20&utm_campaign=pubmed-2&fc=20220101000000"
   ];
 
-  function renderBlogPreview() {
+  var RSS2JSON_BASE = "https://api.rss2json.com/v1/api.json?rss_url=";
+
+  var BLOG_CACHE_KEY = "blogArticlesCache";
+  var BLOG_CACHE_TIME_KEY = "blogArticlesCacheTime";
+  var CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+  var STATIC_ARTICLES = [
+    { title: "5 Proven Ways to Relieve Lower Back Pain", summary: "Lower back pain affects millions worldwide. Discover five evidence-based physiotherapy techniques for lasting relief without medication or surgery.", category: "Pain Management", categoryIcon: "fas fa-hand-holding-medical", source: "Shree Physio", link: "#blog", date: "2025-04-20" },
+    { title: "What is Fascial Manipulation?", summary: "Fascial manipulation is a revolutionary manual therapy targeting connective tissue. Learn how this specialised treatment addresses chronic pain at its source.", category: "Fascial Therapy", categoryIcon: "fas fa-hand-sparkles", source: "Shree Physio", link: "#blog", date: "2025-03-28" },
+    { title: "Women's Health Physiotherapy Guide", summary: "From prenatal care to postpartum recovery and pelvic floor rehabilitation, women's health physiotherapy offers solutions for every stage of life.", category: "Women's Health", categoryIcon: "fas fa-person-dress", source: "Shree Physio", link: "#blog", date: "2025-03-15" },
+    { title: "Understanding Frozen Shoulder: Causes and Treatment", summary: "Frozen shoulder can severely limit your range of motion. Learn about the stages, causes, and how physiotherapy can restore full shoulder mobility.", category: "Shoulder Care", categoryIcon: "fas fa-hand-fist", source: "Shree Physio", link: "#blog", date: "2025-03-01" },
+    { title: "Neck Pain from Desk Work: A Physiotherapist's Guide", summary: "Prolonged desk work causes cervical strain. Here are ergonomic tips and exercises recommended by physiotherapists to prevent and treat neck pain.", category: "Ergonomics", categoryIcon: "fas fa-desktop", source: "Shree Physio", link: "#blog", date: "2025-02-20" },
+    { title: "Post-Surgical Rehabilitation: What to Expect", summary: "Recovery after surgery requires structured rehabilitation. Learn the phases of post-surgical physiotherapy and how to optimise your healing process.", category: "Rehabilitation", categoryIcon: "fas fa-hospital", source: "Shree Physio", link: "#blog", date: "2025-02-10" },
+    { title: "Benefits of Physiotherapy for Senior Citizens", summary: "Physiotherapy helps elderly patients maintain mobility, prevent falls, and manage age-related conditions. Discover how home-based physio supports ageing gracefully.", category: "Elderly Care", categoryIcon: "fas fa-house-chimney-medical", source: "Shree Physio", link: "#blog", date: "2025-01-30" },
+    { title: "Sciatica: Causes, Symptoms and Physiotherapy Treatment", summary: "Sciatica causes radiating leg pain from a compressed nerve. Learn about evidence-based physiotherapy approaches that provide effective relief.", category: "Pain Management", categoryIcon: "fas fa-hand-holding-medical", source: "Shree Physio", link: "#blog", date: "2025-01-20" },
+    { title: "How Physiotherapy Helps Stroke Recovery", summary: "Neurological rehabilitation after stroke is critical for regaining function. Understand how targeted physiotherapy exercises rebuild motor skills and independence.", category: "Neuro Rehab", categoryIcon: "fas fa-brain", source: "Shree Physio", link: "#blog", date: "2025-01-10" },
+    { title: "Knee Replacement Recovery: Your Complete Guide", summary: "Knee replacement surgery requires dedicated rehabilitation. Learn the exercises, milestones, and physiotherapy protocols for a successful recovery.", category: "Rehabilitation", categoryIcon: "fas fa-bone", source: "Shree Physio", link: "#blog", date: "2024-12-28" },
+    { title: "Pelvic Floor Exercises: Why They Matter", summary: "Pelvic floor strengthening is essential for women's health. A physiotherapist explains the best exercises for prevention and treatment of pelvic dysfunction.", category: "Women's Health", categoryIcon: "fas fa-person-dress", source: "Shree Physio", link: "#blog", date: "2024-12-18" },
+    { title: "Managing Arthritis with Physiotherapy", summary: "Physiotherapy is one of the most effective non-surgical treatments for arthritis. Learn exercises and techniques that reduce joint pain and improve mobility.", category: "Joint Health", categoryIcon: "fas fa-bone", source: "Shree Physio", link: "#blog", date: "2024-12-08" },
+    { title: "Sports Injury Prevention: Tips from a Physiotherapist", summary: "Prevent common sports injuries with proper warm-up routines, strengthening exercises, and biomechanical awareness guided by physiotherapy principles.", category: "Sports Physio", categoryIcon: "fas fa-running", source: "Shree Physio", link: "#blog", date: "2024-11-28" },
+    { title: "The Science Behind Deep Tissue Massage", summary: "Deep tissue massage targets the inner layers of muscles and connective tissue. Understand how it works and when physiotherapists recommend it.", category: "Manual Therapy", categoryIcon: "fas fa-hands", source: "Shree Physio", link: "#blog", date: "2024-11-18" },
+    { title: "Posture Correction: A Step-by-Step Guide", summary: "Poor posture leads to chronic pain and reduced mobility. Follow this physiotherapist-designed guide to correct your posture and prevent future problems.", category: "Ergonomics", categoryIcon: "fas fa-person", source: "Shree Physio", link: "#blog", date: "2024-11-08" },
+    { title: "What is Dry Needling and How Does It Work?", summary: "Dry needling targets myofascial trigger points to relieve pain. Learn the differences from acupuncture and when physiotherapists use this technique.", category: "Pain Management", categoryIcon: "fas fa-syringe", source: "Shree Physio", link: "#blog", date: "2024-10-28" },
+    { title: "Breathing Exercises for Pain Management", summary: "Controlled breathing techniques can significantly reduce pain perception. Discover physiotherapy-guided breathing methods for chronic pain relief.", category: "Pain Management", categoryIcon: "fas fa-lungs", source: "Shree Physio", link: "#blog", date: "2024-10-18" },
+    { title: "Ankle Sprain Recovery: Do's and Don'ts", summary: "Ankle sprains are common but improper recovery leads to chronic instability. Follow this physiotherapy guide for safe and complete ankle rehabilitation.", category: "Rehabilitation", categoryIcon: "fas fa-shoe-prints", source: "Shree Physio", link: "#blog", date: "2024-10-08" },
+    { title: "Physiotherapy for Cerebral Palsy in Children", summary: "Paediatric physiotherapy helps children with cerebral palsy improve motor function, coordination, and independence through age-appropriate therapeutic exercises.", category: "Pediatrics", categoryIcon: "fas fa-child", source: "Shree Physio", link: "#blog", date: "2024-09-28" },
+    { title: "How to Prevent Falls in the Elderly", summary: "Fall prevention in seniors requires balance training, strength exercises, and home modifications. A physiotherapist's comprehensive prevention guide.", category: "Elderly Care", categoryIcon: "fas fa-house-chimney-medical", source: "Shree Physio", link: "#blog", date: "2024-09-18" },
+    { title: "Carpal Tunnel Syndrome: Physiotherapy Solutions", summary: "Carpal tunnel causes numbness and tingling in the hand. Learn nerve gliding exercises and ergonomic strategies recommended by physiotherapists.", category: "Ergonomics", categoryIcon: "fas fa-hand", source: "Shree Physio", link: "#blog", date: "2024-09-08" },
+    { title: "Prenatal Physiotherapy: Preparing Your Body for Birth", summary: "Prenatal physiotherapy strengthens key muscle groups, reduces pregnancy discomfort, and prepares the body for labour and delivery.", category: "Women's Health", categoryIcon: "fas fa-person-dress", source: "Shree Physio", link: "#blog", date: "2024-08-28" },
+    { title: "Understanding Muscle Spasms and How to Treat Them", summary: "Muscle spasms can be painful and debilitating. Learn the common causes and physiotherapy techniques to manage and prevent recurring spasms.", category: "Pain Management", categoryIcon: "fas fa-bolt", source: "Shree Physio", link: "#blog", date: "2024-08-18" },
+    { title: "Tennis Elbow: Exercises That Actually Work", summary: "Tennis elbow causes persistent pain in the outer elbow. Discover the strengthening and stretching exercises physiotherapists recommend for recovery.", category: "Sports Physio", categoryIcon: "fas fa-dumbbell", source: "Shree Physio", link: "#blog", date: "2024-08-08" },
+    { title: "Physiotherapy After a Road Traffic Accident", summary: "Accident injuries require specialised rehabilitation. Learn how physiotherapy addresses whiplash, fractures, and soft tissue injuries post-accident.", category: "Rehabilitation", categoryIcon: "fas fa-car-burst", source: "Shree Physio", link: "#blog", date: "2024-07-28" },
+    { title: "The Role of Physiotherapy in Managing Diabetes", summary: "Regular physiotherapy and exercise programs help diabetic patients manage blood sugar levels, improve circulation, and prevent complications.", category: "Chronic Care", categoryIcon: "fas fa-heartbeat", source: "Shree Physio", link: "#blog", date: "2024-07-18" },
+    { title: "Herniated Disc: When to See a Physiotherapist", summary: "A herniated disc can cause severe back and leg pain. Learn which symptoms warrant physiotherapy intervention and what treatment approaches are most effective.", category: "Spine Care", categoryIcon: "fas fa-spine", source: "Shree Physio", link: "#blog", date: "2024-07-08" },
+    { title: "Aquatic Physiotherapy: Healing Through Water", summary: "Water-based exercises reduce joint stress while providing resistance for strengthening. Explore how aquatic physiotherapy benefits various conditions.", category: "Rehabilitation", categoryIcon: "fas fa-water", source: "Shree Physio", link: "#blog", date: "2024-06-28" },
+    { title: "TMJ Disorders: How Physiotherapy Can Help", summary: "Temporomandibular joint disorders cause jaw pain and limited mouth opening. Learn physiotherapy techniques for TMJ relief and long-term management.", category: "Pain Management", categoryIcon: "fas fa-tooth", source: "Shree Physio", link: "#blog", date: "2024-06-18" },
+    { title: "Balance Training: Exercises for All Ages", summary: "Good balance prevents falls and improves athletic performance. A physiotherapist shares progressive balance exercises suitable for every age group.", category: "Fitness", categoryIcon: "fas fa-person-walking", source: "Shree Physio", link: "#blog", date: "2024-06-08" },
+    { title: "Plantar Fasciitis: Effective Home Remedies and Physio", summary: "Heel pain from plantar fasciitis responds well to physiotherapy. Discover stretching, strengthening, and self-care strategies for lasting relief.", category: "Foot Care", categoryIcon: "fas fa-shoe-prints", source: "Shree Physio", link: "#blog", date: "2024-05-28" },
+    { title: "Physiotherapy for Parkinson's Disease", summary: "Parkinson's affects movement and balance. Learn how specialised physiotherapy programs help maintain mobility and quality of life for patients.", category: "Neuro Rehab", categoryIcon: "fas fa-brain", source: "Shree Physio", link: "#blog", date: "2024-05-18" }
+  ];
+
+  var CATEGORY_ICONS = {
+    "Pain Management": "fas fa-hand-holding-medical",
+    "Fascial Therapy": "fas fa-hand-sparkles",
+    "Women's Health": "fas fa-person-dress",
+    "Rehabilitation": "fas fa-hospital",
+    "Elderly Care": "fas fa-house-chimney-medical",
+    "Neuro Rehab": "fas fa-brain",
+    "Sports Physio": "fas fa-running",
+    "Ergonomics": "fas fa-desktop",
+    "Joint Health": "fas fa-bone",
+    "Pediatrics": "fas fa-child",
+    "Fitness": "fas fa-person-walking",
+    "Health News": "fas fa-newspaper",
+    "Research": "fas fa-flask"
+  };
+
+  function getDailyRotationSeed() {
+    var now = new Date();
+    return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+  }
+
+  function seededShuffle(arr, seed) {
+    var shuffled = arr.slice();
+    var m = shuffled.length;
+    while (m) {
+      seed = (seed * 9301 + 49297) % 233280;
+      var i = Math.floor((seed / 233280) * m);
+      m--;
+      var tmp = shuffled[m];
+      shuffled[m] = shuffled[i];
+      shuffled[i] = tmp;
+    }
+    return shuffled;
+  }
+
+  function pickDailyArticles(articles, count) {
+    var seed = getDailyRotationSeed();
+    var shuffled = seededShuffle(articles, seed);
+    return shuffled.slice(0, count);
+  }
+
+  function isRecentArticle(dateStr) {
+    if (!dateStr) return false;
+    var articleDate = new Date(dateStr);
+    var now = new Date();
+    var diffDays = (now - articleDate) / (1000 * 60 * 60 * 24);
+    return diffDays <= 7;
+  }
+
+  function fetchBlogFromRSS() {
+    // Check cache first
+    var cachedTime = localStorage.getItem(BLOG_CACHE_TIME_KEY);
+    var cachedData = localStorage.getItem(BLOG_CACHE_KEY);
+
+    if (cachedTime && cachedData) {
+      var elapsed = Date.now() - parseInt(cachedTime, 10);
+      if (elapsed < CACHE_DURATION) {
+        try {
+          var parsed = JSON.parse(cachedData);
+          if (parsed && parsed.length > 0) {
+            renderBlogPreview(parsed);
+            return;
+          }
+        } catch (e) { /* fall through */ }
+      }
+    }
+
+    var allArticles = [];
+    var feedsCompleted = 0;
+    var totalFeeds = RSS_FEEDS.length;
+
+    RSS_FEEDS.forEach(function (feedUrl) {
+      var apiUrl = RSS2JSON_BASE + encodeURIComponent(feedUrl);
+
+      fetch(apiUrl)
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.status === "ok" && data.items && data.items.length > 0) {
+            data.items.forEach(function (item) {
+              var summary = item.description || item.content || "";
+              // Strip HTML tags
+              summary = summary.replace(/<[^>]*>/g, "").trim();
+              if (summary.length > 160) {
+                summary = summary.substring(0, 157) + "...";
+              }
+
+              allArticles.push({
+                title: item.title || "Health Article",
+                summary: summary || "Read this latest health and physiotherapy article.",
+                category: "Health News",
+                categoryIcon: "fas fa-newspaper",
+                source: data.feed ? data.feed.title || "Health Source" : "Health Source",
+                link: item.link || "#blog",
+                date: item.pubDate ? item.pubDate.split(" ")[0] : new Date().toISOString().split("T")[0]
+              });
+            });
+          }
+        })
+        .catch(function () { /* silently fail for this feed */ })
+        .finally(function () {
+          feedsCompleted++;
+          if (feedsCompleted === totalFeeds) {
+            if (allArticles.length > 0) {
+              // Combine RSS articles with static fallback for variety
+              var combined = allArticles.concat(STATIC_ARTICLES);
+              try {
+                localStorage.setItem(BLOG_CACHE_KEY, JSON.stringify(combined));
+                localStorage.setItem(BLOG_CACHE_TIME_KEY, String(Date.now()));
+              } catch (e) { /* storage full, ignore */ }
+              renderBlogPreview(combined);
+            } else {
+              // All feeds failed — use static fallback
+              renderBlogPreview(STATIC_ARTICLES);
+            }
+          }
+        });
+    });
+  }
+
+  function renderBlogPreview(articles) {
     var grid = document.getElementById("blogPreviewGrid");
     if (!grid) return;
 
+    var selected = pickDailyArticles(articles, 6);
+
     grid.innerHTML = "";
 
-    BLOG_PREVIEWS.forEach(function (blog) {
+    selected.forEach(function (blog) {
       var card = document.createElement("div");
       card.className = "blog-card fade-in";
 
+      var iconClass = blog.categoryIcon || CATEGORY_ICONS[blog.category] || "fas fa-newspaper";
+      var isNew = isRecentArticle(blog.date);
+      var newBadge = isNew ? '<span class="blog-new-badge">New</span>' : "";
+      var sourceBadge = blog.source ? '<span class="blog-source-badge">' + escapeHTML(blog.source) + "</span>" : "";
+      var readTime = Math.max(3, Math.ceil((blog.summary || "").split(" ").length / 40)) + " min read";
+      var linkUrl = blog.link || "#blog";
+      var isExternal = linkUrl.indexOf("http") === 0;
+      var targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : "";
+
       card.innerHTML =
         '<div class="blog-card-image">' +
-        '  <div class="blog-card-icon"><i class="' + (blog.categoryIcon || 'fas fa-newspaper') + '"></i></div>' +
+        '  <div class="blog-card-icon"><i class="' + iconClass + '"></i></div>' +
         '  <span class="blog-category-badge">' + escapeHTML(blog.category) + "</span>" +
+        newBadge +
         "</div>" +
         '<div class="blog-card-content">' +
         '  <div class="blog-card-meta">' +
         '    <span class="blog-date">' + formatDateFull(blog.date) + "</span>" +
-        '    <span class="blog-read-time">' + escapeHTML(blog.readTime) + "</span>" +
+        '    <span class="blog-read-time">' + escapeHTML(readTime) + "</span>" +
         "  </div>" +
         "  <h3>" + escapeHTML(blog.title) + "</h3>" +
         "  <p>" + escapeHTML(blog.summary) + "</p>" +
-        '  <a href="#blog" class="read-more-link">Read More &rarr;</a>' +
+        '  <div class="blog-card-footer">' +
+        sourceBadge +
+        '    <a href="' + escapeHTML(linkUrl) + '"' + targetAttr + ' class="read-more-link">Read More &rarr;</a>' +
+        "  </div>" +
         "</div>";
 
       grid.appendChild(card);
     });
+
+    // Observe new cards for animation
+    var newCards = grid.querySelectorAll(".fade-in:not(.visible)");
+    if (newCards.length > 0) {
+      var cardObserver = new IntersectionObserver(
+        function (entries, obs) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      newCards.forEach(function (el) {
+        cardObserver.observe(el);
+      });
+    }
   }
 
   /* ----------------------------------------------------------
@@ -560,7 +730,7 @@
   document.addEventListener("DOMContentLoaded", function () {
     initStarRating();
     loadReviews();
-    renderBlogPreview();
+    fetchBlogFromRSS();
     setupScrollAnimations();
     setupStatCounters();
     window.addEventListener("scroll", handleNavbarScroll);
