@@ -5,7 +5,14 @@
       "Bash(dir:*)",
       "Bash(git config:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd clinic logo image \\(a1.jpg\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd clinic logo image \\(a1.jpg\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(del \"D:\\\\claude\\\\physiotheraphy\\\\book.zip\")",
+      "Bash(git push:*)",
+      "Bash(git -C \"D:\\\\claude\\\\physiotheraphy\" status)",
+      "Bash(git -C \"D:\\\\claude\\\\physiotheraphy\" log --oneline -3)",
+      "Bash(git -C \"D:\\\\claude\\\\physiotheraphy\" add index.html css/style.css js/dashboard.js)",
+      "Bash(Lasting Relief\" the prominent headline with accent styling\n- Apply rich green gradient backgrounds to hero and about sections\n  matching the services/why-us look and feel\n- Clean image presentation without overlay text for better photo view\n- Add glass-morphism skill badges and elegant stat dividers\n- Remove reviews section and nav links\n- Update dashboard password to doctor123\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "WebSearch"
     ]
   }
 }
