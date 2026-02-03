@@ -1,0 +1,2747 @@
+/* =============================================
+   Calendly-Style Calendar for Dashboard
+   Clean, Professional, User-Friendly
+   ============================================= */
+
+/* =============================================
+   Overview Tab - Elegant Modern Layout
+   ============================================= */
+
+/* Welcome Header */
+.overview-welcome {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, var(--primary) 0%, #2d9a7a 100%);
+    border-radius: 16px;
+    color: white;
+}
+
+.welcome-text h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.welcome-text p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.quick-action-btn {
+    padding: 10px 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.quick-action-btn:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.5);
+    transform: translateY(-1px);
+}
+
+.quick-action-btn.primary {
+    background: white;
+    color: var(--primary);
+    border-color: white;
+}
+
+.quick-action-btn.primary:hover {
+    background: #f0f0f0;
+}
+
+/* Stats Cards Grid */
+.overview-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.stat-card-modern {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid var(--border-light);
+    transition: all 0.2s ease;
+}
+
+.stat-card-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.stat-card-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+.stat-card-modern.patients .stat-card-icon {
+    background: linear-gradient(135deg, #1B4D3E 0%, #2d9a7a 100%);
+    color: white;
+}
+
+.stat-card-modern.today .stat-card-icon {
+    background: linear-gradient(135deg, #3B82F6 0%, #60a5fa 100%);
+    color: white;
+}
+
+.stat-card-modern.week .stat-card-icon {
+    background: linear-gradient(135deg, #8B5CF6 0%, #a78bfa 100%);
+    color: white;
+}
+
+.stat-card-modern.revenue .stat-card-icon {
+    background: linear-gradient(135deg, #22C55E 0%, #4ade80 100%);
+    color: white;
+}
+
+.stat-card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.stat-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Secondary Stats */
+.overview-secondary-stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.secondary-stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    flex: 1;
+    max-width: 220px;
+}
+
+.secondary-stat i {
+    font-size: 1rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(27, 77, 62, 0.1);
+    color: var(--primary);
+}
+
+.secondary-stat strong {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.secondary-stat span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.secondary-stat.alert i {
+    background: rgba(249, 115, 22, 0.1);
+    color: #F97316;
+}
+
+.secondary-stat.alert strong {
+    color: #F97316;
+}
+
+/* Main Content Grid */
+.overview-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.overview-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.overview-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.overview-card-header h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.overview-card-header h3 i {
+    color: var(--primary);
+    font-size: 0.9rem;
+}
+
+.card-badge {
+    background: var(--primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+.overview-card-body {
+    padding: 16px;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .overview-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .overview-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .overview-welcome {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+
+    .quick-actions {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .overview-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .stat-card-modern {
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .stat-card-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.1rem;
+    }
+
+    .stat-number {
+        font-size: 1.3rem;
+    }
+
+    .overview-secondary-stats {
+        flex-direction: column;
+    }
+
+    .secondary-stat {
+        max-width: none;
+    }
+
+    .overview-welcome {
+        padding: 16px;
+    }
+
+    .welcome-text h1 {
+        font-size: 1.2rem;
+    }
+
+    .quick-action-btn {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .overview-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .stat-card-modern {
+        padding: 12px;
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+
+    .stat-card-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .stat-number {
+        font-size: 1.2rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
+
+    .quick-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .quick-action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* =============================================
+   Follow-up Filters
+   ============================================= */
+
+.followup-filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.followup-filters input[type="date"],
+.followup-filters select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.followup-filters input[type="date"]:hover,
+.followup-filters select:hover {
+    border-color: var(--primary);
+}
+
+.followup-filters input[type="date"]:focus,
+.followup-filters select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(27, 77, 62, 0.1);
+}
+
+/* Main Container - Split Layout */
+.calendly-container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    min-height: 600px;
+}
+
+@media (max-width: 900px) {
+    .calendly-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Left Sidebar */
+.calendly-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Mini Calendar */
+.mini-calendar-wrapper {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+    padding: 16px;
+}
+
+.mini-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.mini-calendar-header h4 {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.mini-calendar-header button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mini-calendar-header button:hover {
+    background: var(--bg);
+    color: var(--primary);
+}
+
+.mini-calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.mini-calendar-days span {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 4px;
+}
+
+.mini-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.mini-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.mini-day:hover:not(.disabled):not(.selected) {
+    background: rgba(27,77,62,0.08);
+}
+
+.mini-day.today {
+    font-weight: 700;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+}
+
+.mini-day.selected {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+.mini-day.disabled {
+    color: var(--border);
+    cursor: default;
+}
+
+.mini-day.has-appointments::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+}
+
+.mini-day.selected.has-appointments::after {
+    background: #fff;
+}
+
+/* Density classes for patient calendar */
+.mini-day.high-density {
+    background: rgba(34, 197, 94, 0.25);
+}
+
+.mini-day.moderate-density {
+    background: rgba(234, 179, 8, 0.25);
+}
+
+.mini-day.low-density {
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.mini-day.high-density:hover,
+.mini-day.moderate-density:hover,
+.mini-day.low-density:hover {
+    filter: brightness(0.95);
+}
+
+/* View Selector */
+.view-selector {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.view-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+
+.view-btn:hover {
+    background: var(--bg);
+    color: var(--primary);
+}
+
+.view-btn.active {
+    background: var(--primary);
+    color: #fff;
+}
+
+.view-btn i {
+    width: 16px;
+    text-align: center;
+}
+
+/* Quick Stats */
+.today-summary {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+    padding: 16px;
+}
+
+.today-summary h4 {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.today-summary h4 i {
+    color: var(--primary);
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-item span {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.summary-item strong {
+    font-size: 1rem;
+    color: var(--primary);
+}
+
+/* Main Schedule Area */
+.calendly-main {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+}
+
+.schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.schedule-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.schedule-nav button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.schedule-nav button:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.schedule-nav h3 {
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    font-weight: 600;
+    min-width: 200px;
+    text-align: center;
+}
+
+.schedule-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Day View */
+.day-schedule {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.day-header {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 16px;
+}
+
+.day-header h4 {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.day-header span {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+/* Time Slots Grid */
+.time-grid {
+    display: flex;
+    flex-direction: column;
+}
+
+.time-grid-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    min-height: 60px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.time-grid-row:last-child {
+    border-bottom: none;
+}
+
+.time-grid-label {
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-right: 1px solid var(--border-light);
+    background: var(--bg);
+}
+
+.time-grid-cell {
+    padding: 4px 8px;
+    position: relative;
+    min-height: 60px;
+}
+
+/* Appointment Card in Schedule */
+.schedule-appointment {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 4px;
+    color: #fff;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.schedule-appointment:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow);
+}
+
+.schedule-appointment .apt-time {
+    font-size: 0.75rem;
+    opacity: 0.9;
+    margin-bottom: 4px;
+}
+
+.schedule-appointment .apt-patient {
+    font-weight: 600;
+    font-size: 0.88rem;
+    margin-bottom: 2px;
+}
+
+.schedule-appointment .apt-service {
+    font-size: 0.75rem;
+    opacity: 0.85;
+}
+
+.schedule-appointment .apt-duration {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.68rem;
+    margin-top: 6px;
+}
+
+.schedule-appointment.completed {
+    background: linear-gradient(135deg, #22C55E, #16A34A);
+}
+
+.schedule-appointment.cancelled {
+    background: linear-gradient(135deg, #DC2626, #B91C1C);
+    opacity: 0.7;
+}
+
+/* Empty State */
+.schedule-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.schedule-empty i {
+    font-size: 3rem;
+    color: var(--border);
+    margin-bottom: 16px;
+}
+
+.schedule-empty h4 {
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.schedule-empty p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Week View */
+.week-schedule {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.week-day-column {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 400px;
+}
+
+.week-day-header {
+    text-align: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 12px;
+}
+
+.week-day-header .day-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.week-day-header .day-date {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.week-day-column.today .week-day-header .day-date {
+    color: var(--primary);
+}
+
+.week-day-column.sunday {
+    opacity: 0.5;
+}
+
+.week-day-column.sunday .week-day-header::after {
+    content: 'Closed';
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.week-appointment {
+    background: var(--primary);
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.week-appointment:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-sm);
+}
+
+.week-appointment .wa-time {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.week-appointment .wa-name {
+    opacity: 0.9;
+}
+
+/* Month View */
+.month-schedule {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.month-day-header {
+    text-align: center;
+    padding: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.month-day-cell {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    min-height: 100px;
+    padding: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.month-day-cell:hover {
+    border-color: var(--primary-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.month-day-cell.today {
+    border-color: var(--primary);
+    border-width: 2px;
+}
+
+.month-day-cell.selected {
+    background: rgba(27,77,62,0.05);
+}
+
+.month-day-cell.sunday {
+    background: var(--bg);
+    opacity: 0.6;
+}
+
+.month-day-cell .day-number {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+}
+
+.month-day-cell.today .day-number {
+    background: var(--primary);
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.month-appointment-dot {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.month-apt-item {
+    background: var(--primary);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.month-apt-more {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Break Indicator */
+.break-indicator {
+    background: rgba(249,115,22,0.1);
+    border: 1px dashed rgba(249,115,22,0.3);
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+    color: #C2410C;
+    font-size: 0.82rem;
+    margin: 8px 0;
+}
+
+.break-indicator i {
+    margin-right: 8px;
+}
+
+/* Trash Table Styles */
+.trash-count {
+    background: #DC2626;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 8px;
+}
+
+.overdue-row {
+    background: rgba(220,38,38,0.05);
+}
+
+/* Payment Badge */
+.payment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.payment-badge.paid {
+    background: rgba(34,197,94,0.1);
+    color: #16A34A;
+}
+
+.payment-badge.pending {
+    background: rgba(249,115,22,0.1);
+    color: #C2410C;
+}
+
+.payment-badge.partial {
+    background: rgba(59,130,246,0.1);
+    color: #1D4ED8;
+}
+
+/* Days Badge for Trash */
+.days-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(34,197,94,0.1);
+    color: #16A34A;
+}
+
+.days-badge.warning {
+    background: rgba(220,38,38,0.1);
+    color: #DC2626;
+}
+
+/* Time Range in Appointments */
+.time-range {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.duration-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    background: rgba(27,77,62,0.08);
+    color: var(--primary);
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calendly-container {
+        grid-template-columns: 1fr;
+    }
+
+    .calendly-sidebar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .view-selector {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .view-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 8px;
+    }
+
+    .week-schedule {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .month-day-cell {
+        min-height: 60px;
+        padding: 4px;
+    }
+
+    .month-day-cell .day-number {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendly-sidebar {
+        grid-template-columns: 1fr;
+    }
+
+    .week-schedule {
+        grid-template-columns: 1fr;
+    }
+
+    .schedule-nav h3 {
+        font-size: 0.95rem;
+        min-width: auto;
+    }
+}
+
+/* =============================================
+   Accounts Tab Styles - Compact Version
+   ============================================= */
+
+.accounts-header-compact {
+    margin-bottom: 20px;
+}
+
+.accounts-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.accounts-title-row h2 {
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.accounts-title-row h2 i {
+    color: var(--primary);
+}
+
+.accounts-filters {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.accounts-filters select {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    background: var(--surface);
+}
+
+.btn-sm {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+}
+
+/* Compact Summary Chips */
+.accounts-summary-compact {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.summary-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    flex: 1;
+    min-width: 120px;
+}
+
+.summary-chip i {
+    font-size: 0.9rem;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.summary-chip.revenue i {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22C55E;
+}
+
+.summary-chip.patients i {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
+}
+
+.summary-chip.cash i {
+    background: rgba(34, 197, 94, 0.1);
+    color: #16A34A;
+}
+
+.summary-chip.gpay i {
+    background: rgba(59, 130, 246, 0.1);
+    color: #1D4ED8;
+}
+
+.summary-chip.card i {
+    background: rgba(168, 85, 247, 0.1);
+    color: #A855F7;
+}
+
+.summary-chip span {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.summary-chip small {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+/* Two Column Grid */
+.accounts-content-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 1024px) {
+    .accounts-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card-header-compact {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.card-header-compact h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-header-compact h3 i {
+    color: var(--primary);
+    font-size: 0.85rem;
+}
+
+.accounts-transactions {
+    overflow: hidden;
+}
+
+.data-table.compact th,
+.data-table.compact td {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+}
+
+/* Report Buttons Compact */
+.report-buttons-compact {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    flex-wrap: wrap;
+}
+
+.report-btn {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.report-btn:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.report-btn i {
+    font-size: 0.75rem;
+}
+
+.report-display-compact {
+    padding: 0 16px 16px;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.report-display-compact .report-card {
+    padding: 16px;
+}
+
+.report-display-compact .report-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+}
+
+.report-display-compact .report-header h4 {
+    font-size: 1rem;
+}
+
+.report-display-compact .report-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.report-display-compact .report-stat {
+    padding: 10px;
+}
+
+.report-display-compact .stat-value {
+    font-size: 1.1rem;
+}
+
+.report-display-compact .report-section {
+    margin-bottom: 16px;
+}
+
+.report-display-compact .report-section h5 {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+
+.report-display-compact .payment-breakdown,
+.report-display-compact .service-breakdown,
+.report-display-compact .additional-stats {
+    padding: 10px;
+}
+
+.report-display-compact .breakdown-item,
+.report-display-compact .service-item,
+.report-display-compact .stat-row {
+    padding: 6px 0;
+    font-size: 0.82rem;
+}
+
+@media (max-width: 600px) {
+    .accounts-summary-compact {
+        gap: 8px;
+    }
+
+    .summary-chip {
+        min-width: calc(50% - 4px);
+        padding: 8px 10px;
+    }
+
+    .summary-chip small {
+        display: none;
+    }
+}
+
+/* Payment Mode Badge */
+.payment-mode-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.payment-mode-badge.cash {
+    background: rgba(34, 197, 94, 0.1);
+    color: #16A34A;
+}
+
+.payment-mode-badge.gpay {
+    background: rgba(59, 130, 246, 0.1);
+    color: #1D4ED8;
+}
+
+.payment-mode-badge.card {
+    background: rgba(168, 85, 247, 0.1);
+    color: #A855F7;
+}
+
+/* Reports Section */
+.reports-section {
+    margin-top: 32px;
+}
+
+.reports-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+}
+
+.report-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.report-display {
+    margin-top: 16px;
+}
+
+.report-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 24px;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--primary);
+}
+
+.report-header h4 {
+    font-size: 1.2rem;
+    color: var(--primary);
+}
+
+.report-period {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+    .report-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.report-stat {
+    background: var(--bg);
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-value.revenue {
+    color: #22C55E;
+}
+
+.report-section {
+    margin-bottom: 24px;
+}
+
+.report-section h5 {
+    font-size: 1rem;
+    color: var(--primary);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.payment-breakdown,
+.service-breakdown,
+.additional-stats {
+    background: var(--bg);
+    padding: 16px;
+    border-radius: 8px;
+}
+
+.breakdown-item,
+.service-item,
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.breakdown-item:last-child,
+.service-item:last-child,
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+.mode-icon {
+    width: 32px;
+    text-align: center;
+    color: var(--primary);
+}
+
+.mode-label {
+    flex: 1;
+    margin-left: 12px;
+    font-weight: 500;
+}
+
+.mode-value {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.service-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.service-count {
+    color: var(--text-muted);
+    margin-right: 16px;
+}
+
+.service-revenue {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-badge {
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.stat-badge.cancelled {
+    background: rgba(220, 38, 38, 0.1);
+    color: #DC2626;
+}
+
+.stat-badge.pending {
+    background: rgba(249, 115, 22, 0.1);
+    color: #C2410C;
+}
+
+.stat-badge.partial {
+    background: rgba(59, 130, 246, 0.1);
+    color: #1D4ED8;
+}
+
+.report-actions {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+}
+
+/* =============================================
+   View Toggle Buttons
+   ============================================= */
+
+.patients-view-toggle,
+.followup-view-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--bg);
+    padding: 4px;
+    border-radius: var(--radius);
+}
+
+.view-toggle-btn {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.view-toggle-btn:hover {
+    color: var(--primary);
+}
+
+.view-toggle-btn.active {
+    background: var(--primary);
+    color: #fff;
+}
+
+/* =============================================
+   Patient Monthly View - Compact Mini Calendar Style
+   ============================================= */
+
+.patients-monthly-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .patients-monthly-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.patient-calendar-container {
+    padding: 16px;
+}
+
+.patient-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.patient-calendar-header h4 {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.patient-calendar-header button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.patient-calendar-header button:hover {
+    background: var(--bg);
+    color: var(--primary);
+}
+
+.patient-calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.patient-calendar-days span {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 4px;
+}
+
+.patient-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.patient-day-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    font-size: 0.78rem;
+}
+
+.patient-day-cell:hover:not(.empty):not(.sunday) {
+    background: rgba(27,77,62,0.08);
+}
+
+.patient-day-cell.empty {
+    background: transparent;
+    cursor: default;
+}
+
+.patient-day-cell.sunday {
+    color: var(--border);
+    cursor: default;
+}
+
+.patient-day-cell.today {
+    font-weight: 700;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+}
+
+.patient-day-cell.high {
+    background: rgba(34, 197, 94, 0.25);
+}
+
+.patient-day-cell.moderate {
+    background: rgba(234, 179, 8, 0.25);
+}
+
+.patient-day-cell.low {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.patient-day-cell .day-num {
+    font-weight: 500;
+    line-height: 1;
+}
+
+.patient-day-cell .visit-count {
+    position: absolute;
+    bottom: 1px;
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.patient-day-cell.high .visit-count,
+.patient-day-cell.moderate .visit-count,
+.patient-day-cell.low .visit-count {
+    color: var(--text);
+}
+
+/* Calendar Color Legend */
+.calendar-color-legend {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-light);
+}
+
+.calendar-color-legend span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.calendar-color-legend .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+
+.calendar-color-legend .dot.high {
+    background: rgba(34, 197, 94, 0.4);
+}
+
+.calendar-color-legend .dot.moderate {
+    background: rgba(234, 179, 8, 0.4);
+}
+
+.calendar-color-legend .dot.low {
+    background: rgba(239, 68, 68, 0.25);
+}
+
+/* =============================================
+   Sales Graph - Compact
+   ============================================= */
+
+.sales-graph-container {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.sales-graph-container h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+}
+
+.sales-graph {
+    flex: 1;
+    min-height: 150px;
+    overflow-x: auto;
+}
+
+.graph-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 1px;
+    height: 130px;
+    padding: 0 2px;
+}
+
+.graph-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 14px;
+    flex: 1;
+}
+
+.bar-group {
+    display: flex;
+    gap: 1px;
+    align-items: flex-end;
+    height: 110px;
+    width: 100%;
+}
+
+.graph-bar {
+    flex: 1;
+    border-radius: 2px 2px 0 0;
+    min-height: 2px;
+    transition: height 0.3s ease;
+}
+
+.graph-bar.visits {
+    background: var(--primary);
+}
+
+.graph-bar.new {
+    background: var(--accent);
+}
+
+.day-label {
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.graph-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+}
+
+.legend-dot.visits {
+    background: var(--primary);
+}
+
+.legend-dot.new {
+    background: var(--accent);
+}
+
+/* =============================================
+   Follow-up Monthly View
+   ============================================= */
+
+.followup-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 16px 0;
+}
+
+.followup-calendar-header h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.followup-calendar-header button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text);
+    transition: var(--transition);
+}
+
+.followup-calendar-header button:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.followup-calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.followup-calendar-days span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 8px;
+}
+
+.followup-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.followup-day-cell {
+    min-height: 80px;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+}
+
+.followup-day-cell:hover:not(.empty):not(.sunday) {
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+}
+
+.followup-day-cell.empty {
+    background: transparent;
+    cursor: default;
+}
+
+.followup-day-cell.sunday {
+    background: rgba(220, 38, 38, 0.05);
+    cursor: default;
+}
+
+.followup-day-cell.today {
+    border: 2px solid var(--primary);
+}
+
+.followup-day-cell.has-overdue {
+    background: rgba(220, 38, 38, 0.05);
+}
+
+.followup-day-cell .day-num {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+}
+
+.followup-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: auto;
+}
+
+.followup-badges .pending-badge {
+    background: #F97316;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.followup-badges .overdue-badge {
+    background: #DC2626;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.followup-badges .completed-badge {
+    background: #22C55E;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* =============================================
+   Fixed Duration Display (Booking Page)
+   ============================================= */
+
+.fixed-duration-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: rgba(27, 77, 62, 0.05);
+    border: 1px solid rgba(27, 77, 62, 0.15);
+    border-radius: var(--radius);
+}
+
+.fixed-duration-display i {
+    color: var(--primary);
+    font-size: 1rem;
+}
+
+.fixed-duration-display span {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.fixed-duration-display small {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin-left: auto;
+}
+
+/* =============================================
+   Responsive Adjustments
+   ============================================= */
+
+@media (max-width: 768px) {
+    .accounts-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .accounts-filters {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .patient-calendar-grid,
+    .followup-calendar-grid {
+        gap: 2px;
+    }
+
+    .patient-day-cell {
+        font-size: 0.7rem;
+    }
+
+    .followup-day-cell {
+        min-height: 60px;
+        padding: 4px;
+    }
+
+    .followup-day-cell .day-num {
+        font-size: 0.75rem;
+    }
+
+    .graph-bars {
+        min-width: 500px;
+    }
+
+    .patients-monthly-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .patient-calendar-container {
+        max-width: 280px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .patients-view-toggle,
+    .followup-view-toggle {
+        width: 100%;
+    }
+
+    .view-toggle-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 6px 10px;
+        font-size: 0.78rem;
+    }
+
+    .accounts-summary-compact {
+        gap: 6px;
+    }
+
+    .summary-chip {
+        min-width: calc(50% - 3px);
+        padding: 8px 10px;
+    }
+
+    .summary-chip span {
+        font-size: 0.9rem;
+    }
+
+    .summary-chip small {
+        display: none;
+    }
+
+    .calendar-color-legend {
+        gap: 8px;
+    }
+
+    .calendar-color-legend span {
+        font-size: 0.65rem;
+    }
+}
+
+/* =============================================
+   Patients Tab - Filters Layout
+   ============================================= */
+
+.patients-filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+}
+
+.filter-group input[type="date"],
+.filter-group select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.filter-group input[type="date"]:hover,
+.filter-group select:hover {
+    border-color: var(--primary);
+}
+
+.filter-group input[type="date"]:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(27, 77, 62, 0.1);
+}
+
+.filter-group select {
+    min-width: 120px;
+}
+
+.btn-sm {
+    padding: 8px 12px !important;
+    font-size: 0.85rem !important;
+}
+
+@media (max-width: 768px) {
+    .patients-filters {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .patients-filters .search-input {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .filter-group input[type="date"],
+    .filter-group select {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .patients-filters {
+        gap: 8px;
+    }
+
+    .filter-group select {
+        min-width: 100px;
+    }
+}
+
+/* =============================================
+   Accounts Tab - Elegant Design with Reports
+   ============================================= */
+
+/* Header Section */
+.accounts-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #1B4D3E 0%, #2d9a7a 100%);
+    border-radius: 16px;
+    color: white;
+}
+
+.accounts-title h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.accounts-title p {
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.btn-icon-text {
+    padding: 10px 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: white;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-icon-text:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.5);
+}
+
+/* Revenue Cards Grid */
+.accounts-revenue-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.revenue-card {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    border: 1px solid var(--border-light);
+    transition: all 0.2s ease;
+}
+
+.revenue-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.revenue-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.revenue-card.total .revenue-icon {
+    background: linear-gradient(135deg, #22C55E 0%, #4ade80 100%);
+    color: white;
+}
+
+.revenue-card.patients .revenue-icon {
+    background: linear-gradient(135deg, #3B82F6 0%, #60a5fa 100%);
+    color: white;
+}
+
+.revenue-card.cash .revenue-icon {
+    background: linear-gradient(135deg, #16A34A 0%, #22c55e 100%);
+    color: white;
+}
+
+.revenue-card.gpay .revenue-icon {
+    background: linear-gradient(135deg, #1D4ED8 0%, #3b82f6 100%);
+    color: white;
+}
+
+.revenue-card.card .revenue-icon {
+    background: linear-gradient(135deg, #7C3AED 0%, #a78bfa 100%);
+    color: white;
+}
+
+.revenue-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.revenue-amount {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.revenue-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* Report Tabs */
+.report-tabs-container {
+    margin-bottom: 20px;
+}
+
+.report-tabs {
+    display: flex;
+    gap: 8px;
+    background: var(--bg);
+    padding: 6px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.report-tab {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.report-tab:hover {
+    color: var(--primary);
+}
+
+.report-tab.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 2px 8px rgba(27, 77, 62, 0.3);
+}
+
+.report-tab i {
+    font-size: 0.85rem;
+}
+
+/* Report Views */
+.report-view {
+    display: none;
+}
+
+.report-view.active {
+    display: block;
+}
+
+.report-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
+}
+
+/* Report Panel */
+.report-panel {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.report-panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.report-panel-header h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.report-panel-header h3 i {
+    color: var(--primary);
+}
+
+.report-panel-header input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    background: var(--surface);
+}
+
+.week-nav, .month-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.week-nav button, .month-nav button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.week-nav button:hover, .month-nav button:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.week-nav span, .month-nav span {
+    font-weight: 600;
+    font-size: 0.9rem;
+    min-width: 120px;
+    text-align: center;
+}
+
+.report-panel-body {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Report Summary Panel */
+.report-summary-panel {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    height: fit-content;
+}
+
+.report-summary-panel h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary);
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-item span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.summary-item strong {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.summary-item strong.revenue {
+    color: #16A34A;
+}
+
+.summary-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 0;
+}
+
+/* Weekly Chart */
+.weekly-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 150px;
+    padding: 20px 10px;
+    background: var(--bg);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    gap: 8px;
+}
+
+.chart-bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--primary) 0%, #2d9a7a 100%);
+    border-radius: 6px 6px 0 0;
+    min-height: 10px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.chart-bar:hover {
+    opacity: 0.8;
+}
+
+.chart-bar-label {
+    position: absolute;
+    bottom: -24px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* Monthly Stats Grid */
+.monthly-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.monthly-stat-card {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.monthly-stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.monthly-stat-card i {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.monthly-stat-card strong {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.monthly-stat-card span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.monthly-stat-card.revenue i {
+    color: #22C55E;
+}
+
+.monthly-stat-card.revenue strong {
+    color: #16A34A;
+}
+
+/* Payment Breakdown Visual */
+.payment-breakdown-visual {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.breakdown-bar {
+    height: 24px;
+    border-radius: 12px;
+    display: flex;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.breakdown-segment {
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.breakdown-segment.cash { background: #22C55E; }
+.breakdown-segment.gpay { background: #3B82F6; }
+.breakdown-segment.card { background: #8B5CF6; }
+
+.breakdown-legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+}
+
+.legend-dot.cash { background: #22C55E; }
+.legend-dot.gpay { background: #3B82F6; }
+.legend-dot.card { background: #8B5CF6; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .accounts-revenue-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .report-content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .report-summary-panel {
+        order: -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .accounts-header-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .accounts-revenue-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .revenue-card {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .revenue-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .revenue-amount {
+        font-size: 1.1rem;
+    }
+
+    .report-tabs {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .report-tab {
+        padding: 8px 14px;
+        font-size: 0.82rem;
+    }
+
+    .monthly-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .accounts-revenue-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .revenue-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 12px;
+    }
+
+    .report-tab span {
+        display: none;
+    }
+
+    .report-tab i {
+        margin: 0;
+    }
+}

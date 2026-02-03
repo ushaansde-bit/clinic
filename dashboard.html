@@ -4,16 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard | Shree Physiotherapy Clinic</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#1B4D3E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Physio Dashboard">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dashboard-calendar.css">
 </head>
 <body>
 
-  <!-- Login Screen -->
-  <div class="login-screen" id="loginScreen">
+  <!-- Login Screen (disabled) -->
+  <div class="login-screen" id="loginScreen" style="display:none;">
     <div class="login-card">
       <div style="width:64px;height:64px;background:rgba(27,77,62,0.08);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.6rem;color:var(--primary);">
         <i class="fas fa-stethoscope"></i>
@@ -33,8 +43,8 @@
     </div>
   </div>
 
-  <!-- Dashboard (hidden until login) -->
-  <div id="dashboardApp" style="display:none;">
+  <!-- Dashboard -->
+  <div id="dashboardApp">
 
     <nav class="navbar" id="navbar">
       <div class="container nav-container">
@@ -80,6 +90,13 @@
           <a href="#" onclick="switchTab('followups'); return false;">
             <span class="nav-icon"><i class="fas fa-bell"></i></span> Follow-ups
           </a>
+          <a href="#" onclick="switchTab('accounts'); return false;">
+            <span class="nav-icon"><i class="fas fa-book"></i></span> Accounts
+          </a>
+          <a href="#" onclick="switchTab('trash'); return false;" style="margin-top:auto;border-top:1px solid var(--border-light);padding-top:12px;">
+            <span class="nav-icon"><i class="fas fa-trash-alt"></i></span> Trash
+            <span class="trash-count" id="trashCount" style="display:none;"></span>
+          </a>
         </nav>
       </aside>
 
@@ -92,49 +109,130 @@
           <button onclick="switchTab('calendar')">Calendar</button>
           <button onclick="switchTab('prescriptions')">Prescriptions</button>
           <button onclick="switchTab('followups')">Follow-ups</button>
+          <button onclick="switchTab('accounts')">Accounts</button>
+          <button onclick="switchTab('trash')">Trash</button>
         </div>
 
         <!-- TAB: Overview -->
         <div id="tab-overview" class="tab-content">
-          <h2 style="font-size:1.8rem;margin-bottom:28px;">Dashboard Overview</h2>
-          <div class="stat-cards">
-            <div class="stat-card">
-              <div class="stat-icon teal"><i class="fas fa-users"></i></div>
-              <div class="stat-info"><h3><span id="statPatients">0</span></h3><p>Total Patients</p></div>
+          <!-- Overdue Alert -->
+          <div id="overdueAlert" style="display:none;margin-bottom:16px;"></div>
+
+          <!-- Welcome Header -->
+          <div class="overview-welcome">
+            <div class="welcome-text">
+              <h1>Welcome back, <span id="welcomeName">Doctor</span></h1>
+              <p id="welcomeDate">Loading...</p>
             </div>
-            <div class="stat-card">
-              <div class="stat-icon gold"><i class="fas fa-calendar"></i></div>
-              <div class="stat-info"><h3><span id="statToday">0</span></h3><p>Today's Appointments</p></div>
+            <div class="quick-actions">
+              <button class="quick-action-btn" onclick="switchTab('patients');openModal('addPatientModal');">
+                <i class="fas fa-user-plus"></i> New Patient
+              </button>
+              <button class="quick-action-btn primary" onclick="switchTab('calendar');">
+                <i class="fas fa-calendar-plus"></i> Book Appointment
+              </button>
             </div>
-            <div class="stat-card">
-              <div class="stat-icon green"><i class="fas fa-file-prescription"></i></div>
-              <div class="stat-info"><h3><span id="statPrescriptions">0</span></h3><p>Prescriptions</p></div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="overview-stats-grid">
+            <div class="stat-card-modern patients">
+              <div class="stat-card-icon"><i class="fas fa-users"></i></div>
+              <div class="stat-card-content">
+                <span class="stat-number" id="statPatients">0</span>
+                <span class="stat-label">Total Patients</span>
+              </div>
             </div>
-            <div class="stat-card">
-              <div class="stat-icon" style="background:rgba(249,115,22,0.1);color:#F97316;"><i class="fas fa-bell"></i></div>
-              <div class="stat-info"><h3><span id="statFollowups">0</span></h3><p>Pending Follow-ups</p></div>
+            <div class="stat-card-modern today">
+              <div class="stat-card-icon"><i class="fas fa-calendar-check"></i></div>
+              <div class="stat-card-content">
+                <span class="stat-number" id="statToday">0</span>
+                <span class="stat-label">Today's Appointments</span>
+              </div>
+            </div>
+            <div class="stat-card-modern week">
+              <div class="stat-card-icon"><i class="fas fa-calendar-week"></i></div>
+              <div class="stat-card-content">
+                <span class="stat-number" id="statWeek">0</span>
+                <span class="stat-label">This Week</span>
+              </div>
+            </div>
+            <div class="stat-card-modern revenue">
+              <div class="stat-card-icon"><i class="fas fa-indian-rupee-sign"></i></div>
+              <div class="stat-card-content">
+                <span class="stat-number">₹<span id="statRevenue">0</span></span>
+                <span class="stat-label">Today's Revenue</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Stats -->
+          <div class="overview-secondary-stats">
+            <div class="secondary-stat">
+              <i class="fas fa-file-prescription"></i>
+              <strong id="statPrescriptions">0</strong>
+              <span>Prescriptions</span>
+            </div>
+            <div class="secondary-stat alert">
+              <i class="fas fa-bell"></i>
+              <strong id="statFollowups">0</strong>
+              <span>Pending Follow-ups</span>
+            </div>
+          </div>
+
+          <!-- Main Content Grid -->
+          <div class="overview-main-grid">
+            <!-- Today's Schedule -->
+            <div class="overview-card">
+              <div class="overview-card-header">
+                <h3><i class="fas fa-clock"></i> Today's Schedule</h3>
+                <span class="card-badge" id="todayCount">0</span>
+              </div>
+              <div class="overview-card-body" id="todayTimeline"></div>
+            </div>
+
+            <!-- Upcoming Appointments -->
+            <div class="overview-card">
+              <div class="overview-card-header">
+                <h3><i class="fas fa-calendar-alt"></i> Upcoming</h3>
+                <span class="card-badge" id="upcomingCount">0</span>
+              </div>
+              <div class="overview-card-body" id="upcomingAppointments"></div>
             </div>
           </div>
         </div>
 
         <!-- TAB: Patients -->
         <div id="tab-patients" class="tab-content" style="display:none;">
-          <div class="dashboard-card-header" style="margin-bottom:24px;">
-            <h2 style="font-size:1.8rem;">Patient Records</h2>
-            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <div class="dashboard-card-header" style="margin-bottom:20px;">
+            <h2 style="font-size:1.6rem;">Patient Records</h2>
+            <div class="patients-filters">
               <div class="search-input">
                 <i class="fas fa-search" style="color:var(--text-muted);"></i>
                 <input type="text" id="patientSearch" placeholder="Search patients...">
               </div>
-              <button class="btn btn-primary" onclick="openModal('addPatientModal')" style="padding:10px 20px;font-size:0.88rem;">
+              <div class="filter-group">
+                <input type="date" id="patientDateFilter" onchange="filterPatients()" title="Filter by date">
+              </div>
+              <div class="filter-group">
+                <select id="patientGenderFilter" onchange="filterPatients()">
+                  <option value="">All Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="openModal('addPatientModal')" style="padding:8px 16px;font-size:0.85rem;">
                 <i class="fas fa-plus"></i> Add Patient
+              </button>
+              <button class="btn btn-outline" onclick="clearPatientFilters()" style="padding:8px 16px;font-size:0.85rem;">
+                <i class="fas fa-times"></i> Clear
               </button>
             </div>
           </div>
           <div class="dashboard-card">
             <div style="overflow-x:auto;">
               <table class="data-table" id="patientsTable">
-                <thead><tr><th>Name</th><th>Age</th><th>Gender</th><th>Phone</th><th>Visits</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Name</th><th>Age</th><th>Gender</th><th>Phone</th><th>Visits</th><th>Last Visit</th><th>Actions</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -145,33 +243,93 @@
         <div id="tab-appointments" class="tab-content" style="display:none;">
           <div class="dashboard-card-header" style="margin-bottom:24px;">
             <h2 style="font-size:1.8rem;">Appointments</h2>
-            <input type="date" id="appointmentFilter" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+              <input type="date" id="appointmentFilter" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+              <select id="appointmentStatusFilter" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+                <option value="all">All Status</option>
+                <option value="Scheduled">Scheduled</option>
+                <option value="Confirmed">Confirmed</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+              <button class="btn btn-outline" onclick="document.getElementById('appointmentFilter').value='';document.getElementById('appointmentStatusFilter').value='all';loadAppointments();" style="padding:8px 16px;font-size:0.85rem;">
+                <i class="fas fa-times"></i> Clear
+              </button>
+            </div>
           </div>
           <div class="dashboard-card">
             <div style="overflow-x:auto;">
               <table class="data-table" id="appointmentsTable">
-                <thead><tr><th>Patient</th><th>Date</th><th>Time</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Patient</th><th>Date</th><th>Time</th><th>Service</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- TAB: Calendar View -->
+        <!-- TAB: Calendar View - Calendly Style -->
         <div id="tab-calendar" class="tab-content" style="display:none;">
-          <h2 style="font-size:1.8rem;margin-bottom:28px;">Calendar View</h2>
-          <div class="dashboard-card" style="padding:24px;">
-            <div class="calendar-header">
-              <h3 id="dashCalendarMonth"></h3>
-              <div class="calendar-nav">
-                <button onclick="changeDashMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-                <button onclick="changeDashMonth(1)"><i class="fas fa-chevron-right"></i></button>
+          <div class="calendly-container">
+            <!-- Left: Mini Calendar -->
+            <div class="calendly-sidebar">
+              <div class="mini-calendar-wrapper">
+                <div class="mini-calendar-header">
+                  <button onclick="changeMiniMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                  <h4 id="miniCalendarMonth">January 2025</h4>
+                  <button onclick="changeMiniMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="mini-calendar-days">
+                  <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                </div>
+                <div class="mini-calendar-grid" id="miniCalendarGrid"></div>
+              </div>
+
+              <div class="view-selector">
+                <button class="view-btn active" data-view="day" onclick="setCalendarView('day')">
+                  <i class="fas fa-calendar-day"></i> Day
+                </button>
+                <button class="view-btn" data-view="week" onclick="setCalendarView('week')">
+                  <i class="fas fa-calendar-week"></i> Week
+                </button>
+                <button class="view-btn" data-view="month" onclick="setCalendarView('month')">
+                  <i class="fas fa-calendar"></i> Month
+                </button>
+              </div>
+
+              <div class="today-summary">
+                <h4><i class="fas fa-info-circle"></i> Today's Summary</h4>
+                <div class="summary-item">
+                  <span>Total Appointments</span>
+                  <strong id="summaryTotal">0</strong>
+                </div>
+                <div class="summary-item">
+                  <span>Completed</span>
+                  <strong id="summaryCompleted">0</strong>
+                </div>
+                <div class="summary-item">
+                  <span>Remaining</span>
+                  <strong id="summaryRemaining">0</strong>
+                </div>
               </div>
             </div>
-            <div class="calendar-days-header">
-              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+
+            <!-- Right: Schedule Display -->
+            <div class="calendly-main">
+              <div class="schedule-header">
+                <div class="schedule-nav">
+                  <button onclick="navigateSchedule(-1)"><i class="fas fa-chevron-left"></i></button>
+                  <h3 id="scheduleTitle">Today's Schedule</h3>
+                  <button onclick="navigateSchedule(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <button class="btn btn-primary" onclick="goToToday()" style="padding:8px 16px;font-size:0.85rem;">
+                  <i class="fas fa-calendar-day"></i> Today
+                </button>
+              </div>
+
+              <div class="schedule-content" id="scheduleContent">
+                <!-- Schedule rendered by JS -->
+              </div>
             </div>
-            <div class="calendar-grid" id="dashCalendarGrid"></div>
           </div>
         </div>
 
@@ -187,7 +345,7 @@
           <div class="dashboard-card">
             <div style="overflow-x:auto;">
               <table class="data-table" id="prescriptionsTable">
-                <thead><tr><th>Patient</th><th>Date</th><th>Diagnosis</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Patient</th><th>Date</th><th>Diagnosis</th><th>Linked Appointment</th><th>Actions</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -196,18 +354,227 @@
 
         <!-- TAB: Follow-ups -->
         <div id="tab-followups" class="tab-content" style="display:none;">
-          <div class="dashboard-card-header" style="margin-bottom:24px;">
-            <h2 style="font-size:1.8rem;">Follow-ups</h2>
-            <select id="followupFilter" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
-              <option value="all">All</option>
-              <option value="Pending">Pending</option>
-              <option value="Completed">Completed</option>
-            </select>
+          <div class="dashboard-card-header" style="margin-bottom:20px;">
+            <h2 style="font-size:1.6rem;">Follow-ups</h2>
+            <div class="followup-filters">
+              <div class="filter-group">
+                <input type="date" id="followupDateFilter" onchange="filterFollowups()" title="Filter by date">
+              </div>
+              <select id="followupFilter" onchange="filterFollowups()">
+                <option value="all">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+              </select>
+              <button class="btn btn-outline" onclick="clearFollowupFilters()" style="padding:8px 16px;font-size:0.85rem;">
+                <i class="fas fa-times"></i> Clear
+              </button>
+            </div>
           </div>
           <div class="dashboard-card">
             <div style="overflow-x:auto;">
               <table class="data-table" id="followupsTable">
                 <thead><tr><th>Patient</th><th>Date</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Accounts -->
+        <div id="tab-accounts" class="tab-content" style="display:none;">
+          <!-- Accounts Header -->
+          <div class="accounts-header-section">
+            <div class="accounts-title">
+              <h2><i class="fas fa-chart-line"></i> Accounts & Reports</h2>
+              <p>Track revenue, payments, and generate reports</p>
+            </div>
+            <div class="accounts-header-actions">
+              <button class="btn-icon-text" onclick="exportAccountsCSV()">
+                <i class="fas fa-download"></i> Export
+              </button>
+            </div>
+          </div>
+
+          <!-- Revenue Summary Cards -->
+          <div class="accounts-revenue-grid">
+            <div class="revenue-card total">
+              <div class="revenue-icon"><i class="fas fa-wallet"></i></div>
+              <div class="revenue-info">
+                <span class="revenue-amount" id="accountsRevenue">₹0</span>
+                <span class="revenue-label">Total Revenue</span>
+              </div>
+            </div>
+            <div class="revenue-card patients">
+              <div class="revenue-icon"><i class="fas fa-user-check"></i></div>
+              <div class="revenue-info">
+                <span class="revenue-amount" id="accountsPatients">0</span>
+                <span class="revenue-label">Patients Treated</span>
+              </div>
+            </div>
+            <div class="revenue-card cash">
+              <div class="revenue-icon"><i class="fas fa-money-bill-wave"></i></div>
+              <div class="revenue-info">
+                <span class="revenue-amount" id="accountsCash">₹0</span>
+                <span class="revenue-label">Cash</span>
+              </div>
+            </div>
+            <div class="revenue-card gpay">
+              <div class="revenue-icon"><i class="fas fa-mobile-alt"></i></div>
+              <div class="revenue-info">
+                <span class="revenue-amount" id="accountsGPay">₹0</span>
+                <span class="revenue-label">GPay</span>
+              </div>
+            </div>
+            <div class="revenue-card card">
+              <div class="revenue-icon"><i class="fas fa-credit-card"></i></div>
+              <div class="revenue-info">
+                <span class="revenue-amount" id="accountsCard">₹0</span>
+                <span class="revenue-label">Card</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Report Tabs -->
+          <div class="report-tabs-container">
+            <div class="report-tabs">
+              <button class="report-tab active" onclick="switchReportTab('daily')">
+                <i class="fas fa-calendar-day"></i> Daily
+              </button>
+              <button class="report-tab" onclick="switchReportTab('weekly')">
+                <i class="fas fa-calendar-week"></i> Weekly
+              </button>
+              <button class="report-tab" onclick="switchReportTab('monthly')">
+                <i class="fas fa-calendar-alt"></i> Monthly
+              </button>
+            </div>
+          </div>
+
+          <!-- Daily Report View -->
+          <div id="report-daily" class="report-view active">
+            <div class="report-content-grid">
+              <div class="report-panel">
+                <div class="report-panel-header">
+                  <h3><i class="fas fa-list-ul"></i> Today's Transactions</h3>
+                  <input type="date" id="dailyReportDate" onchange="loadDailyReport()">
+                </div>
+                <div class="report-panel-body">
+                  <table class="data-table compact" id="dailyTransactionsTable">
+                    <thead><tr><th>Time</th><th>Patient</th><th>Service</th><th>Amount</th><th>Mode</th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="report-summary-panel">
+                <h4>Daily Summary</h4>
+                <div class="summary-item"><span>Total Appointments</span><strong id="dailyAppointments">0</strong></div>
+                <div class="summary-item"><span>Completed</span><strong id="dailyCompleted">0</strong></div>
+                <div class="summary-item"><span>Revenue</span><strong id="dailyRevenue" class="revenue">₹0</strong></div>
+                <div class="summary-divider"></div>
+                <div class="summary-item"><span>Cash</span><strong id="dailyCash">₹0</strong></div>
+                <div class="summary-item"><span>GPay</span><strong id="dailyGPay">₹0</strong></div>
+                <div class="summary-item"><span>Card</span><strong id="dailyCard">₹0</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Report View -->
+          <div id="report-weekly" class="report-view">
+            <div class="report-content-grid">
+              <div class="report-panel">
+                <div class="report-panel-header">
+                  <h3><i class="fas fa-chart-bar"></i> Weekly Overview</h3>
+                  <div class="week-nav">
+                    <button onclick="changeReportWeek(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <span id="weeklyReportLabel">This Week</span>
+                    <button onclick="changeReportWeek(1)"><i class="fas fa-chevron-right"></i></button>
+                  </div>
+                </div>
+                <div class="report-panel-body">
+                  <div class="weekly-chart" id="weeklyChart"></div>
+                  <table class="data-table compact" id="weeklyBreakdownTable">
+                    <thead><tr><th>Day</th><th>Appointments</th><th>Revenue</th><th>Cash</th><th>GPay</th><th>Card</th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="report-summary-panel">
+                <h4>Weekly Summary</h4>
+                <div class="summary-item"><span>Total Appointments</span><strong id="weeklyAppointments">0</strong></div>
+                <div class="summary-item"><span>Completed</span><strong id="weeklyCompleted">0</strong></div>
+                <div class="summary-item"><span>Revenue</span><strong id="weeklyRevenue" class="revenue">₹0</strong></div>
+                <div class="summary-divider"></div>
+                <div class="summary-item"><span>Avg/Day</span><strong id="weeklyAvgRevenue">₹0</strong></div>
+                <div class="summary-item"><span>Best Day</span><strong id="weeklyBestDay">-</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Monthly Report View -->
+          <div id="report-monthly" class="report-view">
+            <div class="report-content-grid">
+              <div class="report-panel">
+                <div class="report-panel-header">
+                  <h3><i class="fas fa-chart-pie"></i> Monthly Overview</h3>
+                  <div class="month-nav">
+                    <button onclick="changeReportMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <span id="monthlyReportLabel">This Month</span>
+                    <button onclick="changeReportMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                  </div>
+                </div>
+                <div class="report-panel-body">
+                  <div class="monthly-stats-grid">
+                    <div class="monthly-stat-card">
+                      <i class="fas fa-users"></i>
+                      <strong id="monthlyPatients">0</strong>
+                      <span>Patients</span>
+                    </div>
+                    <div class="monthly-stat-card">
+                      <i class="fas fa-calendar-check"></i>
+                      <strong id="monthlyAppointments">0</strong>
+                      <span>Appointments</span>
+                    </div>
+                    <div class="monthly-stat-card">
+                      <i class="fas fa-check-circle"></i>
+                      <strong id="monthlyCompleted">0</strong>
+                      <span>Completed</span>
+                    </div>
+                    <div class="monthly-stat-card revenue">
+                      <i class="fas fa-indian-rupee-sign"></i>
+                      <strong id="monthlyTotalRevenue">₹0</strong>
+                      <span>Revenue</span>
+                    </div>
+                  </div>
+                  <div class="payment-breakdown-visual" id="monthlyPaymentBreakdown"></div>
+                </div>
+              </div>
+              <div class="report-summary-panel">
+                <h4>Monthly Summary</h4>
+                <div class="summary-item"><span>Cash</span><strong id="monthlyCash">₹0</strong></div>
+                <div class="summary-item"><span>GPay</span><strong id="monthlyGPay">₹0</strong></div>
+                <div class="summary-item"><span>Card</span><strong id="monthlyCard">₹0</strong></div>
+                <div class="summary-divider"></div>
+                <div class="summary-item"><span>Avg/Week</span><strong id="monthlyAvgWeek">₹0</strong></div>
+                <div class="summary-item"><span>Best Week</span><strong id="monthlyBestWeek">-</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Trash (Deleted Patients) -->
+        <div id="tab-trash" class="tab-content" style="display:none;">
+          <div class="dashboard-card-header" style="margin-bottom:24px;">
+            <div>
+              <h2 style="font-size:1.8rem;"><i class="fas fa-trash-alt" style="margin-right:10px;opacity:0.7;"></i>Trash</h2>
+              <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px;">Deleted patients are kept here for 30 days before permanent deletion.</p>
+            </div>
+            <button class="btn btn-outline" onclick="emptyTrash()" style="padding:8px 16px;font-size:0.85rem;color:#DC2626;border-color:#DC2626;">
+              <i class="fas fa-trash"></i> Empty Trash
+            </button>
+          </div>
+          <div class="dashboard-card">
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="trashTable">
+                <thead><tr><th>Name</th><th>Age</th><th>Phone</th><th>Deleted On</th><th>Auto-Delete In</th><th>Actions</th></tr></thead>
                 <tbody></tbody>
               </table>
             </div>
@@ -263,18 +630,21 @@
 
   <!-- View Patient Modal -->
   <div class="modal-overlay" id="viewPatientModal">
-    <div class="modal" style="max-width:700px;">
+    <div class="modal" style="max-width:750px;">
       <button class="modal-close" onclick="closeModal('viewPatientModal')"><i class="fas fa-times"></i></button>
       <h2>Patient Details</h2>
       <div id="patientDetails" style="margin-bottom:24px;"></div>
-      <h3 style="font-size:1.1rem;margin-bottom:12px;">Visit History</h3>
-      <div id="visitHistory" style="margin-bottom:24px;"></div>
+      <h3 style="font-size:1.1rem;margin-bottom:12px;">Treatment History</h3>
+      <div id="visitHistory" style="margin-bottom:24px;max-height:300px;overflow-y:auto;"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-primary" id="btnWriteRx" style="padding:10px 20px;font-size:0.85rem;">
           <i class="fas fa-file-prescription"></i> Write Prescription
         </button>
         <button class="btn btn-secondary" id="btnScheduleFu" style="padding:10px 20px;font-size:0.85rem;">
           <i class="fas fa-bell"></i> Schedule Follow-up
+        </button>
+        <button class="btn btn-accent" id="btnBookAppt" style="padding:10px 20px;font-size:0.85rem;">
+          <i class="fas fa-calendar-plus"></i> Book Appointment
         </button>
         <button class="btn btn-whatsapp" id="btnPatientWa" style="padding:10px 20px;font-size:0.85rem;">
           <i class="fab fa-whatsapp"></i> WhatsApp
@@ -317,7 +687,25 @@
             <input type="text" id="rxFollowupReason" placeholder="Reason for follow-up">
           </div>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+        <div class="payment-section" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border-light);">
+          <h4 style="font-size:0.95rem;font-weight:600;margin-bottom:12px;color:var(--primary);"><i class="fas fa-indian-rupee-sign" style="margin-right:6px;"></i>Payment Collection</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="rxPaymentAmount">Amount (₹)</label>
+              <input type="number" id="rxPaymentAmount" placeholder="0" min="0">
+            </div>
+            <div class="form-group">
+              <label for="rxPaymentMode">Payment Mode</label>
+              <select id="rxPaymentMode">
+                <option value="">Not Collected</option>
+                <option value="Cash">Cash</option>
+                <option value="GPay">GPay</option>
+                <option value="Card">Card</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;">
           <i class="fas fa-save"></i> Save Prescription
         </button>
       </form>
@@ -344,9 +732,182 @@
           <label for="fuNotes">Notes</label>
           <textarea id="fuNotes" rows="3" placeholder="Additional notes..."></textarea>
         </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="fuCreateAppointment" checked style="width:auto;">
+          <label for="fuCreateAppointment" style="margin:0;font-size:0.88rem;">Also create an appointment for this date</label>
+        </div>
         <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
           <i class="fas fa-calendar-plus"></i> Schedule Follow-up
         </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Quick Booking Modal (Doctor) with Duration & Payment -->
+  <div class="modal-overlay" id="quickBookingModal">
+    <div class="modal" style="max-width:550px;">
+      <button class="modal-close" onclick="closeModal('quickBookingModal')"><i class="fas fa-times"></i></button>
+      <h2>Book Appointment</h2>
+      <p style="color:var(--primary);font-weight:600;margin-bottom:20px;" id="qbPatientName"></p>
+      <form onsubmit="saveQuickBooking(event)">
+        <input type="hidden" id="qbPatientId">
+        <div class="form-group">
+          <label for="qbDate">Appointment Date *</label>
+          <input type="date" id="qbDate" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="qbStartTime">Start Time *</label>
+            <select id="qbStartTime" required onchange="updateEndTimeOptions()">
+              <optgroup label="Morning (10 AM - 1:30 PM)">
+                <option value="10:00 AM">10:00 AM</option>
+                <option value="10:15 AM">10:15 AM</option>
+                <option value="10:30 AM">10:30 AM</option>
+                <option value="10:45 AM">10:45 AM</option>
+                <option value="11:00 AM">11:00 AM</option>
+                <option value="11:15 AM">11:15 AM</option>
+                <option value="11:30 AM">11:30 AM</option>
+                <option value="11:45 AM">11:45 AM</option>
+                <option value="12:00 PM">12:00 PM</option>
+                <option value="12:15 PM">12:15 PM</option>
+                <option value="12:30 PM">12:30 PM</option>
+                <option value="12:45 PM">12:45 PM</option>
+                <option value="1:00 PM">1:00 PM</option>
+                <option value="1:15 PM">1:15 PM</option>
+              </optgroup>
+              <optgroup label="Evening (6 PM - 8:30 PM)">
+                <option value="6:00 PM">6:00 PM</option>
+                <option value="6:15 PM">6:15 PM</option>
+                <option value="6:30 PM">6:30 PM</option>
+                <option value="6:45 PM">6:45 PM</option>
+                <option value="7:00 PM">7:00 PM</option>
+                <option value="7:15 PM">7:15 PM</option>
+                <option value="7:30 PM">7:30 PM</option>
+                <option value="7:45 PM">7:45 PM</option>
+                <option value="8:00 PM">8:00 PM</option>
+                <option value="8:15 PM">8:15 PM</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="qbDuration">Duration *</label>
+            <select id="qbDuration" required onchange="updateEndTimeFromDuration()">
+              <option value="15">15 minutes</option>
+              <option value="30" selected>30 minutes</option>
+              <option value="45">45 minutes</option>
+              <option value="60">1 hour</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="qbEndTime">End Time</label>
+          <input type="text" id="qbEndTime" readonly style="background:var(--bg);">
+        </div>
+        <div class="form-group">
+          <label for="qbService">Service *</label>
+          <select id="qbService" required>
+            <option value="">Select Service</option>
+            <option value="General Consultation">General Consultation</option>
+            <option value="Fascial Manipulation">Fascial Manipulation</option>
+            <option value="Orthopedic Rehabilitation">Orthopedic Rehabilitation</option>
+            <option value="Neuro Rehabilitation">Neuro Rehabilitation</option>
+            <option value="Women's Health Physio">Women's Health Physio</option>
+            <option value="Elderly Home Care">Elderly Home Care</option>
+            <option value="Pediatric Physiotherapy">Pediatric Physiotherapy</option>
+            <option value="Follow-up">Follow-up Visit</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="qbPaymentAmount">Payment Amount (₹)</label>
+            <input type="number" id="qbPaymentAmount" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label for="qbPaymentStatus">Payment Status</label>
+            <select id="qbPaymentStatus">
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Partial">Partial</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="qbPaymentMode">Payment Mode</label>
+          <select id="qbPaymentMode">
+            <option value="">Not Collected</option>
+            <option value="Cash">Cash</option>
+            <option value="GPay">GPay</option>
+            <option value="Card">Card</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+          <i class="fas fa-calendar-check"></i> Book Appointment
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Complete Treatment Modal (for completing appointments) -->
+  <div class="modal-overlay" id="treatmentModal">
+    <div class="modal" style="max-width:550px;">
+      <button class="modal-close" onclick="closeModal('treatmentModal')"><i class="fas fa-times"></i></button>
+      <h2><i class="fas fa-check-circle" style="color:var(--primary);margin-right:8px;"></i>Complete Treatment</h2>
+
+      <div style="background:var(--bg);padding:16px;border-radius:var(--radius);margin-bottom:20px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.9rem;">
+          <div><strong>Patient:</strong> <span id="treatmentPatientName">-</span></div>
+          <div><strong>Service:</strong> <span id="treatmentService">-</span></div>
+          <div><strong>Date:</strong> <span id="treatmentDate">-</span></div>
+          <div><strong>Scheduled:</strong> <span id="treatmentScheduledTime">-</span></div>
+        </div>
+      </div>
+
+      <form onsubmit="event.preventDefault(); saveCompletedTreatment();">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="treatmentActualStart">Actual Start Time</label>
+            <input type="time" id="treatmentActualStart">
+          </div>
+          <div class="form-group">
+            <label for="treatmentActualEnd">Actual End Time</label>
+            <input type="time" id="treatmentActualEnd">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="treatmentAmountPaid">Amount Collected (₹)</label>
+            <input type="number" id="treatmentAmountPaid" placeholder="500" min="0">
+          </div>
+          <div class="form-group">
+            <label for="treatmentPaymentStatus">Payment Status</label>
+            <select id="treatmentPaymentStatus">
+              <option value="Paid">Paid</option>
+              <option value="Pending">Pending</option>
+              <option value="Partial">Partial</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="treatmentPaymentMode">Payment Mode</label>
+          <select id="treatmentPaymentMode">
+            <option value="">Select Mode</option>
+            <option value="Cash">Cash</option>
+            <option value="GPay">GPay</option>
+            <option value="Card">Card</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="treatmentNotes">Treatment Notes</label>
+          <textarea id="treatmentNotes" rows="3" placeholder="Notes about the treatment session..."></textarea>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:20px;">
+          <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;">
+            <i class="fas fa-check"></i> Complete Treatment
+          </button>
+          <button type="button" class="btn btn-whatsapp" onclick="completeAndSendWhatsApp()" style="justify-content:center;">
+            <i class="fab fa-whatsapp"></i> Complete & WhatsApp
+          </button>
+        </div>
       </form>
     </div>
   </div>
@@ -359,5 +920,6 @@
 
   <script src="js/main.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/pwa.js"></script>
 </body>
 </html>
