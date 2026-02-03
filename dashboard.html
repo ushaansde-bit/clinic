@@ -180,47 +180,123 @@
             </div>
           </div>
 
-          <!-- Main Content Grid -->
+          <!-- Main Content Grid - Business Insights -->
           <div class="overview-main-grid">
-            <!-- Today's Schedule -->
+            <!-- Weekly Appointments Chart -->
             <div class="overview-card">
               <div class="overview-card-header">
-                <h3><i class="fas fa-clock"></i> Today's Schedule</h3>
-                <span class="card-badge" id="todayCount">0</span>
+                <h3><i class="fas fa-chart-bar"></i> This Week's Activity</h3>
+                <span class="card-badge" id="weeklyTotal">0</span>
               </div>
-              <div class="overview-card-body" id="todayTimeline"></div>
+              <div class="overview-card-body">
+                <div class="weekly-chart-container" id="weeklyChartContainer"></div>
+                <div class="chart-legend">
+                  <span class="legend-item"><span class="legend-color completed"></span> Completed</span>
+                  <span class="legend-item"><span class="legend-color scheduled"></span> Scheduled</span>
+                </div>
+              </div>
             </div>
 
-            <!-- Upcoming Appointments -->
+            <!-- Monthly Revenue Chart -->
             <div class="overview-card">
               <div class="overview-card-header">
-                <h3><i class="fas fa-calendar-alt"></i> Upcoming</h3>
-                <span class="card-badge" id="upcomingCount">0</span>
+                <h3><i class="fas fa-chart-line"></i> Revenue Trend</h3>
+                <span class="card-badge revenue-badge" id="monthlyRevenue">₹0</span>
               </div>
-              <div class="overview-card-body" id="upcomingAppointments"></div>
+              <div class="overview-card-body">
+                <div class="revenue-chart-container" id="revenueChartContainer"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Growth Metrics Grid -->
+          <div class="growth-metrics-grid">
+            <!-- Patient Growth -->
+            <div class="growth-card">
+              <div class="growth-card-header">
+                <i class="fas fa-user-plus"></i>
+                <span>New Patients</span>
+              </div>
+              <div class="growth-card-body">
+                <div class="growth-stat">
+                  <span class="growth-number" id="newPatientsThisMonth">0</span>
+                  <span class="growth-period">This Month</span>
+                </div>
+                <div class="growth-comparison" id="patientGrowthComparison">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+0% vs last month</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Appointment Completion Rate -->
+            <div class="growth-card">
+              <div class="growth-card-header">
+                <i class="fas fa-check-circle"></i>
+                <span>Completion Rate</span>
+              </div>
+              <div class="growth-card-body">
+                <div class="completion-ring-container">
+                  <div class="completion-ring" id="completionRing">
+                    <svg viewBox="0 0 36 36">
+                      <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                      <path class="ring-fill" id="completionRingFill" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    </svg>
+                    <span class="ring-text" id="completionRate">0%</span>
+                  </div>
+                </div>
+                <span class="growth-period">This Week</span>
+              </div>
+            </div>
+
+            <!-- Popular Services -->
+            <div class="growth-card">
+              <div class="growth-card-header">
+                <i class="fas fa-star"></i>
+                <span>Top Services</span>
+              </div>
+              <div class="growth-card-body">
+                <div class="top-services-list" id="topServicesList"></div>
+              </div>
+            </div>
+
+            <!-- Revenue This Month -->
+            <div class="growth-card highlight">
+              <div class="growth-card-header">
+                <i class="fas fa-indian-rupee-sign"></i>
+                <span>Monthly Revenue</span>
+              </div>
+              <div class="growth-card-body">
+                <div class="growth-stat">
+                  <span class="growth-number" id="totalMonthlyRevenue">₹0</span>
+                  <span class="growth-period" id="currentMonthName">This Month</span>
+                </div>
+                <div class="growth-comparison" id="revenueGrowthComparison">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+0% vs last month</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- TAB: Patients -->
         <div id="tab-patients" class="tab-content" style="display:none;">
-          <div class="dashboard-card-header" style="margin-bottom:20px;">
-            <h2 style="font-size:1.6rem;">Patient Records</h2>
-            <div class="patients-filters">
+          <div class="dashboard-card-header" style="margin-bottom:24px;">
+            <h2 style="font-size:1.8rem;">Patient Records</h2>
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
               <div class="search-input">
                 <i class="fas fa-search" style="color:var(--text-muted);"></i>
                 <input type="text" id="patientSearch" placeholder="Search patients...">
               </div>
-              <div class="filter-group">
-                <input type="date" id="patientDateFilter" onchange="filterPatients()" title="Filter by date">
-              </div>
-              <div class="filter-group">
-                <select id="patientGenderFilter" onchange="filterPatients()">
-                  <option value="">All Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                </select>
-              </div>
+              <input type="date" id="patientDateFilter" onchange="filterPatients()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+              <select id="patientStatusFilter" onchange="filterPatients()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+                <option value="all">All Patients</option>
+                <option value="today">Visited Today</option>
+                <option value="upcoming">Has Upcoming Appointment</option>
+                <option value="completed">Completed Treatment</option>
+                <option value="pending">Pending Follow-up</option>
+              </select>
               <button class="btn btn-primary" onclick="openModal('addPatientModal')" style="padding:8px 16px;font-size:0.85rem;">
                 <i class="fas fa-plus"></i> Add Patient
               </button>
@@ -244,6 +320,10 @@
           <div class="dashboard-card-header" style="margin-bottom:24px;">
             <h2 style="font-size:1.8rem;">Appointments</h2>
             <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+              <div class="search-input">
+                <i class="fas fa-search" style="color:var(--text-muted);"></i>
+                <input type="text" id="appointmentSearch" placeholder="Search patients...">
+              </div>
               <input type="date" id="appointmentFilter" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
               <select id="appointmentStatusFilter" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
                 <option value="all">All Status</option>
@@ -252,7 +332,7 @@
                 <option value="Completed">Completed</option>
                 <option value="Cancelled">Cancelled</option>
               </select>
-              <button class="btn btn-outline" onclick="document.getElementById('appointmentFilter').value='';document.getElementById('appointmentStatusFilter').value='all';loadAppointments();" style="padding:8px 16px;font-size:0.85rem;">
+              <button class="btn btn-outline" onclick="clearAppointmentFilters();" style="padding:8px 16px;font-size:0.85rem;">
                 <i class="fas fa-times"></i> Clear
               </button>
             </div>
@@ -337,9 +417,22 @@
         <div id="tab-prescriptions" class="tab-content" style="display:none;">
           <div class="dashboard-card-header" style="margin-bottom:24px;">
             <h2 style="font-size:1.8rem;">Prescriptions</h2>
-            <div class="search-input">
-              <i class="fas fa-search" style="color:var(--text-muted);"></i>
-              <input type="text" id="prescriptionSearch" placeholder="Search prescriptions...">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+              <div class="search-input">
+                <i class="fas fa-search" style="color:var(--text-muted);"></i>
+                <input type="text" id="prescriptionSearch" placeholder="Search patients...">
+              </div>
+              <input type="date" id="prescriptionDateFilter" onchange="loadPrescriptions()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+              <select id="prescriptionStatusFilter" onchange="loadPrescriptions()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+                <option value="all">All Prescriptions</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="with-followup">With Follow-up</option>
+              </select>
+              <button class="btn btn-outline" onclick="clearPrescriptionFilters();" style="padding:8px 16px;font-size:0.85rem;">
+                <i class="fas fa-times"></i> Clear
+              </button>
             </div>
           </div>
           <div class="dashboard-card">
@@ -354,16 +447,22 @@
 
         <!-- TAB: Follow-ups -->
         <div id="tab-followups" class="tab-content" style="display:none;">
-          <div class="dashboard-card-header" style="margin-bottom:20px;">
-            <h2 style="font-size:1.6rem;">Follow-ups</h2>
-            <div class="followup-filters">
-              <div class="filter-group">
-                <input type="date" id="followupDateFilter" onchange="filterFollowups()" title="Filter by date">
+          <div class="dashboard-card-header" style="margin-bottom:24px;">
+            <h2 style="font-size:1.8rem;">Follow-ups</h2>
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+              <div class="search-input">
+                <i class="fas fa-search" style="color:var(--text-muted);"></i>
+                <input type="text" id="followupSearch" placeholder="Search patients...">
               </div>
-              <select id="followupFilter" onchange="filterFollowups()">
-                <option value="all">All Status</option>
-                <option value="Pending">Pending</option>
-                <option value="Completed">Completed</option>
+              <input type="date" id="followupDateFilter" onchange="loadFollowups()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+              <select id="followupStatusFilter" onchange="loadFollowups()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+                <option value="all">All Follow-ups</option>
+                <option value="today">Due Today</option>
+                <option value="week">Due This Week</option>
+                <option value="month">Due This Month</option>
+                <option value="overdue">Overdue</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
               </select>
               <button class="btn btn-outline" onclick="clearFollowupFilters()" style="padding:8px 16px;font-size:0.85rem;">
                 <i class="fas fa-times"></i> Clear

@@ -131,15 +131,28 @@ function switchTab(tabName) {
         btn.classList.toggle('active', i === index);
     });
 
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date().toISOString().split('T')[0];
+
     // Refresh relevant data on switch
     switch (tabName) {
         case 'overview':
             refreshDashboard();
             break;
         case 'patients':
+            // Set date filter to today
+            const patientDateFilter = document.getElementById('patientDateFilter');
+            if (patientDateFilter && !patientDateFilter.value) {
+                patientDateFilter.value = today;
+            }
             loadPatients();
             break;
         case 'appointments':
+            // Set date filter to today
+            const appointmentFilter = document.getElementById('appointmentFilter');
+            if (appointmentFilter && !appointmentFilter.value) {
+                appointmentFilter.value = today;
+            }
             loadAppointments();
             break;
         case 'calendar':
@@ -147,9 +160,19 @@ function switchTab(tabName) {
             renderCalendlyView();
             break;
         case 'prescriptions':
+            // Set date filter to today
+            const prescriptionDateFilter = document.getElementById('prescriptionDateFilter');
+            if (prescriptionDateFilter && !prescriptionDateFilter.value) {
+                prescriptionDateFilter.value = today;
+            }
             loadPrescriptions();
             break;
         case 'followups':
+            // Set date filter to today
+            const followupDateFilter = document.getElementById('followupDateFilter');
+            if (followupDateFilter && !followupDateFilter.value) {
+                followupDateFilter.value = today;
+            }
             loadFollowups();
             break;
         case 'accounts':
@@ -179,6 +202,10 @@ function refreshDashboard() {
         return aptDate === todayStr && a.status !== 'Cancelled';
     });
 
+    // Today's completed appointments for revenue
+    const todayCompleted = todayAppointments.filter(a => a.status === 'Completed');
+    const todayRevenue = todayCompleted.reduce((sum, a) => sum + (parseFloat(a.amountPaid) || 0), 0);
+
     // This week's appointments
     const weekStart = getWeekStart(today);
     const weekEnd = new Date(weekStart);
@@ -193,26 +220,20 @@ function refreshDashboard() {
     const pendingFollowups = followups.filter(f => f.status !== 'Completed');
     const overdueFollowups = pendingFollowups.filter(f => new Date(f.date) < today);
 
-    // New patients this week
-    const newPatientsThisWeek = patients.filter(p => {
-        const createdDate = new Date(p.createdAt);
-        return createdDate >= weekStart && createdDate <= weekEnd;
-    });
-
     // Update stat cards
     const elPatients = document.getElementById('statPatients');
     const elToday = document.getElementById('statToday');
     const elWeek = document.getElementById('statWeek');
     const elPrescriptions = document.getElementById('statPrescriptions');
     const elFollowups = document.getElementById('statFollowups');
-    const elNewPatients = document.getElementById('statNewPatients');
+    const elRevenue = document.getElementById('statRevenue');
 
     if (elPatients) elPatients.textContent = patients.length;
     if (elToday) elToday.textContent = todayAppointments.length;
     if (elWeek) elWeek.textContent = weekAppointments.length;
     if (elPrescriptions) elPrescriptions.textContent = prescriptions.length;
     if (elFollowups) elFollowups.textContent = pendingFollowups.length;
-    if (elNewPatients) elNewPatients.textContent = newPatientsThisWeek.length;
+    if (elRevenue) elRevenue.textContent = todayRevenue.toLocaleString('en-IN');
 
     // Update welcome message
     const welcomeDate = document.getElementById('welcomeDate');
@@ -221,26 +242,246 @@ function refreshDashboard() {
         welcomeDate.textContent = today.toLocaleDateString('en-IN', options);
     }
 
-    // Update card badges
-    const todayCount = document.getElementById('todayCount');
-    const upcomingCount = document.getElementById('upcomingCount');
-    if (todayCount) todayCount.textContent = todayAppointments.length;
-
-    // Count upcoming (future appointments)
-    const upcomingAppts = appointments.filter(a => {
-        const aptDate = new Date(a.date);
-        return aptDate > today && a.status !== 'Cancelled';
-    });
-    if (upcomingCount) upcomingCount.textContent = upcomingAppts.length;
-
-    // Render today's timeline
-    renderTodayTimeline(todayAppointments);
-
-    // Render upcoming appointments
-    renderUpcomingAppointments(appointments);
+    // Render charts and growth metrics
+    renderWeeklyActivityChart(appointments);
+    renderRevenueChart(appointments);
+    renderGrowthMetrics(patients, appointments, followups);
 
     // Render overdue follow-ups alert
     renderOverdueAlert(overdueFollowups);
+}
+
+/* Weekly Activity Chart */
+function renderWeeklyActivityChart(appointments) {
+    const container = document.getElementById('weeklyChartContainer');
+    const weeklyTotalEl = document.getElementById('weeklyTotal');
+    if (!container) return;
+
+    const today = new Date();
+    const weekStart = getWeekStart(today);
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    let weeklyData = [];
+    let maxCount = 1;
+    let totalWeekly = 0;
+
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(weekStart);
+        day.setDate(day.getDate() + i);
+        const dayStr = day.toISOString().split('T')[0];
+
+        const dayAppts = appointments.filter(a => {
+            const aptDate = new Date(a.date).toISOString().split('T')[0];
+            return aptDate === dayStr && a.status !== 'Cancelled';
+        });
+
+        const completed = dayAppts.filter(a => a.status === 'Completed').length;
+        const scheduled = dayAppts.filter(a => a.status !== 'Completed').length;
+
+        weeklyData.push({
+            day: dayNames[i],
+            completed,
+            scheduled,
+            total: completed + scheduled,
+            isToday: dayStr === today.toISOString().split('T')[0]
+        });
+
+        totalWeekly += completed + scheduled;
+        if (completed + scheduled > maxCount) maxCount = completed + scheduled;
+    }
+
+    if (weeklyTotalEl) weeklyTotalEl.textContent = totalWeekly;
+
+    const maxHeight = 100;
+    let html = '';
+
+    weeklyData.forEach(d => {
+        const completedHeight = maxCount > 0 ? (d.completed / maxCount) * maxHeight : 0;
+        const scheduledHeight = maxCount > 0 ? (d.scheduled / maxCount) * maxHeight : 0;
+
+        html += `
+            <div class="chart-bar-group ${d.isToday ? 'today' : ''}">
+                <div class="chart-bars">
+                    <div class="chart-bar completed" style="height:${Math.max(completedHeight, 4)}px;" title="Completed: ${d.completed}"></div>
+                    <div class="chart-bar scheduled" style="height:${Math.max(scheduledHeight, 4)}px;" title="Scheduled: ${d.scheduled}"></div>
+                </div>
+                <span class="chart-day-label" style="${d.isToday ? 'font-weight:700;color:var(--primary);' : ''}">${d.day}</span>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+/* Revenue Chart - Last 4 Weeks */
+function renderRevenueChart(appointments) {
+    const container = document.getElementById('revenueChartContainer');
+    const monthlyRevenueEl = document.getElementById('monthlyRevenue');
+    if (!container) return;
+
+    const today = new Date();
+    let weeklyRevenue = [];
+    let maxRevenue = 1;
+    let totalMonthRevenue = 0;
+
+    // Get last 4 weeks data
+    for (let w = 3; w >= 0; w--) {
+        const weekEnd = new Date(today);
+        weekEnd.setDate(weekEnd.getDate() - (w * 7));
+        const weekStart = new Date(weekEnd);
+        weekStart.setDate(weekStart.getDate() - 6);
+
+        const weekAppts = appointments.filter(a => {
+            const aptDate = new Date(a.date);
+            return aptDate >= weekStart && aptDate <= weekEnd && a.status === 'Completed';
+        });
+
+        const revenue = weekAppts.reduce((sum, a) => sum + (parseFloat(a.amountPaid) || 0), 0);
+        weeklyRevenue.push({
+            label: w === 0 ? 'This Week' : `${w}W Ago`,
+            revenue,
+            isCurrent: w === 0
+        });
+
+        totalMonthRevenue += revenue;
+        if (revenue > maxRevenue) maxRevenue = revenue;
+    }
+
+    if (monthlyRevenueEl) monthlyRevenueEl.textContent = '₹' + totalMonthRevenue.toLocaleString('en-IN');
+
+    const maxHeight = 130;
+    let html = '';
+
+    weeklyRevenue.forEach(w => {
+        const height = maxRevenue > 0 ? (w.revenue / maxRevenue) * maxHeight : 8;
+        html += `
+            <div class="revenue-bar ${w.isCurrent ? 'current' : ''}"
+                 style="height:${Math.max(height, 8)}px;${w.isCurrent ? 'background:linear-gradient(180deg, var(--primary) 0%, #143D30 100%);' : ''}"
+                 data-label="${w.label}"
+                 title="₹${w.revenue.toLocaleString('en-IN')}">
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+/* Growth Metrics */
+function renderGrowthMetrics(patients, appointments, followups) {
+    const today = new Date();
+    const thisMonth = today.getMonth();
+    const thisYear = today.getFullYear();
+    const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+    const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+
+    // New patients this month
+    const newPatientsThisMonth = patients.filter(p => {
+        if (!p.createdAt) return false;
+        const created = new Date(p.createdAt);
+        return created.getMonth() === thisMonth && created.getFullYear() === thisYear;
+    }).length;
+
+    const newPatientsLastMonth = patients.filter(p => {
+        if (!p.createdAt) return false;
+        const created = new Date(p.createdAt);
+        return created.getMonth() === lastMonth && created.getFullYear() === lastMonthYear;
+    }).length;
+
+    const patientGrowth = newPatientsLastMonth > 0
+        ? Math.round(((newPatientsThisMonth - newPatientsLastMonth) / newPatientsLastMonth) * 100)
+        : (newPatientsThisMonth > 0 ? 100 : 0);
+
+    // Update new patients
+    const newPatientsEl = document.getElementById('newPatientsThisMonth');
+    const patientGrowthEl = document.getElementById('patientGrowthComparison');
+    if (newPatientsEl) newPatientsEl.textContent = newPatientsThisMonth;
+    if (patientGrowthEl) {
+        const isPositive = patientGrowth >= 0;
+        patientGrowthEl.className = `growth-comparison ${isPositive ? '' : 'negative'}`;
+        patientGrowthEl.innerHTML = `
+            <i class="fas fa-arrow-${isPositive ? 'up' : 'down'}"></i>
+            <span>${isPositive ? '+' : ''}${patientGrowth}% vs last month</span>
+        `;
+    }
+
+    // Completion rate this week
+    const weekStart = getWeekStart(today);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    const weekAppts = appointments.filter(a => {
+        const aptDate = new Date(a.date);
+        return aptDate >= weekStart && aptDate <= weekEnd && a.status !== 'Cancelled';
+    });
+
+    const completedThisWeek = weekAppts.filter(a => a.status === 'Completed').length;
+    const completionRate = weekAppts.length > 0 ? Math.round((completedThisWeek / weekAppts.length) * 100) : 0;
+
+    const completionRateEl = document.getElementById('completionRate');
+    const completionRingFill = document.getElementById('completionRingFill');
+    if (completionRateEl) completionRateEl.textContent = completionRate + '%';
+    if (completionRingFill) completionRingFill.setAttribute('stroke-dasharray', `${completionRate}, 100`);
+
+    // Top services
+    const serviceCounts = {};
+    appointments.filter(a => a.status === 'Completed').forEach(a => {
+        const service = a.service || 'General';
+        serviceCounts[service] = (serviceCounts[service] || 0) + 1;
+    });
+
+    const topServices = Object.entries(serviceCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3);
+
+    const topServicesEl = document.getElementById('topServicesList');
+    if (topServicesEl) {
+        if (topServices.length === 0) {
+            topServicesEl.innerHTML = '<span class="no-data" style="font-size:0.8rem;color:var(--text-muted);">No data yet</span>';
+        } else {
+            topServicesEl.innerHTML = topServices.map((s, i) => `
+                <div class="service-item">
+                    <span class="service-rank ${i === 0 ? 'gold' : ''}">${i + 1}</span>
+                    <span class="service-name">${escapeHtml(s[0])}</span>
+                    <span class="service-count">${s[1]}</span>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Monthly revenue
+    const thisMonthAppts = appointments.filter(a => {
+        const aptDate = new Date(a.date);
+        return aptDate.getMonth() === thisMonth && aptDate.getFullYear() === thisYear && a.status === 'Completed';
+    });
+
+    const lastMonthAppts = appointments.filter(a => {
+        const aptDate = new Date(a.date);
+        return aptDate.getMonth() === lastMonth && aptDate.getFullYear() === lastMonthYear && a.status === 'Completed';
+    });
+
+    const thisMonthRevenue = thisMonthAppts.reduce((sum, a) => sum + (parseFloat(a.amountPaid) || 0), 0);
+    const lastMonthRevenue = lastMonthAppts.reduce((sum, a) => sum + (parseFloat(a.amountPaid) || 0), 0);
+
+    const revenueGrowth = lastMonthRevenue > 0
+        ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100)
+        : (thisMonthRevenue > 0 ? 100 : 0);
+
+    const totalMonthlyRevenueEl = document.getElementById('totalMonthlyRevenue');
+    const currentMonthNameEl = document.getElementById('currentMonthName');
+    const revenueGrowthEl = document.getElementById('revenueGrowthComparison');
+
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    if (totalMonthlyRevenueEl) totalMonthlyRevenueEl.textContent = '₹' + thisMonthRevenue.toLocaleString('en-IN');
+    if (currentMonthNameEl) currentMonthNameEl.textContent = monthNames[thisMonth];
+    if (revenueGrowthEl) {
+        const isPositive = revenueGrowth >= 0;
+        revenueGrowthEl.className = `growth-comparison ${isPositive ? '' : 'negative'}`;
+        revenueGrowthEl.innerHTML = `
+            <i class="fas fa-arrow-${isPositive ? 'up' : 'down'}"></i>
+            <span>${isPositive ? '+' : ''}${revenueGrowth}% vs last month</span>
+        `;
+    }
 }
 
 function renderTodayTimeline(todayAppointments) {
@@ -380,20 +621,18 @@ function renderOverdueAlert(overdueFollowups) {
 function loadPatients() {
     const patients = getData('patients');
     const appointments = getData('appointments');
+    const followups = getData('followups');
     const tbody = document.querySelector('#patientsTable tbody');
     if (!tbody) return;
 
     // Get filter values
     const dateFilter = document.getElementById('patientDateFilter')?.value || '';
-    const genderFilter = document.getElementById('patientGenderFilter')?.value || '';
+    const statusFilter = document.getElementById('patientStatusFilter')?.value || 'all';
+
+    const today = new Date().toISOString().split('T')[0];
 
     // Filter patients
     let filteredPatients = patients;
-
-    // Filter by gender
-    if (genderFilter) {
-        filteredPatients = filteredPatients.filter(p => p.gender === genderFilter);
-    }
 
     // Filter by date (patients who had appointments on that date)
     if (dateFilter) {
@@ -406,8 +645,54 @@ function loadPatients() {
         filteredPatients = filteredPatients.filter(p => patientIdsOnDate.has(p.id));
     }
 
+    // Filter by status
+    if (statusFilter && statusFilter !== 'all') {
+        switch (statusFilter) {
+            case 'today':
+                // Patients who visited today (completed appointments today)
+                const visitedTodayIds = new Set();
+                appointments.forEach(a => {
+                    if (a.date && a.date.startsWith(today) && a.status === 'Completed') {
+                        visitedTodayIds.add(a.patientId);
+                    }
+                });
+                filteredPatients = filteredPatients.filter(p => visitedTodayIds.has(p.id));
+                break;
+            case 'upcoming':
+                // Patients who have upcoming appointments
+                const upcomingIds = new Set();
+                appointments.forEach(a => {
+                    if (a.date >= today && a.status !== 'Cancelled' && a.status !== 'Completed') {
+                        upcomingIds.add(a.patientId);
+                    }
+                });
+                filteredPatients = filteredPatients.filter(p => upcomingIds.has(p.id));
+                break;
+            case 'completed':
+                // Patients who have completed at least one appointment
+                const completedIds = new Set();
+                appointments.forEach(a => {
+                    if (a.status === 'Completed') {
+                        completedIds.add(a.patientId);
+                    }
+                });
+                filteredPatients = filteredPatients.filter(p => completedIds.has(p.id));
+                break;
+            case 'pending':
+                // Patients who have pending follow-ups
+                const pendingFollowupIds = new Set();
+                followups.forEach(f => {
+                    if (f.status !== 'Completed') {
+                        pendingFollowupIds.add(f.patientId);
+                    }
+                });
+                filteredPatients = filteredPatients.filter(p => pendingFollowupIds.has(p.id));
+                break;
+        }
+    }
+
     if (filteredPatients.length === 0) {
-        const filterActive = dateFilter || genderFilter;
+        const filterActive = dateFilter || (statusFilter && statusFilter !== 'all');
         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--text-light);">${filterActive ? 'No patients match the selected filters.' : 'No patients found. Click "Add Patient" to get started.'}</td></tr>`;
         return;
     }
@@ -439,9 +724,11 @@ function filterPatients() {
 
 function clearPatientFilters() {
     const dateFilter = document.getElementById('patientDateFilter');
-    const genderFilter = document.getElementById('patientGenderFilter');
+    const statusFilter = document.getElementById('patientStatusFilter');
+    const searchInput = document.getElementById('patientSearch');
     if (dateFilter) dateFilter.value = '';
-    if (genderFilter) genderFilter.value = '';
+    if (statusFilter) statusFilter.value = 'all';
+    if (searchInput) searchInput.value = '';
     loadPatients();
 }
 
@@ -750,15 +1037,9 @@ function loadAppointments() {
             <td><span class="payment-badge ${paymentClass}">${paymentStatus}${a.amountPaid ? ` (${amountDisplay})` : ''}</span></td>
             <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
             <td>
-                ${isActionable ? `
-                    <button class="action-btn" onclick="updateAppointmentStatus('${a.id}','Confirmed')" title="Confirm" style="background:rgba(27,77,62,0.1); color:var(--primary);"><i class="fas fa-thumbs-up"></i></button>
-                    ${canComplete ? `
-                        <button class="action-btn view" title="Complete Treatment" onclick="openTreatmentModal('${a.id}')" style="background:rgba(34,197,94,0.1); color:#22C55E;"><i class="fas fa-check"></i></button>
-                    ` : `
-                        <button class="action-btn" title="Cannot complete - appointment time not reached" style="background:rgba(156,163,175,0.1); color:#9CA3AF; cursor:not-allowed;" disabled><i class="fas fa-clock"></i></button>
-                    `}
-                    <button class="action-btn delete" title="Cancel" onclick="updateAppointmentStatus('${a.id}','Cancelled')"><i class="fas fa-times"></i></button>
-                ` : `<span style="color:var(--text-light); font-size:0.82rem;">-</span>`}
+                <button class="action-btn view" title="View" onclick="viewAppointmentDetails('${a.id}')"><i class="fas fa-eye"></i></button>
+                <button class="action-btn edit" title="Reschedule" onclick="rescheduleAppointment('${a.id}')"><i class="fas fa-calendar-alt"></i></button>
+                <button class="action-btn delete" title="Delete" onclick="deleteAppointment('${a.id}')"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
     }).join('');
@@ -805,6 +1086,17 @@ function updateAppointmentStatus(id, status) {
     showToast(`Appointment ${status.toLowerCase()}.`, status === 'Completed' ? 'success' : 'info');
 }
 
+// Clear appointment filters
+function clearAppointmentFilters() {
+    const dateFilter = document.getElementById('appointmentFilter');
+    const statusFilter = document.getElementById('appointmentStatusFilter');
+    const searchInput = document.getElementById('appointmentSearch');
+    if (dateFilter) dateFilter.value = '';
+    if (statusFilter) statusFilter.value = 'all';
+    if (searchInput) searchInput.value = '';
+    loadAppointments();
+}
+
 // Appointment filters
 document.addEventListener('DOMContentLoaded', () => {
     const filterInput = document.getElementById('appointmentFilter');
@@ -815,6 +1107,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusFilter = document.getElementById('appointmentStatusFilter');
     if (statusFilter) {
         statusFilter.addEventListener('change', loadAppointments);
+    }
+
+    // Appointment search
+    const appointmentSearchInput = document.getElementById('appointmentSearch');
+    if (appointmentSearchInput) {
+        appointmentSearchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#appointmentsTable tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
     }
 });
 
@@ -1103,8 +1408,148 @@ function viewAppointmentDetails(id) {
 
     const patients = getData('patients');
     const patient = patients.find(p => p.id === apt.patientId);
+    const patientName = patient ? patient.name : apt.patientName || 'Unknown';
+    const patientPhone = patient ? patient.phone : apt.phone || '-';
+    const duration = apt.duration || 30;
+    const endTime = apt.endTime || calculateEndTime(apt.time, duration);
 
-    alert(`Appointment Details:\n\nPatient: ${patient ? patient.name : apt.patientName}\nDate: ${formatDate(apt.date)}\nTime: ${apt.time} - ${apt.endTime || ''}\nService: ${apt.service}\nStatus: ${apt.status}`);
+    // Create a detailed view modal content
+    const details = `
+        <div style="display:grid; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Patient</label>
+                    <strong>${escapeHtml(patientName)}</strong>
+                </div>
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Phone</label>
+                    <strong>${escapeHtml(patientPhone)}</strong>
+                </div>
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Date</label>
+                    <strong>${formatDate(apt.date)}</strong>
+                </div>
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Time</label>
+                    <strong>${apt.time || apt.startTime} - ${endTime}</strong>
+                </div>
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Service</label>
+                    <strong>${escapeHtml(apt.service || 'General')}</strong>
+                </div>
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Status</label>
+                    <span class="status-badge ${getStatusClass(apt.status)}">${apt.status || 'Scheduled'}</span>
+                </div>
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Payment</label>
+                    <strong>${apt.paymentStatus || 'Pending'}${apt.amountPaid ? ' (₹' + apt.amountPaid + ')' : ''}</strong>
+                </div>
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Duration</label>
+                    <strong>${duration} minutes</strong>
+                </div>
+            </div>
+            ${apt.notes ? `<div style="background:var(--bg); padding:12px; border-radius:8px;">
+                <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Notes</label>
+                <p style="margin:0;">${escapeHtml(apt.notes)}</p>
+            </div>` : ''}
+        </div>
+    `;
+
+    // Show in a simple modal or use existing modal structure
+    showAppointmentModal('Appointment Details', details, apt.id, apt.patientId, patientPhone);
+}
+
+function showAppointmentModal(title, content, aptId, patientId, phone) {
+    // Create modal if not exists
+    let modal = document.getElementById('appointmentViewModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'appointmentViewModal';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal" style="max-width:550px;">
+                <button class="modal-close" onclick="closeModal('appointmentViewModal')"><i class="fas fa-times"></i></button>
+                <h2 id="aptModalTitle">Appointment Details</h2>
+                <div id="aptModalContent"></div>
+                <div id="aptModalActions" style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    document.getElementById('aptModalTitle').textContent = title;
+    document.getElementById('aptModalContent').innerHTML = content;
+
+    // Add action buttons
+    const actionsDiv = document.getElementById('aptModalActions');
+    actionsDiv.innerHTML = `
+        <button class="btn btn-whatsapp" onclick="openWhatsApp('${phone}', 'Hello, this is a reminder about your appointment at Shree Physiotherapy Clinic.')">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+        </button>
+        ${patientId ? `<button class="btn btn-primary" onclick="closeModal('appointmentViewModal'); viewPatient('${patientId}')">
+            <i class="fas fa-user"></i> View Patient
+        </button>` : ''}
+    `;
+
+    openModal('appointmentViewModal');
+}
+
+function rescheduleAppointment(id) {
+    const appointments = getData('appointments');
+    const apt = appointments.find(a => a.id === id);
+    if (!apt) {
+        showToast('Appointment not found.', 'error');
+        return;
+    }
+
+    const patients = getData('patients');
+    const patient = patients.find(p => p.id === apt.patientId);
+
+    if (patient) {
+        // Open quick booking with prefilled data
+        document.getElementById('qbPatientId').value = apt.patientId;
+        document.getElementById('qbPatientName').textContent = 'Reschedule for: ' + patient.name;
+        document.getElementById('qbDate').value = apt.date || '';
+        document.getElementById('qbStartTime').value = apt.time || apt.startTime || '10:00 AM';
+        document.getElementById('qbDuration').value = apt.duration || '30';
+        document.getElementById('qbService').value = apt.service || '';
+        document.getElementById('qbPaymentAmount').value = apt.amountPaid || '';
+        document.getElementById('qbPaymentStatus').value = apt.paymentStatus || 'Pending';
+        document.getElementById('qbPaymentMode').value = apt.paymentMode || '';
+
+        // Store old appointment ID to delete after new one is created
+        document.getElementById('qbPatientId').dataset.rescheduleFrom = id;
+
+        updateEndTimeDisplay();
+        openModal('quickBookingModal');
+    } else {
+        showToast('Patient not found for this appointment.', 'error');
+    }
+}
+
+function deleteAppointment(id) {
+    if (!confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) {
+        return;
+    }
+
+    const appointments = getData('appointments');
+    const index = appointments.findIndex(a => a.id === id);
+    if (index === -1) {
+        showToast('Appointment not found.', 'error');
+        return;
+    }
+
+    // Remove the appointment
+    appointments.splice(index, 1);
+    setData('appointments', appointments);
+
+    // Refresh views
+    loadAppointments();
+    refreshDashboard();
+    renderCalendarView();
+    showToast('Appointment deleted successfully.', 'success');
 }
 
 /* ============================================
@@ -1114,14 +1559,60 @@ function loadPrescriptions() {
     const prescriptions = getData('prescriptions');
     const patients = getData('patients');
     const appointments = getData('appointments');
+    const filterDate = document.getElementById('prescriptionDateFilter') ? document.getElementById('prescriptionDateFilter').value : '';
+    const statusFilter = document.getElementById('prescriptionStatusFilter') ? document.getElementById('prescriptionStatusFilter').value : 'all';
     const tbody = document.querySelector('#prescriptionsTable tbody');
     if (!tbody) return;
 
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const weekStart = getWeekStart(today);
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    // Filter prescriptions
+    let filtered = prescriptions;
+
+    // Filter by date if set
+    if (filterDate) {
+        filtered = filtered.filter(rx => {
+            const rxDate = rx.date ? rx.date.split('T')[0] : '';
+            return rxDate === filterDate;
+        });
+    }
+
+    // Filter by status
+    if (statusFilter && statusFilter !== 'all') {
+        switch (statusFilter) {
+            case 'today':
+                filtered = filtered.filter(rx => {
+                    const rxDate = rx.date ? rx.date.split('T')[0] : '';
+                    return rxDate === todayStr;
+                });
+                break;
+            case 'week':
+                filtered = filtered.filter(rx => {
+                    const rxDate = new Date(rx.date);
+                    return rxDate >= weekStart && rxDate <= today;
+                });
+                break;
+            case 'month':
+                filtered = filtered.filter(rx => {
+                    const rxDate = new Date(rx.date);
+                    return rxDate >= monthStart && rxDate <= today;
+                });
+                break;
+            case 'with-followup':
+                filtered = filtered.filter(rx => rx.followupDate && rx.followupDate.trim() !== '');
+                break;
+        }
+    }
+
     // Sort by date descending
-    const sorted = [...prescriptions].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    const sorted = [...filtered].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
     if (sorted.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:var(--text-light);">No prescriptions yet.</td></tr>';
+        const filterActive = filterDate || (statusFilter && statusFilter !== 'all');
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:32px; color:var(--text-light);">${filterActive ? 'No prescriptions match the selected filters.' : 'No prescriptions yet.'}</td></tr>`;
         return;
     }
 
@@ -1148,10 +1639,42 @@ function loadPrescriptions() {
             <td>
                 <button class="action-btn view" title="View" onclick="viewPrescription('${rx.id}')"><i class="fas fa-eye"></i></button>
                 <button class="action-btn edit" title="Print" onclick="printPrescription('${rx.id}')"><i class="fas fa-print"></i></button>
-                <button class="action-btn" title="Duplicate" onclick="duplicatePrescription('${rx.id}')" style="background:rgba(27,77,62,0.1);color:var(--primary);"><i class="fas fa-copy"></i></button>
+                <button class="action-btn delete" title="Delete" onclick="deletePrescription('${rx.id}')"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
     }).join('');
+}
+
+// Delete prescription
+function deletePrescription(id) {
+    if (!confirm('Are you sure you want to delete this prescription? This action cannot be undone.')) {
+        return;
+    }
+
+    const prescriptions = getData('prescriptions');
+    const index = prescriptions.findIndex(rx => rx.id === id);
+    if (index === -1) {
+        showToast('Prescription not found.', 'error');
+        return;
+    }
+
+    prescriptions.splice(index, 1);
+    setData('prescriptions', prescriptions);
+
+    loadPrescriptions();
+    refreshDashboard();
+    showToast('Prescription deleted successfully.', 'success');
+}
+
+// Clear prescription filters
+function clearPrescriptionFilters() {
+    const dateFilter = document.getElementById('prescriptionDateFilter');
+    const statusFilter = document.getElementById('prescriptionStatusFilter');
+    const searchInput = document.getElementById('prescriptionSearch');
+    if (dateFilter) dateFilter.value = '';
+    if (statusFilter) statusFilter.value = 'all';
+    if (searchInput) searchInput.value = '';
+    loadPrescriptions();
 }
 
 function writePrescription(patientId) {
@@ -1442,25 +1965,62 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadFollowups() {
     const followups = getData('followups');
     const patients = getData('patients');
-    const filterStatus = document.getElementById('followupFilter') ? document.getElementById('followupFilter').value : 'all';
     const filterDate = document.getElementById('followupDateFilter') ? document.getElementById('followupDateFilter').value : '';
+    const statusFilter = document.getElementById('followupStatusFilter') ? document.getElementById('followupStatusFilter').value : 'all';
     const tbody = document.querySelector('#followupsTable tbody');
     if (!tbody) return;
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+    const weekStart = getWeekStart(today);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
     let filtered = followups;
 
-    // Filter by status
-    if (filterStatus !== 'all') {
-        filtered = filtered.filter(f => f.status === filterStatus);
-    }
-
-    // Filter by date
+    // Filter by date picker
     if (filterDate) {
         filtered = filtered.filter(f => f.date && f.date.startsWith(filterDate));
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Filter by status dropdown
+    if (statusFilter && statusFilter !== 'all') {
+        switch (statusFilter) {
+            case 'today':
+                filtered = filtered.filter(f => {
+                    const fDate = f.date ? f.date.split('T')[0] : '';
+                    return fDate === todayStr;
+                });
+                break;
+            case 'week':
+                filtered = filtered.filter(f => {
+                    const fDate = new Date(f.date);
+                    return fDate >= weekStart && fDate <= weekEnd;
+                });
+                break;
+            case 'month':
+                filtered = filtered.filter(f => {
+                    const fDate = new Date(f.date);
+                    return fDate >= monthStart && fDate <= monthEnd;
+                });
+                break;
+            case 'overdue':
+                filtered = filtered.filter(f => {
+                    const fDate = new Date(f.date);
+                    return f.status !== 'Completed' && fDate < today;
+                });
+                break;
+            case 'pending':
+                filtered = filtered.filter(f => f.status !== 'Completed');
+                break;
+            case 'completed':
+                filtered = filtered.filter(f => f.status === 'Completed');
+                break;
+        }
+    }
 
     // Sort: overdue first, then pending by date, then completed
     filtered.sort((a, b) => {
@@ -1477,7 +2037,7 @@ function loadFollowups() {
     });
 
     if (filtered.length === 0) {
-        const filterActive = filterStatus !== 'all' || filterDate;
+        const filterActive = (statusFilter && statusFilter !== 'all') || filterDate;
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:32px; color:var(--text-light);">${filterActive ? 'No follow-ups match the selected filters.' : 'No follow-ups found.'}</td></tr>`;
         return;
     }
@@ -1507,11 +2067,9 @@ function loadFollowups() {
             <td>${escapeHtml(f.reason || '-')}</td>
             <td><span class="status-badge ${statusClass}">${f.status || 'Pending'}</span></td>
             <td>
-                ${isPending ? `
-                    <button class="action-btn view" title="Mark Done" onclick="markFollowupDone('${f.id}')" style="background:rgba(34,197,94,0.1); color:#22C55E;"><i class="fas fa-check"></i></button>
-                    <button class="action-btn whatsapp" title="WhatsApp Reminder" onclick="sendFollowupReminder('${f.id}')"><i class="fab fa-whatsapp"></i></button>
-                    <button class="action-btn edit" title="Book Appointment" onclick="bookFollowupAppointment('${f.id}')" style="background:rgba(200,149,108,0.15);color:var(--accent);"><i class="fas fa-calendar-plus"></i></button>
-                ` : `<span style="color:var(--text-light); font-size:0.82rem;">Done</span>`}
+                <button class="action-btn view" title="View" onclick="viewFollowup('${f.id}')"><i class="fas fa-eye"></i></button>
+                <button class="action-btn edit" title="Book Appointment" onclick="bookFollowupAppointment('${f.id}')"><i class="fas fa-calendar-plus"></i></button>
+                <button class="action-btn delete" title="Delete" onclick="deleteFollowup('${f.id}')"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
     }).join('');
@@ -1523,10 +2081,120 @@ function filterFollowups() {
 
 function clearFollowupFilters() {
     const dateFilter = document.getElementById('followupDateFilter');
-    const statusFilter = document.getElementById('followupFilter');
+    const statusFilter = document.getElementById('followupStatusFilter');
+    const searchInput = document.getElementById('followupSearch');
     if (dateFilter) dateFilter.value = '';
     if (statusFilter) statusFilter.value = 'all';
+    if (searchInput) searchInput.value = '';
     loadFollowups();
+}
+
+function viewFollowup(id) {
+    const followups = getData('followups');
+    const f = followups.find(fu => fu.id === id);
+    if (!f) {
+        showToast('Follow-up not found.', 'error');
+        return;
+    }
+
+    const patients = getData('patients');
+    const patient = patients.find(p => p.id === f.patientId);
+    const patientName = patient ? patient.name : f.patientName || 'Unknown';
+    const patientPhone = patient ? patient.phone : '-';
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const followupDate = new Date(f.date);
+    const isOverdue = f.status !== 'Completed' && followupDate < today;
+
+    const details = `
+        <div style="display:grid; gap:16px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Patient</label>
+                    <strong>${escapeHtml(patientName)}</strong>
+                </div>
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Phone</label>
+                    <strong>${escapeHtml(patientPhone)}</strong>
+                </div>
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Follow-up Date</label>
+                    <strong>${formatDate(f.date)} ${isOverdue ? '<span class="overdue-badge">Overdue</span>' : ''}</strong>
+                </div>
+                <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Status</label>
+                    <span class="status-badge ${f.status === 'Completed' ? 'completed' : (isOverdue ? 'overdue' : 'pending')}">${f.status || 'Pending'}</span>
+                </div>
+            </div>
+            <div style="background:var(--bg); padding:12px; border-radius:8px;">
+                <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Reason</label>
+                <p style="margin:0;">${escapeHtml(f.reason || '-')}</p>
+            </div>
+            ${f.notes ? `<div style="background:var(--bg); padding:12px; border-radius:8px;">
+                <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Notes</label>
+                <p style="margin:0;">${escapeHtml(f.notes)}</p>
+            </div>` : ''}
+        </div>
+    `;
+
+    showFollowupModal('Follow-up Details', details, f.id, f.patientId, patientPhone, f.status !== 'Completed');
+}
+
+function showFollowupModal(title, content, fuId, patientId, phone, isPending) {
+    let modal = document.getElementById('followupViewModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'followupViewModal';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal" style="max-width:500px;">
+                <button class="modal-close" onclick="closeModal('followupViewModal')"><i class="fas fa-times"></i></button>
+                <h2 id="fuModalTitle">Follow-up Details</h2>
+                <div id="fuModalContent"></div>
+                <div id="fuModalActions" style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+
+    document.getElementById('fuModalTitle').textContent = title;
+    document.getElementById('fuModalContent').innerHTML = content;
+
+    const actionsDiv = document.getElementById('fuModalActions');
+    actionsDiv.innerHTML = `
+        ${isPending ? `<button class="btn btn-primary" onclick="closeModal('followupViewModal'); markFollowupDone('${fuId}')">
+            <i class="fas fa-check"></i> Mark as Done
+        </button>` : ''}
+        <button class="btn btn-whatsapp" onclick="sendFollowupReminder('${fuId}')">
+            <i class="fab fa-whatsapp"></i> Send Reminder
+        </button>
+        ${patientId ? `<button class="btn btn-outline" onclick="closeModal('followupViewModal'); viewPatient('${patientId}')">
+            <i class="fas fa-user"></i> View Patient
+        </button>` : ''}
+    `;
+
+    openModal('followupViewModal');
+}
+
+function deleteFollowup(id) {
+    if (!confirm('Are you sure you want to delete this follow-up? This action cannot be undone.')) {
+        return;
+    }
+
+    const followups = getData('followups');
+    const index = followups.findIndex(f => f.id === id);
+    if (index === -1) {
+        showToast('Follow-up not found.', 'error');
+        return;
+    }
+
+    followups.splice(index, 1);
+    setData('followups', followups);
+
+    loadFollowups();
+    refreshDashboard();
+    showToast('Follow-up deleted successfully.', 'success');
 }
 
 function scheduleFollowup(patientId) {
@@ -1690,9 +2358,22 @@ function sendFollowupReminder(id) {
 
 // Follow-up filter
 document.addEventListener('DOMContentLoaded', () => {
-    const filterSelect = document.getElementById('followupFilter');
+    const filterSelect = document.getElementById('followupStatusFilter');
     if (filterSelect) {
         filterSelect.addEventListener('change', loadFollowups);
+    }
+
+    // Followup search
+    const followupSearchInput = document.getElementById('followupSearch');
+    if (followupSearchInput) {
+        followupSearchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#followupsTable tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
     }
 });
 
@@ -1748,7 +2429,9 @@ function updateEndTimeOptions() {
 function saveQuickBooking(event) {
     event.preventDefault();
 
-    const patientId = document.getElementById('qbPatientId').value;
+    const patientIdEl = document.getElementById('qbPatientId');
+    const patientId = patientIdEl.value;
+    const rescheduleFrom = patientIdEl.dataset.rescheduleFrom || null;
     const date = document.getElementById('qbDate').value;
     const time = document.getElementById('qbStartTime').value;
     const duration = parseInt(document.getElementById('qbDuration').value);
@@ -1786,7 +2469,15 @@ function saveQuickBooking(event) {
         createdAt: new Date().toISOString()
     };
 
-    const appointments = getData('appointments');
+    let appointments = getData('appointments');
+
+    // If rescheduling, delete the old appointment
+    if (rescheduleFrom) {
+        appointments = appointments.filter(a => a.id !== rescheduleFrom);
+        // Clear the reschedule flag
+        delete patientIdEl.dataset.rescheduleFrom;
+    }
+
     appointments.unshift(appointment);
     setData('appointments', appointments);
 
@@ -1794,7 +2485,7 @@ function saveQuickBooking(event) {
     loadAppointments();
     refreshDashboard();
     renderCalendlyView();
-    showToast('Appointment booked successfully!', 'success');
+    showToast(rescheduleFrom ? 'Appointment rescheduled successfully!' : 'Appointment booked successfully!', 'success');
 }
 
 /* ============================================
