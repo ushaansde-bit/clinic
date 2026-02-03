@@ -62,6 +62,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fixed 15-minute duration for patient bookings
     selectedDuration = 15;
+
+    // Auto-select today's date (unless it's Sunday)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (today.getDay() !== 0) { // 0 = Sunday, clinic is closed
+        selectDate(today.getFullYear(), today.getMonth(), today.getDate());
+    }
 });
 
 // --- Duration Selector Setup (Fixed at 15 minutes for patients) ---
