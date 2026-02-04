@@ -1783,6 +1783,10 @@ function writePrescription(patientId) {
     document.getElementById('rxPaymentAmount').value = '';
     document.getElementById('rxPaymentMode').value = '';
 
+    // Hide print section when opening fresh form
+    const printSection = document.getElementById('rxPrintSection');
+    if (printSection) printSection.style.display = 'none';
+
     openModal('prescriptionModal');
 }
 
@@ -1831,10 +1835,22 @@ function savePrescription(event) {
         createFollowupWithAppointment(patientId, patient, followupDate, followupReason || 'Post-treatment follow-up');
     }
 
-    closeModal('prescriptionModal');
-    loadPrescriptions();
+    // Store last saved prescription ID for printing
+    window.lastSavedPrescriptionId = prescription.id;
+
+    // Show print section instead of closing modal
+    const printSection = document.getElementById('rxPrintSection');
+    if (printSection) printSection.style.display = 'block';
+
     refreshDashboard();
     showToast('Prescription saved' + (paymentAmount ? ` with ₹${paymentAmount} payment` : '') + '!', 'success');
+}
+
+function printLastPrescription() {
+    if (window.lastSavedPrescriptionId) {
+        printPrescription(window.lastSavedPrescriptionId);
+        closeModal('prescriptionModal');
+    }
 }
 
 function duplicatePrescription(id) {
