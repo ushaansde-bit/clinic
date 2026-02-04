@@ -991,6 +991,8 @@ function viewPatient(id) {
             setTimeout(function () { openQuickBooking(patientId); }, 150);
         };
         btnBook.style.display = '';
+        btnBook.style.opacity = '';
+        btnBook.style.cursor = '';
     }
     if (btnWa) {
         btnWa.onclick = function () {
@@ -1582,12 +1584,22 @@ function viewAppointmentDetails(id) {
         }
     }
     if (btnBook) {
-        btnBook.onclick = function () {
-            const pid = apt.patientId;
-            closeModal('viewPatientModal');
-            setTimeout(function () { openQuickBooking(pid); }, 150);
-        };
         btnBook.style.display = apt.patientId ? '' : 'none';
+        if (isFutureAppointment) {
+            btnBook.style.opacity = '0.6';
+            btnBook.style.cursor = 'not-allowed';
+            btnBook.onclick = function () {
+                showToast('Cannot book appointment for upcoming appointments.', 'error');
+            };
+        } else {
+            btnBook.style.opacity = '';
+            btnBook.style.cursor = '';
+            btnBook.onclick = function () {
+                const pid = apt.patientId;
+                closeModal('viewPatientModal');
+                setTimeout(function () { openQuickBooking(pid); }, 150);
+            };
+        }
     }
     if (btnWa) {
         btnWa.onclick = function () {
