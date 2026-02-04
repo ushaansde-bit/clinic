@@ -67,15 +67,18 @@ function hasAppointmentTimePassed(appointmentDate, appointmentTime) {
 /* ============================================
    0. LOGIN
    ============================================ */
+const DASHBOARD_USERNAME = 'doctor';
 const DASHBOARD_PASSWORD = 'doctor123';
 
 function handleLogin(event) {
     event.preventDefault();
+    const usernameInput = document.getElementById('loginUsername');
     const passwordInput = document.getElementById('loginPassword');
     const errorEl = document.getElementById('loginError');
+    const username = usernameInput ? usernameInput.value.trim() : '';
     const password = passwordInput ? passwordInput.value : '';
 
-    if (password === DASHBOARD_PASSWORD) {
+    if (username === DASHBOARD_USERNAME && password === DASHBOARD_PASSWORD) {
         sessionStorage.setItem('dashLoggedIn', 'true');
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardApp').style.display = 'block';
@@ -4294,16 +4297,19 @@ function handleImportFile(input) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Direct access - no login required
-    switchTab('overview');
+    // Check if already logged in
+    if (!checkSession()) {
+        // Show login screen, hide dashboard
+        document.getElementById('loginScreen').style.display = '';
+        document.getElementById('dashboardApp').style.display = 'none';
+        return;
+    }
 
-    // Initialize week start to current week
+    // Initialize dashboard
+    switchTab('overview');
     currentWeekStart = getWeekStart(new Date());
     selectedCalendarDate = new Date();
-
-    // Cleanup old trash items
     cleanupOldTrash();
-
     refreshDashboard();
     loadPatients();
     loadAppointments();

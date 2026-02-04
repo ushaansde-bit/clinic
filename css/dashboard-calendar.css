@@ -3,6 +3,50 @@
    Clean, Professional, User-Friendly
    ============================================= */
 
+/* Dashboard Navbar - Brand Logo */
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.brand-logo {
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+/* Nav Right Group */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.nav-right .nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
 /* Logout Button */
 .btn-logout {
     display: flex;
@@ -18,8 +62,8 @@
     font-family: var(--font-body);
     cursor: pointer;
     transition: all 0.2s ease;
-    margin-left: auto;
     white-space: nowrap;
+    margin-left: 8px;
 }
 
 .btn-logout:hover {
@@ -32,11 +76,13 @@
 }
 
 @media (max-width: 768px) {
+    .nav-right .nav-menu { display: none; }
+    .brand-logo { width: 34px; height: 34px; font-size: 0.95rem; border-radius: 8px; }
     .btn-logout {
         padding: 6px 12px;
         font-size: 0.75rem;
+        margin-left: 0;
     }
-    .btn-logout span { display: none; }
 }
 
 /* =============================================
