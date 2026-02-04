@@ -191,21 +191,21 @@
 
           <!-- Stats Cards (5 items) -->
           <div class="overview-stats-grid">
-            <div class="stat-card-modern patients">
+            <div class="stat-card-modern patients" onclick="switchTab('patients')" style="cursor:pointer;" title="View Patients">
               <div class="stat-card-icon"><i class="fas fa-users"></i></div>
               <div class="stat-card-content">
                 <span class="stat-number" id="statPatients">0</span>
                 <span class="stat-label">Total Patients</span>
               </div>
             </div>
-            <div class="stat-card-modern today">
+            <div class="stat-card-modern today" onclick="switchTab('appointments')" style="cursor:pointer;" title="View Appointments">
               <div class="stat-card-icon"><i class="fas fa-calendar-check"></i></div>
               <div class="stat-card-content">
                 <span class="stat-number" id="statToday">0</span>
                 <span class="stat-label">Today's Appointments</span>
               </div>
             </div>
-            <div class="stat-card-modern week">
+            <div class="stat-card-modern week" onclick="switchTab('calendar')" style="cursor:pointer;" title="View Calendar">
               <div class="stat-card-icon"><i class="fas fa-calendar-week"></i></div>
               <div class="stat-card-content">
                 <span class="stat-number" id="statWeek">0</span>
