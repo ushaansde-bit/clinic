@@ -1830,14 +1830,46 @@ function savePrescription(event) {
     prescriptions.unshift(prescription);
     setData('prescriptions', prescriptions);
 
+    // Auto-complete matching appointment for this patient
+    const todayDate = new Date().toISOString().split('T')[0];
+    const appointments = getData('appointments');
+    const matchingApt = appointments.find(a =>
+        a.patientId === patientId &&
+        a.date === todayDate &&
+        a.status !== 'Completed' &&
+        a.status !== 'Cancelled'
+    );
+    if (matchingApt) {
+        matchingApt.status = 'Completed';
+        matchingApt.updatedAt = new Date().toISOString();
+        if (paymentAmount) matchingApt.paymentAmount = paymentAmount;
+        if (paymentMode) matchingApt.paymentMode = paymentMode;
+        matchingApt.paymentStatus = paymentAmount && paymentMode ? 'Paid' : 'Pending';
+        setData('appointments', appointments);
+
+        // Also complete any linked follow-up
+        const followups = getData('followups');
+        const relatedFollowup = followups.find(f =>
+            f.patientId === patientId &&
+            f.date === todayDate &&
+            f.status !== 'Completed'
+        );
+        if (relatedFollowup) {
+            relatedFollowup.status = 'Completed';
+            setData('followups', followups);
+        }
+    }
+
     // Create follow-up if date is provided
     if (followupDate) {
         createFollowupWithAppointment(patientId, patient, followupDate, followupReason || 'Post-treatment follow-up');
     }
 
     closeModal('prescriptionModal');
+    loadAppointments();
     refreshDashboard();
-    showToast('Prescription saved' + (paymentAmount ? ` with ₹${paymentAmount} payment` : '') + '!', 'success');
+    renderCalendarView();
+    showToast('Prescription saved' + (matchingApt ? ' & appointment completed' : '') + (paymentAmount ? ` with ₹${paymentAmount} payment` : '') + '!', 'success');
 
     return prescription.id;
 }

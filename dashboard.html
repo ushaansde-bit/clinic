@@ -402,7 +402,28 @@
                 </div>
                 <div class="mini-calendar-grid" id="miniCalendarGrid"></div>
               </div>
+            </div>
 
+            <!-- Center: Schedule Display -->
+            <div class="calendly-main">
+              <div class="schedule-header">
+                <div class="schedule-nav">
+                  <button onclick="navigateSchedule(-1)"><i class="fas fa-chevron-left"></i></button>
+                  <h3 id="scheduleTitle">Today's Schedule</h3>
+                  <button onclick="navigateSchedule(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <button class="btn btn-primary" onclick="goToToday()" style="padding:8px 16px;font-size:0.85rem;">
+                  <i class="fas fa-calendar-day"></i> Today
+                </button>
+              </div>
+
+              <div class="schedule-content" id="scheduleContent">
+                <!-- Schedule rendered by JS -->
+              </div>
+            </div>
+
+            <!-- Right: View Selector + Today's Summary -->
+            <div class="calendly-right">
               <div class="view-selector">
                 <button class="view-btn active" data-view="day" onclick="setCalendarView('day')">
                   <i class="fas fa-calendar-day"></i> Day
@@ -429,24 +450,6 @@
                   <span>Remaining</span>
                   <strong id="summaryRemaining">0</strong>
                 </div>
-              </div>
-            </div>
-
-            <!-- Right: Schedule Display -->
-            <div class="calendly-main">
-              <div class="schedule-header">
-                <div class="schedule-nav">
-                  <button onclick="navigateSchedule(-1)"><i class="fas fa-chevron-left"></i></button>
-                  <h3 id="scheduleTitle">Today's Schedule</h3>
-                  <button onclick="navigateSchedule(1)"><i class="fas fa-chevron-right"></i></button>
-                </div>
-                <button class="btn btn-primary" onclick="goToToday()" style="padding:8px 16px;font-size:0.85rem;">
-                  <i class="fas fa-calendar-day"></i> Today
-                </button>
-              </div>
-
-              <div class="schedule-content" id="scheduleContent">
-                <!-- Schedule rendered by JS -->
               </div>
             </div>
           </div>
