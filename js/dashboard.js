@@ -1783,10 +1783,6 @@ function writePrescription(patientId) {
     document.getElementById('rxPaymentAmount').value = '';
     document.getElementById('rxPaymentMode').value = '';
 
-    // Hide print section when opening fresh form
-    const printSection = document.getElementById('rxPrintSection');
-    if (printSection) printSection.style.display = 'none';
-
     openModal('prescriptionModal');
 }
 
@@ -1835,21 +1831,23 @@ function savePrescription(event) {
         createFollowupWithAppointment(patientId, patient, followupDate, followupReason || 'Post-treatment follow-up');
     }
 
-    // Store last saved prescription ID for printing
-    window.lastSavedPrescriptionId = prescription.id;
-
-    // Show print section instead of closing modal
-    const printSection = document.getElementById('rxPrintSection');
-    if (printSection) printSection.style.display = 'block';
-
+    closeModal('prescriptionModal');
     refreshDashboard();
     showToast('Prescription saved' + (paymentAmount ? ` with ₹${paymentAmount} payment` : '') + '!', 'success');
+
+    return prescription.id;
 }
 
-function printLastPrescription() {
-    if (window.lastSavedPrescriptionId) {
-        printPrescription(window.lastSavedPrescriptionId);
-        closeModal('prescriptionModal');
+function saveAndPrintPrescription() {
+    const diagnosis = document.getElementById('rxDiagnosis').value.trim();
+    const treatment = document.getElementById('rxTreatment').value.trim();
+    if (!diagnosis || !treatment) {
+        showToast('Please fill in diagnosis and treatment plan.', 'error');
+        return;
+    }
+    const rxId = savePrescription(new Event('submit'));
+    if (rxId) {
+        printPrescription(rxId);
     }
 }
 
