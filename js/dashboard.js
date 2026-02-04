@@ -1561,9 +1561,10 @@ function viewAppointmentDetails(id) {
     const btnWa = document.getElementById('btnPatientWa');
     const btnBook = document.getElementById('btnBookAppt');
 
-    // Check if appointment is in the future (use IST date)
+    // Check if appointment is in the future (use IST date, normalize apt.date)
     const todayIST = getIndiaTodayDate();
-    const isFutureAppointment = apt.date > todayIST;
+    const aptDateNormalized = new Date(apt.date).toISOString().split('T')[0];
+    const isFutureAppointment = aptDateNormalized > todayIST;
 
     if (btnRx) {
         btnRx.style.display = apt.patientId ? '' : 'none';
@@ -3225,7 +3226,8 @@ function openTreatmentModal(appointmentId) {
 
     // For future appointments, open details view instead of treatment modal
     const todayDate = getIndiaTodayDate();
-    if (apt.date > todayDate) {
+    const aptDateStr = new Date(apt.date).toISOString().split('T')[0];
+    if (aptDateStr > todayDate) {
         viewAppointmentDetails(appointmentId);
         return;
     }
