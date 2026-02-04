@@ -67,23 +67,62 @@ function hasAppointmentTimePassed(appointmentDate, appointmentTime) {
 /* ============================================
    0. LOGIN
    ============================================ */
-const DASHBOARD_USERNAME = 'doctor';
-const DASHBOARD_PASSWORD = 'doctor123';
+function getSavedCredentials() {
+    try {
+        var saved = localStorage.getItem('_dashCredentials');
+        return saved ? JSON.parse(saved) : null;
+    } catch (e) { return null; }
+}
+
+function handleSetup(event) {
+    event.preventDefault();
+    var username = document.getElementById('setupUsername').value.trim();
+    var password = document.getElementById('setupPassword').value;
+    var confirm = document.getElementById('setupConfirm').value;
+    var errorEl = document.getElementById('setupError');
+
+    if (password !== confirm) {
+        if (errorEl) { errorEl.textContent = 'Passwords do not match.'; errorEl.style.display = 'block'; }
+        return;
+    }
+    if (username.length < 3) {
+        if (errorEl) { errorEl.textContent = 'Username must be at least 3 characters.'; errorEl.style.display = 'block'; }
+        return;
+    }
+    if (password.length < 4) {
+        if (errorEl) { errorEl.textContent = 'Password must be at least 4 characters.'; errorEl.style.display = 'block'; }
+        return;
+    }
+
+    localStorage.setItem('_dashCredentials', JSON.stringify({ u: username, p: password }));
+    // Also sync credentials to cloud
+    if (window.CloudSync && CloudSync.isReady()) {
+        CloudSync.save('_credentials', { u: username, p: password });
+    }
+
+    sessionStorage.setItem('dashLoggedIn', 'true');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardApp').style.display = 'block';
+    switchTab('overview');
+    initDashboardData();
+}
 
 function handleLogin(event) {
     event.preventDefault();
-    const usernameInput = document.getElementById('loginUsername');
-    const passwordInput = document.getElementById('loginPassword');
-    const errorEl = document.getElementById('loginError');
-    const username = usernameInput ? usernameInput.value.trim() : '';
-    const password = passwordInput ? passwordInput.value : '';
+    var usernameInput = document.getElementById('loginUsername');
+    var passwordInput = document.getElementById('loginPassword');
+    var errorEl = document.getElementById('loginError');
+    var username = usernameInput ? usernameInput.value.trim() : '';
+    var password = passwordInput ? passwordInput.value : '';
+    var creds = getSavedCredentials();
 
-    if (username === DASHBOARD_USERNAME && password === DASHBOARD_PASSWORD) {
+    if (creds && username === creds.u && password === creds.p) {
         sessionStorage.setItem('dashLoggedIn', 'true');
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardApp').style.display = 'block';
         if (errorEl) errorEl.style.display = 'none';
         switchTab('overview');
+        initDashboardData();
     } else {
         if (errorEl) errorEl.style.display = 'block';
         if (passwordInput) {
@@ -91,6 +130,24 @@ function handleLogin(event) {
             passwordInput.focus();
         }
     }
+}
+
+function showLoginScreen() {
+    var creds = getSavedCredentials();
+    var loginScreen = document.getElementById('loginScreen');
+    var setupCard = document.getElementById('setupCard');
+    var loginCard = document.getElementById('loginCard');
+
+    if (creds) {
+        // Has credentials - show login form
+        if (setupCard) setupCard.style.display = 'none';
+        if (loginCard) loginCard.style.display = '';
+    } else {
+        // No credentials - show setup form
+        if (setupCard) setupCard.style.display = '';
+        if (loginCard) loginCard.style.display = 'none';
+    }
+    if (loginScreen) loginScreen.style.display = '';
 }
 
 function checkSession() {
@@ -105,6 +162,18 @@ function checkSession() {
 function logoutDashboard() {
     sessionStorage.removeItem('dashLoggedIn');
     window.location.href = 'index.html';
+}
+
+function initDashboardData() {
+    currentWeekStart = getWeekStart(new Date());
+    selectedCalendarDate = new Date();
+    cleanupOldTrash();
+    refreshDashboard();
+    loadPatients();
+    loadAppointments();
+    loadPrescriptions();
+    loadFollowups();
+    renderCalendarView();
 }
 
 /* ============================================
@@ -4299,21 +4368,12 @@ function handleImportFile(input) {
 document.addEventListener('DOMContentLoaded', () => {
     // Check if already logged in
     if (!checkSession()) {
-        // Show login screen, hide dashboard
-        document.getElementById('loginScreen').style.display = '';
+        showLoginScreen();
         document.getElementById('dashboardApp').style.display = 'none';
         return;
     }
 
     // Initialize dashboard
     switchTab('overview');
-    currentWeekStart = getWeekStart(new Date());
-    selectedCalendarDate = new Date();
-    cleanupOldTrash();
-    refreshDashboard();
-    loadPatients();
-    loadAppointments();
-    loadPrescriptions();
-    loadFollowups();
-    renderCalendarView();
+    initDashboardData();
 });

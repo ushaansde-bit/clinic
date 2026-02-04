@@ -37,13 +37,41 @@
 
   <!-- Login Screen -->
   <div class="login-screen" id="loginScreen">
-    <div class="login-card">
+    <!-- Setup Card (first time) -->
+    <div class="login-card" id="setupCard" style="display:none;">
+      <div style="width:72px;height:72px;background:rgba(27,77,62,0.08);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+        <i class="fas fa-plus" style="font-size:1.8rem;color:var(--primary);"></i>
+      </div>
+      <h2>Set Up Login</h2>
+      <p class="login-subtitle">Create your username and password to secure the dashboard.</p>
+      <form onsubmit="handleSetup(event)">
+        <div class="form-group">
+          <label for="setupUsername">Choose Username</label>
+          <input type="text" id="setupUsername" placeholder="Enter a username" required minlength="3" autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="setupPassword">Choose Password</label>
+          <input type="password" id="setupPassword" placeholder="Enter a password" required minlength="4" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label for="setupConfirm">Confirm Password</label>
+          <input type="password" id="setupConfirm" placeholder="Re-enter password" required minlength="4" autocomplete="new-password">
+        </div>
+        <p class="login-error" id="setupError">Passwords do not match.</p>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;">
+          <i class="fas fa-check-circle"></i> Create Account
+        </button>
+      </form>
+    </div>
+
+    <!-- Login Card (returning user) -->
+    <div class="login-card" id="loginCard" style="display:none;">
       <div style="width:72px;height:72px;background:rgba(27,77,62,0.08);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
         <i class="fas fa-plus" style="font-size:1.8rem;color:var(--primary);"></i>
       </div>
       <h2>Doctor Login</h2>
       <p class="login-subtitle">Shree Physiotherapy Clinic</p>
-      <p class="login-error" id="loginError">Invalid username or password. Please try again.</p>
+      <p class="login-error" id="loginError">Invalid username or password.</p>
       <form onsubmit="handleLogin(event)">
         <div class="form-group">
           <label for="loginUsername">Username</label>
