@@ -989,9 +989,11 @@ function viewPatient(id) {
         };
     }
 
-    // Reset modal title
+    // Reset modal title and subtitle
     const modalTitle = document.querySelector('#viewPatientModal .modal h2');
     if (modalTitle) modalTitle.textContent = 'Patient Details';
+    const modalSubtitle = document.getElementById('viewModalSubtitle');
+    if (modalSubtitle) modalSubtitle.textContent = 'Treatment History';
 
     openModal('viewPatientModal');
 }
@@ -1470,90 +1472,113 @@ function viewAppointmentDetails(id) {
     const duration = apt.duration || 30;
     const endTime = apt.endTime || calculateEndTime(apt.time, duration);
 
-    // Create a detailed view modal content
-    const details = `
-        <div style="display:grid; gap:16px;">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <div style="background:var(--bg); padding:12px; border-radius:8px;">
-                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Patient</label>
-                    <strong>${escapeHtml(patientName)}</strong>
+    // Use the same modal style as patient popup
+    const detailsEl = document.getElementById('patientDetails');
+    if (detailsEl) {
+        detailsEl.innerHTML = `
+            <div class="patient-profile">
+                <div class="patient-avatar">${patientName.charAt(0).toUpperCase()}</div>
+                <div class="patient-info-grid">
+                    <div><strong>Patient:</strong> ${escapeHtml(patientName)}</div>
+                    <div><strong>Phone:</strong> ${escapeHtml(patientPhone)}</div>
+                    <div><strong>Date:</strong> ${formatDate(apt.date)}</div>
+                    <div><strong>Time:</strong> ${(apt.time || apt.startTime)} - ${endTime}</div>
+                    <div><strong>Service:</strong> ${escapeHtml(apt.service || 'General')}</div>
+                    <div><strong>Duration:</strong> ${duration} minutes</div>
+                    <div><strong>Status:</strong> <span class="status-badge ${getStatusClass(apt.status)}">${apt.status || 'Scheduled'}</span></div>
+                    <div><strong>Payment:</strong> ${apt.paymentStatus || 'Pending'}${apt.amountPaid ? ' (₹' + apt.amountPaid + ')' : ''}</div>
+                    ${apt.notes ? `<div class="full-width"><strong>Notes:</strong> ${escapeHtml(apt.notes)}</div>` : ''}
                 </div>
-                <div style="background:var(--bg); padding:12px; border-radius:8px;">
-                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Phone</label>
-                    <strong>${escapeHtml(patientPhone)}</strong>
-                </div>
-                <div style="background:var(--bg); padding:12px; border-radius:8px;">
-                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Date</label>
-                    <strong>${formatDate(apt.date)}</strong>
-                </div>
-                <div style="background:var(--bg); padding:12px; border-radius:8px;">
-                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Time</label>
-                    <strong>${apt.time || apt.startTime} - ${endTime}</strong>
-                </div>
-                <div style="background:var(--bg); padding:12px; border-radius:8px;">
-                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Service</label>
-                    <strong>${escapeHtml(apt.service || 'General')}</strong>
-                </div>
-                <div style="background:var(--bg); padding:12px; border-radius:8px;">
-                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Status</label>
-                    <span class="status-badge ${getStatusClass(apt.status)}">${apt.status || 'Scheduled'}</span>
-                </div>
-                <div style="background:var(--bg); padding:12px; border-radius:8px;">
-                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Payment</label>
-                    <strong>${apt.paymentStatus || 'Pending'}${apt.amountPaid ? ' (₹' + apt.amountPaid + ')' : ''}</strong>
-                </div>
-                <div style="background:var(--bg); padding:12px; border-radius:8px;">
-                    <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Duration</label>
-                    <strong>${duration} minutes</strong>
-                </div>
-            </div>
-            ${apt.notes ? `<div style="background:var(--bg); padding:12px; border-radius:8px;">
-                <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Notes</label>
-                <p style="margin:0;">${escapeHtml(apt.notes)}</p>
-            </div>` : ''}
-        </div>
-    `;
-
-    // Show in a simple modal or use existing modal structure
-    showAppointmentModal('Appointment Details', details, apt.id, apt.patientId, patientPhone);
-}
-
-function showAppointmentModal(title, content, aptId, patientId, phone) {
-    // Create modal if not exists
-    let modal = document.getElementById('appointmentViewModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'appointmentViewModal';
-        modal.className = 'modal-overlay';
-        modal.innerHTML = `
-            <div class="modal" style="max-width:550px;">
-                <button class="modal-close" onclick="closeModal('appointmentViewModal')"><i class="fas fa-times"></i></button>
-                <h2 id="aptModalTitle">Appointment Details</h2>
-                <div id="aptModalContent"></div>
-                <div id="aptModalActions" style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;"></div>
             </div>
         `;
-        document.body.appendChild(modal);
     }
 
-    document.getElementById('aptModalTitle').textContent = title;
-    document.getElementById('aptModalContent').innerHTML = content;
+    // Show appointment history for this patient
+    const visitEl = document.getElementById('visitHistory');
+    if (visitEl) {
+        let html = '';
+        if (apt.patientId) {
+            const patientAppointments = appointments.filter(a => a.patientId === apt.patientId && a.id !== id);
+            if (patientAppointments.length > 0) {
+                html += '<div class="history-section">';
+                html += '<h4><i class="fas fa-calendar-check"></i> Other Appointments</h4>';
+                html += '<div class="history-list">';
+                patientAppointments.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(a => {
+                    const statusClass = getStatusClass(a.status);
+                    const dur = a.duration || 30;
+                    html += `
+                        <div class="history-item ${statusClass}">
+                            <div class="history-date">${formatDate(a.date)}</div>
+                            <div class="history-content">
+                                <span class="history-time">${a.time || a.startTime} (${dur} min)</span>
+                                <span class="history-service">${escapeHtml(a.service || 'General')}</span>
+                            </div>
+                            <span class="status-badge ${statusClass}">${a.status || 'Scheduled'}</span>
+                        </div>
+                    `;
+                });
+                html += '</div></div>';
+            }
 
-    // Add action buttons
-    const actionsDiv = document.getElementById('aptModalActions');
-    actionsDiv.innerHTML = `
-        ${patientId ? `<button class="btn btn-primary" onclick="closeModal('appointmentViewModal'); writePrescription('${patientId}')" style="padding:10px 20px;font-size:0.85rem;">
-            <i class="fas fa-file-prescription"></i> Write Prescription
-        </button>` : ''}
-        <button class="btn btn-whatsapp" onclick="openWhatsApp('${phone}', 'Hello, this is a reminder about your appointment at Shree Physiotherapy Clinic.')" style="padding:10px 20px;font-size:0.85rem;">
-            <i class="fab fa-whatsapp"></i> WhatsApp
-        </button>
-        ${patientId ? `<button class="btn btn-accent" onclick="closeModal('appointmentViewModal'); openQuickBooking('${patientId}')" style="padding:10px 20px;font-size:0.85rem;">
-            <i class="fas fa-calendar-plus"></i> Book Appointment
-        </button>` : ''}
-    `;
+            const prescriptions = getData('prescriptions').filter(rx => rx.patientId === apt.patientId);
+            if (prescriptions.length > 0) {
+                html += '<div class="history-section">';
+                html += '<h4><i class="fas fa-file-prescription"></i> Prescriptions</h4>';
+                html += '<div class="history-list">';
+                prescriptions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(rx => {
+                    html += `
+                        <div class="history-item">
+                            <div class="history-date">${formatDate(rx.date)}</div>
+                            <div class="history-content">
+                                <span class="history-diagnosis">${escapeHtml(rx.diagnosis ? rx.diagnosis.substring(0, 60) : 'N/A')}${rx.diagnosis && rx.diagnosis.length > 60 ? '...' : ''}</span>
+                            </div>
+                            <button class="action-btn view" onclick="viewPrescription('${rx.id}')" title="View"><i class="fas fa-eye"></i></button>
+                        </div>
+                    `;
+                });
+                html += '</div></div>';
+            }
+        }
 
-    openModal('appointmentViewModal');
+        if (html === '') {
+            html = '<p class="no-data">No other records for this patient.</p>';
+        }
+        visitEl.innerHTML = html;
+    }
+
+    // Wire up action buttons
+    const btnRx = document.getElementById('btnWriteRx');
+    const btnWa = document.getElementById('btnPatientWa');
+    const btnBook = document.getElementById('btnBookAppt');
+
+    if (btnRx) {
+        btnRx.onclick = function () {
+            closeModal('viewPatientModal');
+            writePrescription(apt.patientId);
+        };
+        btnRx.style.display = apt.patientId ? '' : 'none';
+    }
+    if (btnWa) {
+        btnWa.onclick = function () {
+            openWhatsApp(patientPhone, `Hello ${patientName}, this is a reminder about your appointment at Shree Physiotherapy Clinic.`);
+        };
+        btnWa.style.display = '';
+    }
+    if (btnBook) {
+        btnBook.onclick = function () {
+            closeModal('viewPatientModal');
+            openQuickBooking(apt.patientId);
+        };
+        btnBook.style.display = apt.patientId ? '' : 'none';
+    }
+
+    // Set modal title and subtitle
+    const modalTitle = document.querySelector('#viewPatientModal .modal h2');
+    if (modalTitle) modalTitle.textContent = 'Appointment Details';
+    const modalSubtitle = document.getElementById('viewModalSubtitle');
+    if (modalSubtitle) modalSubtitle.textContent = 'Patient History';
+
+    openModal('viewPatientModal');
 }
 
 function rescheduleAppointment(id) {
