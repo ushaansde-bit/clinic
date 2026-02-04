@@ -22,6 +22,19 @@
 </head>
 <body>
 
+  <!-- Browser Compatibility Notice -->
+  <script>
+  (function() {
+      var isIE = !!window.MSInputMethodContext || !!document.documentMode || (navigator.userAgent.indexOf('MSIE') !== -1) || (navigator.userAgent.indexOf('Trident/') !== -1);
+      if (isIE) {
+          var d = document.createElement('div');
+          d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#F59E0B;color:#000;padding:12px 20px;text-align:center;font-family:Arial,sans-serif;font-size:14px;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,0.2);';
+          d.innerHTML = '<strong>Internet Explorer is outdated.</strong> For the best experience, please switch to <a href="https://www.microsoft.com/edge" style="color:#1B4D3E;text-decoration:underline;font-weight:bold;">Microsoft Edge</a>, <a href="https://www.google.com/chrome/" style="color:#1B4D3E;text-decoration:underline;font-weight:bold;">Google Chrome</a>, or <a href="https://www.mozilla.org/firefox/" style="color:#1B4D3E;text-decoration:underline;font-weight:bold;">Mozilla Firefox</a>. <button onclick="this.parentNode.remove()" style="margin-left:12px;background:none;border:1px solid #000;padding:2px 10px;cursor:pointer;border-radius:4px;">Dismiss</button>';
+          document.body.insertBefore(d, document.body.firstChild);
+      }
+  })();
+  </script>
+
   <!-- Login Screen (disabled) -->
   <div class="login-screen" id="loginScreen" style="display:none;">
     <div class="login-card">
@@ -93,6 +106,10 @@
           <a href="#" onclick="switchTab('accounts'); return false;">
             <span class="nav-icon"><i class="fas fa-book"></i></span> Accounts
           </a>
+          <a href="#" onclick="switchTab('settings'); return false;">
+            <span class="nav-icon"><i class="fas fa-cloud"></i></span> Cloud Sync
+            <span id="syncStatusIndicator" style="margin-left:auto;font-size:0.75rem;"></span>
+          </a>
           <a href="#" onclick="switchTab('trash'); return false;" style="margin-top:auto;border-top:1px solid var(--border-light);padding-top:12px;">
             <span class="nav-icon"><i class="fas fa-trash-alt"></i></span> Trash
             <span class="trash-count" id="trashCount" style="display:none;"></span>
@@ -110,6 +127,7 @@
           <button onclick="switchTab('prescriptions')">Prescriptions</button>
           <button onclick="switchTab('followups')">Follow-ups</button>
           <button onclick="switchTab('accounts')">Accounts</button>
+          <button onclick="switchTab('settings')">Sync</button>
           <button onclick="switchTab('trash')">Trash</button>
         </div>
 
@@ -679,6 +697,121 @@
             </div>
           </div>
         </div>
+
+        <!-- TAB: Settings / Cloud Sync -->
+        <div id="tab-settings" class="tab-content" style="display:none;">
+          <div class="dashboard-card-header" style="margin-bottom:24px;">
+            <div>
+              <h2 style="font-size:1.8rem;"><i class="fas fa-cloud" style="margin-right:10px;opacity:0.7;"></i>Cloud Sync &amp; Data</h2>
+              <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px;">Sync your data across all browsers and devices using Firebase. Your data will be available on any browser when you open the site.</p>
+            </div>
+          </div>
+
+          <!-- Sync Status Card -->
+          <div class="dashboard-card" style="margin-bottom:20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+              <div>
+                <h3 style="font-size:1.1rem;margin-bottom:4px;">Sync Status</h3>
+                <div id="syncStatusDisplay" style="font-size:0.9rem;color:var(--text-muted);">
+                  <span id="syncStatusIndicator2"></span>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="syncNowFromCloud()" style="padding:8px 16px;font-size:0.85rem;">
+                  <i class="fas fa-cloud-download-alt"></i> Pull from Cloud
+                </button>
+                <button class="btn btn-secondary" onclick="syncNowToCloud()" style="padding:8px 16px;font-size:0.85rem;">
+                  <i class="fas fa-cloud-upload-alt"></i> Push to Cloud
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Stats Card -->
+          <div class="dashboard-card" style="margin-bottom:20px;">
+            <h3 style="font-size:1.1rem;margin-bottom:16px;"><i class="fas fa-database" style="margin-right:8px;opacity:0.7;"></i>Local Data Statistics</h3>
+            <div id="dataStatsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;"></div>
+          </div>
+
+          <!-- Export/Import Card -->
+          <div class="dashboard-card" style="margin-bottom:20px;">
+            <h3 style="font-size:1.1rem;margin-bottom:8px;"><i class="fas fa-exchange-alt" style="margin-right:8px;opacity:0.7;"></i>Export / Import Data</h3>
+            <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px;">Transfer data between browsers manually using a JSON file. Export from one browser and import in another.</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="CloudSync.exportData()" style="padding:10px 20px;font-size:0.85rem;">
+                <i class="fas fa-download"></i> Export All Data
+              </button>
+              <label class="btn btn-secondary" style="padding:10px 20px;font-size:0.85rem;cursor:pointer;">
+                <i class="fas fa-upload"></i> Import Data
+                <input type="file" accept=".json" onchange="handleImportFile(this)" style="display:none;">
+              </label>
+            </div>
+          </div>
+
+          <!-- Firebase Setup Card -->
+          <div class="dashboard-card" style="margin-bottom:20px;">
+            <h3 style="font-size:1.1rem;margin-bottom:8px;"><i class="fas fa-cog" style="margin-right:8px;opacity:0.7;"></i>Firebase Cloud Setup</h3>
+            <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px;">Connect to Firebase Realtime Database for automatic cross-browser sync. Follow the steps below to set up.</p>
+
+            <div style="background:rgba(27,77,62,0.04);padding:16px;border-radius:var(--radius);border:1px solid rgba(27,77,62,0.1);margin-bottom:20px;">
+              <h4 style="font-size:0.9rem;color:var(--primary);margin-bottom:12px;">Setup Steps:</h4>
+              <ol style="font-size:0.85rem;color:var(--text-muted);padding-left:20px;line-height:2;">
+                <li>Go to <a href="https://console.firebase.google.com/" target="_blank" style="color:var(--primary);text-decoration:underline;">Firebase Console</a> and create a new project (free)</li>
+                <li>In your project, go to <strong>Build &gt; Realtime Database</strong> and click <strong>Create Database</strong></li>
+                <li>Choose <strong>"Start in test mode"</strong> for the security rules</li>
+                <li>Go to <strong>Project Settings</strong> (gear icon) &gt; <strong>General</strong> &gt; scroll down to <strong>"Your apps"</strong></li>
+                <li>Click the <strong>Web (&lt;/&gt;)</strong> icon to add a web app</li>
+                <li>Copy the <strong>firebaseConfig</strong> values and paste them below</li>
+              </ol>
+            </div>
+
+            <form onsubmit="event.preventDefault(); saveFirebaseConfig();" id="firebaseConfigForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fbApiKey">API Key *</label>
+                  <input type="text" id="fbApiKey" placeholder="AIzaSy..." required>
+                </div>
+                <div class="form-group">
+                  <label for="fbAuthDomain">Auth Domain *</label>
+                  <input type="text" id="fbAuthDomain" placeholder="your-project.firebaseapp.com" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fbDatabaseURL">Database URL *</label>
+                  <input type="text" id="fbDatabaseURL" placeholder="https://your-project-default-rtdb.firebaseio.com" required>
+                </div>
+                <div class="form-group">
+                  <label for="fbProjectId">Project ID *</label>
+                  <input type="text" id="fbProjectId" placeholder="your-project-id" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fbStorageBucket">Storage Bucket</label>
+                  <input type="text" id="fbStorageBucket" placeholder="your-project.appspot.com">
+                </div>
+                <div class="form-group">
+                  <label for="fbMessagingSenderId">Messaging Sender ID</label>
+                  <input type="text" id="fbMessagingSenderId" placeholder="123456789">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="fbAppId">App ID</label>
+                <input type="text" id="fbAppId" placeholder="1:123456789:web:abcdef">
+              </div>
+              <div style="display:flex;gap:12px;margin-top:16px;">
+                <button type="submit" class="btn btn-primary" style="padding:10px 24px;font-size:0.85rem;">
+                  <i class="fas fa-link"></i> Connect Firebase
+                </button>
+                <button type="button" class="btn btn-outline" onclick="disconnectFirebase()" style="padding:10px 24px;font-size:0.85rem;color:#DC2626;border-color:#DC2626;">
+                  <i class="fas fa-unlink"></i> Disconnect
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
       </main>
     </div>
   </div>
@@ -1017,8 +1150,13 @@
     <i class="fab fa-whatsapp"></i>
   </a>
 
+  <!-- Firebase SDK (for cross-browser cloud sync) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+
   <script src="js/main.js"></script>
   <script src="js/dashboard.js"></script>
+  <script src="js/cloud-sync.js"></script>
   <script src="js/pwa.js"></script>
 </body>
 </html>

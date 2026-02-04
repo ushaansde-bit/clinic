@@ -119,7 +119,7 @@ function switchTab(tabName) {
         link.classList.remove('active');
     });
     const links = document.querySelectorAll('.sidebar-nav a');
-    const tabMap = ['overview', 'patients', 'appointments', 'calendar', 'prescriptions', 'followups', 'accounts', 'trash'];
+    const tabMap = ['overview', 'patients', 'appointments', 'calendar', 'prescriptions', 'followups', 'accounts', 'settings', 'trash'];
     const index = tabMap.indexOf(tabName);
     if (index >= 0 && links[index]) {
         links[index].classList.add('active');
@@ -131,28 +131,15 @@ function switchTab(tabName) {
         btn.classList.toggle('active', i === index);
     });
 
-    // Get today's date in YYYY-MM-DD format
-    const today = new Date().toISOString().split('T')[0];
-
     // Refresh relevant data on switch
     switch (tabName) {
         case 'overview':
             refreshDashboard();
             break;
         case 'patients':
-            // Set date filter to today
-            const patientDateFilter = document.getElementById('patientDateFilter');
-            if (patientDateFilter && !patientDateFilter.value) {
-                patientDateFilter.value = today;
-            }
             loadPatients();
             break;
         case 'appointments':
-            // Set date filter to today
-            const appointmentFilter = document.getElementById('appointmentFilter');
-            if (appointmentFilter && !appointmentFilter.value) {
-                appointmentFilter.value = today;
-            }
             loadAppointments();
             break;
         case 'calendar':
@@ -160,23 +147,16 @@ function switchTab(tabName) {
             renderCalendlyView();
             break;
         case 'prescriptions':
-            // Set date filter to today
-            const prescriptionDateFilter = document.getElementById('prescriptionDateFilter');
-            if (prescriptionDateFilter && !prescriptionDateFilter.value) {
-                prescriptionDateFilter.value = today;
-            }
             loadPrescriptions();
             break;
         case 'followups':
-            // Set date filter to today
-            const followupDateFilter = document.getElementById('followupDateFilter');
-            if (followupDateFilter && !followupDateFilter.value) {
-                followupDateFilter.value = today;
-            }
             loadFollowups();
             break;
         case 'accounts':
             loadAccountsBook();
+            break;
+        case 'settings':
+            loadSettingsTab();
             break;
         case 'trash':
             loadTrash();
@@ -4181,6 +4161,131 @@ function printReport() {
         </html>
     `);
     printWindow.document.close();
+}
+
+/* ============================================
+   CLOUD SYNC / SETTINGS TAB FUNCTIONS
+   ============================================ */
+function loadSettingsTab() {
+    // Load data stats
+    var statsGrid = document.getElementById('dataStatsGrid');
+    if (statsGrid && window.CloudSync) {
+        var stats = CloudSync.getDataStats();
+        var labels = { patients: 'Patients', appointments: 'Appointments', prescriptions: 'Prescriptions', followups: 'Follow-ups' };
+        var icons = { patients: 'fa-users', appointments: 'fa-calendar-check', prescriptions: 'fa-file-prescription', followups: 'fa-bell' };
+        var html = '';
+        for (var key in labels) {
+            html += '<div style="background:var(--bg);padding:16px;border-radius:var(--radius);text-align:center;">' +
+                '<i class="fas ' + icons[key] + '" style="font-size:1.5rem;color:var(--primary);margin-bottom:8px;display:block;"></i>' +
+                '<div style="font-size:1.8rem;font-weight:700;color:var(--text);">' + (stats[key] || 0) + '</div>' +
+                '<div style="font-size:0.8rem;color:var(--text-muted);">' + labels[key] + '</div></div>';
+        }
+        statsGrid.innerHTML = html;
+    }
+
+    // Load saved Firebase config into form
+    try {
+        var saved = localStorage.getItem('_firebaseConfig');
+        if (saved) {
+            var config = JSON.parse(saved);
+            var fields = { fbApiKey: 'apiKey', fbAuthDomain: 'authDomain', fbDatabaseURL: 'databaseURL', fbProjectId: 'projectId', fbStorageBucket: 'storageBucket', fbMessagingSenderId: 'messagingSenderId', fbAppId: 'appId' };
+            for (var id in fields) {
+                var el = document.getElementById(id);
+                if (el && config[fields[id]]) el.value = config[fields[id]];
+            }
+        }
+    } catch (e) { /* ignore */ }
+
+    // Update secondary sync status
+    var indicator2 = document.getElementById('syncStatusIndicator2');
+    var indicator1 = document.getElementById('syncStatusIndicator');
+    if (indicator2 && indicator1) {
+        indicator2.innerHTML = indicator1.innerHTML;
+    }
+}
+
+function saveFirebaseConfig() {
+    var config = {
+        apiKey: document.getElementById('fbApiKey').value.trim(),
+        authDomain: document.getElementById('fbAuthDomain').value.trim(),
+        databaseURL: document.getElementById('fbDatabaseURL').value.trim(),
+        projectId: document.getElementById('fbProjectId').value.trim(),
+        storageBucket: (document.getElementById('fbStorageBucket').value || '').trim(),
+        messagingSenderId: (document.getElementById('fbMessagingSenderId').value || '').trim(),
+        appId: (document.getElementById('fbAppId').value || '').trim()
+    };
+
+    if (!config.apiKey || !config.databaseURL || !config.projectId) {
+        showToast('Please fill in API Key, Database URL, and Project ID', 'error');
+        return;
+    }
+
+    // Reload page to reinitialize Firebase with new config
+    localStorage.setItem('_firebaseConfig', JSON.stringify(config));
+    showToast('Firebase config saved! Reconnecting...', 'success');
+
+    setTimeout(function() {
+        window.location.reload();
+    }, 1000);
+}
+
+function disconnectFirebase() {
+    if (window.CloudSync) {
+        CloudSync.disconnect();
+    }
+    // Clear form
+    ['fbApiKey', 'fbAuthDomain', 'fbDatabaseURL', 'fbProjectId', 'fbStorageBucket', 'fbMessagingSenderId', 'fbAppId'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    showToast('Firebase disconnected. Using local storage only.', 'success');
+    loadSettingsTab();
+}
+
+function syncNowFromCloud() {
+    if (!window.CloudSync || !CloudSync.isReady()) {
+        showToast('Firebase not connected. Set up Firebase first.', 'error');
+        return;
+    }
+    CloudSync.pullFromCloud(function(success) {
+        if (success) {
+            showToast('Data pulled from cloud successfully!', 'success');
+            refreshDashboard();
+            loadSettingsTab();
+        } else {
+            showToast('Failed to pull data from cloud', 'error');
+        }
+    });
+}
+
+function syncNowToCloud() {
+    if (!window.CloudSync || !CloudSync.isReady()) {
+        showToast('Firebase not connected. Set up Firebase first.', 'error');
+        return;
+    }
+    CloudSync.pushToCloud(function(success) {
+        if (success) {
+            showToast('Data pushed to cloud successfully!', 'success');
+            loadSettingsTab();
+        } else {
+            showToast('Failed to push data to cloud', 'error');
+        }
+    });
+}
+
+function handleImportFile(input) {
+    if (!input.files || !input.files[0]) return;
+    if (window.CloudSync) {
+        CloudSync.importData(input.files[0], function(success) {
+            if (success) {
+                refreshDashboard();
+                loadPatients();
+                loadAppointments();
+                loadSettingsTab();
+            }
+            input.value = '';
+        });
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

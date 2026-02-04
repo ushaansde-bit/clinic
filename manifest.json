@@ -1,0 +1,92 @@
+{
+  "name": "Shree Physiotherapy Clinic",
+  "short_name": "Shree Physio",
+  "description": "Book appointments and manage your physiotherapy care with Dr. Aarthi Ganesh at Shree Physiotherapy Clinic, Coimbatore",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#FAF9F6",
+  "theme_color": "#1B4D3E",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "medical", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "screenshots/home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "screenshots/booking.png",
+      "sizes": "720x1280",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Book Appointment",
+      "short_name": "Book",
+      "description": "Book a new appointment",
+      "url": "/book.html",
+      "icons": [{ "src": "icons/book-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Doctor Dashboard",
+      "short_name": "Dashboard",
+      "description": "Access the doctor dashboard",
+      "url": "/dashboard.html",
+      "icons": [{ "src": "icons/dashboard-icon.png", "sizes": "96x96" }]
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+PWA Icon Requirements for Shree Physiotherapy Clinic
+====================================================
+
+To complete the PWA setup, you need to create the following icon files:
+
+Required Icons (PNG format):
+- icon-72x72.png    (72x72 pixels)
+- icon-96x96.png    (96x96 pixels)
+- icon-128x128.png  (128x128 pixels)
+- icon-144x144.png  (144x144 pixels)
+- icon-152x152.png  (152x152 pixels)
+- icon-192x192.png  (192x192 pixels)
+- icon-384x384.png  (384x384 pixels)
+- icon-512x512.png  (512x512 pixels)
+
+Optional Icons:
+- badge-72x72.png   (for notification badge)
+- book-icon.png     (96x96, for booking shortcut)
+- dashboard-icon.png (96x96, for dashboard shortcut)
+
+Screenshot Requirements (optional):
+- screenshots/home.png    (1280x720 for desktop)
+- screenshots/booking.png (720x1280 for mobile)
+
+Icon Design Guidelines:
+1. Use the clinic's primary color (#1B4D3E - dark green)
+2. Include a simple physiotherapy-related symbol (like a human figure, spine, or therapy hands)
+3. Ensure the icon is recognizable at small sizes
+4. Use transparent background for maskable icons
+5. Add safe zone padding (40% from edges) for maskable icons
+
+Free Icon Generation Tools:
+- https://www.pwabuilder.com/imageGenerator
+- https://realfavicongenerator.net
+- https://maskable.app/editor
+
+Simply upload your logo/design and these tools will generate all required sizes automatically.

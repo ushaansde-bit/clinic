@@ -253,6 +253,19 @@
      ---------------------------------------------------------- */
   window.openWhatsApp = function (phone, message) {
     var p = phone || "919092294466";
+
+    // Clean phone number - remove spaces, dashes, parentheses
+    p = p.replace(/[\s\-\(\)]/g, "");
+
+    // Add India country code if not present
+    if (p.length === 10 && !p.startsWith("91")) {
+      p = "91" + p;
+    }
+    // Remove + if present
+    if (p.startsWith("+")) {
+      p = p.substring(1);
+    }
+
     var msg = message || "";
     var url = "https://wa.me/" + p;
     if (msg) {
