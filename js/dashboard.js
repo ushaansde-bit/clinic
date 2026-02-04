@@ -1545,14 +1545,11 @@ function showAppointmentModal(title, content, aptId, patientId, phone) {
         ${patientId ? `<button class="btn btn-primary" onclick="closeModal('appointmentViewModal'); writePrescription('${patientId}')" style="padding:10px 20px;font-size:0.85rem;">
             <i class="fas fa-file-prescription"></i> Write Prescription
         </button>` : ''}
-        ${patientId ? `<button class="btn btn-secondary" onclick="closeModal('appointmentViewModal'); scheduleFollowup('${patientId}')" style="padding:10px 20px;font-size:0.85rem;">
-            <i class="fas fa-bell"></i> Schedule Follow-up
-        </button>` : ''}
         <button class="btn btn-whatsapp" onclick="openWhatsApp('${phone}', 'Hello, this is a reminder about your appointment at Shree Physiotherapy Clinic.')" style="padding:10px 20px;font-size:0.85rem;">
             <i class="fab fa-whatsapp"></i> WhatsApp
         </button>
-        ${patientId ? `<button class="btn btn-accent" onclick="closeModal('appointmentViewModal'); viewPatient('${patientId}')" style="padding:10px 20px;font-size:0.85rem;">
-            <i class="fas fa-user"></i> View Patient
+        ${patientId ? `<button class="btn btn-accent" onclick="closeModal('appointmentViewModal'); openQuickBooking('${patientId}')" style="padding:10px 20px;font-size:0.85rem;">
+            <i class="fas fa-calendar-plus"></i> Book Appointment
         </button>` : ''}
     `;
 
