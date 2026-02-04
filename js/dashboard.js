@@ -159,6 +159,14 @@ function checkSession() {
     return false;
 }
 
+function forgotPassword() {
+    localStorage.removeItem('_dashCredentials');
+    var setupCard = document.getElementById('setupCard');
+    var loginCard = document.getElementById('loginCard');
+    if (setupCard) setupCard.style.display = '';
+    if (loginCard) loginCard.style.display = 'none';
+}
+
 function logoutDashboard() {
     sessionStorage.removeItem('dashLoggedIn');
     window.location.href = 'index.html';
