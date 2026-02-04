@@ -925,7 +925,6 @@ function viewPatient(id) {
                         <div class="history-content">
                             <span class="history-diagnosis">${escapeHtml(rx.diagnosis ? rx.diagnosis.substring(0, 60) : 'N/A')}${rx.diagnosis && rx.diagnosis.length > 60 ? '...' : ''}</span>
                         </div>
-                        <button class="action-btn view" onclick="viewPrescription('${rx.id}')" title="View"><i class="fas fa-eye"></i></button>
                     </div>
                 `;
             });
@@ -1528,7 +1527,6 @@ function viewAppointmentDetails(id) {
                             <div class="history-content">
                                 <span class="history-diagnosis">${escapeHtml(rx.diagnosis ? rx.diagnosis.substring(0, 60) : 'N/A')}${rx.diagnosis && rx.diagnosis.length > 60 ? '...' : ''}</span>
                             </div>
-                            <button class="action-btn view" onclick="viewPrescription('${rx.id}')" title="View"><i class="fas fa-eye"></i></button>
                         </div>
                     `;
                 });
@@ -1546,12 +1544,26 @@ function viewAppointmentDetails(id) {
     const btnRx = document.getElementById('btnWriteRx');
     const btnWa = document.getElementById('btnPatientWa');
 
+    // Check if appointment is in the future
+    const todayDate = new Date().toISOString().split('T')[0];
+    const isFutureAppointment = apt.date > todayDate;
+
     if (btnRx) {
-        btnRx.onclick = function () {
-            closeModal('viewPatientModal');
-            writePrescription(apt.patientId);
-        };
         btnRx.style.display = apt.patientId ? '' : 'none';
+        if (isFutureAppointment) {
+            btnRx.style.opacity = '0.6';
+            btnRx.style.cursor = 'not-allowed';
+            btnRx.onclick = function () {
+                showToast('Cannot write prescription for upcoming appointments.', 'error');
+            };
+        } else {
+            btnRx.style.opacity = '';
+            btnRx.style.cursor = '';
+            btnRx.onclick = function () {
+                closeModal('viewPatientModal');
+                writePrescription(apt.patientId);
+            };
+        }
     }
     if (btnWa) {
         btnWa.onclick = function () {
@@ -3171,6 +3183,13 @@ function openTreatmentModal(appointmentId) {
     const appointments = getData('appointments');
     const apt = appointments.find(a => a.id === appointmentId);
     if (!apt) return;
+
+    // For future appointments, open details view instead of treatment modal
+    const todayDate = new Date().toISOString().split('T')[0];
+    if (apt.date > todayDate) {
+        viewAppointmentDetails(appointmentId);
+        return;
+    }
 
     currentTreatmentAptId = appointmentId;
 
