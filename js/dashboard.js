@@ -968,9 +968,10 @@ function viewPatient(id) {
     const btnBook = document.getElementById('btnBookAppt');
 
     if (btnRx) {
+        const patientId = id;
         btnRx.onclick = function () {
             closeModal('viewPatientModal');
-            writePrescription(id);
+            setTimeout(function () { writePrescription(patientId); }, 150);
         };
         btnRx.style.display = '';
         btnRx.style.opacity = '';
@@ -984,9 +985,10 @@ function viewPatient(id) {
         btnFu.style.display = '';
     }
     if (btnBook) {
+        const patientId = id;
         btnBook.onclick = function () {
             closeModal('viewPatientModal');
-            openQuickBooking(id);
+            setTimeout(function () { openQuickBooking(patientId); }, 150);
         };
         btnBook.style.display = '';
     }
@@ -1557,9 +1559,9 @@ function viewAppointmentDetails(id) {
     const btnWa = document.getElementById('btnPatientWa');
     const btnBook = document.getElementById('btnBookAppt');
 
-    // Check if appointment is in the future
-    const todayDate = new Date().toISOString().split('T')[0];
-    const isFutureAppointment = apt.date > todayDate;
+    // Check if appointment is in the future (use IST date)
+    const todayIST = getIndiaTodayDate();
+    const isFutureAppointment = apt.date > todayIST;
 
     if (btnRx) {
         btnRx.style.display = apt.patientId ? '' : 'none';
@@ -1573,15 +1575,17 @@ function viewAppointmentDetails(id) {
             btnRx.style.opacity = '';
             btnRx.style.cursor = '';
             btnRx.onclick = function () {
+                const pid = apt.patientId;
                 closeModal('viewPatientModal');
-                writePrescription(apt.patientId);
+                setTimeout(function () { writePrescription(pid); }, 150);
             };
         }
     }
     if (btnBook) {
         btnBook.onclick = function () {
+            const pid = apt.patientId;
             closeModal('viewPatientModal');
-            openQuickBooking(apt.patientId);
+            setTimeout(function () { openQuickBooking(pid); }, 150);
         };
         btnBook.style.display = apt.patientId ? '' : 'none';
     }
@@ -1847,7 +1851,7 @@ function savePrescription(event) {
     setData('prescriptions', prescriptions);
 
     // Auto-complete matching appointment for this patient
-    const todayDate = new Date().toISOString().split('T')[0];
+    const todayDate = getIndiaTodayDate();
     const appointments = getData('appointments');
     const matchingApt = appointments.find(a =>
         a.patientId === patientId &&
@@ -3208,7 +3212,7 @@ function openTreatmentModal(appointmentId) {
     if (!apt) return;
 
     // For future appointments, open details view instead of treatment modal
-    const todayDate = new Date().toISOString().split('T')[0];
+    const todayDate = getIndiaTodayDate();
     if (apt.date > todayDate) {
         viewAppointmentDetails(appointmentId);
         return;
