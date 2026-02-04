@@ -2336,13 +2336,16 @@ h1, h2, h3, h4, h5, h6 {
   margin-right: 4px;
 }
 
-.action-btn.view {
-  background: rgba(27,77,62,0.08);
+.clickable-name {
   color: var(--primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  border-bottom: 1px dashed transparent;
 }
-.action-btn.view:hover {
-  background: var(--primary);
-  color: #fff;
+.clickable-name:hover {
+  color: var(--primary-dark, #145040);
+  border-bottom-color: var(--primary);
 }
 
 .action-btn.edit {

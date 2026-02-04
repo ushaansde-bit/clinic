@@ -768,14 +768,13 @@ function loadPatients() {
         const lastVisit = getLastVisit(patientAppointments);
 
         return `<tr>
-            <td><strong>${escapeHtml(p.name)}</strong></td>
+            <td><strong><a href="javascript:void(0)" class="clickable-name" onclick="viewPatient('${p.id}')">${escapeHtml(p.name)}</a></strong></td>
             <td>${p.age || '-'}</td>
             <td>${p.gender || '-'}</td>
             <td>${escapeHtml(p.phone)}</td>
             <td>${completedVisits}</td>
             <td class="last-visit">${lastVisit}</td>
             <td>
-                <button class="action-btn view" title="View" onclick="viewPatient('${p.id}')"><i class="fas fa-eye"></i></button>
                 <button class="action-btn edit" title="Book Appointment" onclick="openQuickBooking('${p.id}')"><i class="fas fa-calendar-plus"></i></button>
                 <button class="action-btn delete" title="Delete" onclick="deletePatient('${p.id}')"><i class="fas fa-trash"></i></button>
             </td>
@@ -1092,7 +1091,7 @@ function loadAppointments() {
         const amountDisplay = a.amountPaid ? `₹${a.amountPaid}` : '-';
 
         return `<tr>
-            <td><strong>${escapeHtml(patientName)}</strong></td>
+            <td><strong><a href="javascript:void(0)" class="clickable-name" onclick="viewAppointmentDetails('${a.id}')">${escapeHtml(patientName)}</a></strong></td>
             <td>${formatDate(a.date)}</td>
             <td>
                 <span class="time-range">${timeRange}</span>
@@ -1102,7 +1101,6 @@ function loadAppointments() {
             <td><span class="payment-badge ${paymentClass}">${paymentStatus}${a.amountPaid ? ` (${amountDisplay})` : ''}</span></td>
             <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
             <td>
-                <button class="action-btn view" title="View" onclick="viewAppointmentDetails('${a.id}')"><i class="fas fa-eye"></i></button>
                 <button class="action-btn edit" title="Reschedule" onclick="rescheduleAppointment('${a.id}')"><i class="fas fa-calendar-alt"></i></button>
                 <button class="action-btn delete" title="Delete" onclick="deleteAppointment('${a.id}')"><i class="fas fa-trash"></i></button>
             </td>
