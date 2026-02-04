@@ -2619,7 +2619,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Growth Metrics Grid */
 .growth-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   margin-top: 20px;
 }

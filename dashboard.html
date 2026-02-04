@@ -152,7 +152,7 @@
             </div>
           </div>
 
-          <!-- Stats Cards -->
+          <!-- Stats Cards (5 items) -->
           <div class="overview-stats-grid">
             <div class="stat-card-modern patients">
               <div class="stat-card-icon"><i class="fas fa-users"></i></div>
@@ -175,26 +175,19 @@
                 <span class="stat-label">This Week</span>
               </div>
             </div>
-            <div class="stat-card-modern revenue">
-              <div class="stat-card-icon"><i class="fas fa-indian-rupee-sign"></i></div>
+            <div class="stat-card-modern" style="--stat-accent:#8B5CF6;">
+              <div class="stat-card-icon" style="background:rgba(139,92,246,0.1);color:#8B5CF6;"><i class="fas fa-file-prescription"></i></div>
               <div class="stat-card-content">
-                <span class="stat-number">₹<span id="statRevenue">0</span></span>
-                <span class="stat-label">Today's Revenue</span>
+                <span class="stat-number" id="statPrescriptions">0</span>
+                <span class="stat-label">Prescriptions</span>
               </div>
             </div>
-          </div>
-
-          <!-- Secondary Stats -->
-          <div class="overview-secondary-stats">
-            <div class="secondary-stat">
-              <i class="fas fa-file-prescription"></i>
-              <strong id="statPrescriptions">0</strong>
-              <span>Prescriptions</span>
-            </div>
-            <div class="secondary-stat alert">
-              <i class="fas fa-bell"></i>
-              <strong id="statFollowups">0</strong>
-              <span>Pending Follow-ups</span>
+            <div class="stat-card-modern" style="--stat-accent:#F59E0B;">
+              <div class="stat-card-icon" style="background:rgba(245,158,11,0.1);color:#F59E0B;"><i class="fas fa-bell"></i></div>
+              <div class="stat-card-content">
+                <span class="stat-number" id="statFollowups">0</span>
+                <span class="stat-label">Pending Follow-ups</span>
+              </div>
             </div>
           </div>
 
@@ -215,70 +208,69 @@
               </div>
             </div>
 
-            <!-- Monthly Revenue Chart -->
+            <!-- New Patients & Completion Rate (moved from growth metrics) -->
             <div class="overview-card">
               <div class="overview-card-header">
-                <h3><i class="fas fa-chart-line"></i> Revenue Trend</h3>
-                <span class="card-badge revenue-badge" id="monthlyRevenue">₹0</span>
+                <h3><i class="fas fa-chart-pie"></i> Growth &amp; Performance</h3>
               </div>
-              <div class="overview-card-body">
-                <div class="revenue-chart-container" id="revenueChartContainer"></div>
+              <div class="overview-card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px;">
+                <!-- New Patients -->
+                <div style="text-align:center;">
+                  <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;"><i class="fas fa-user-plus" style="margin-right:4px;"></i> New Patients</div>
+                  <div style="font-size:2rem;font-weight:700;color:var(--text);" id="newPatientsThisMonth">0</div>
+                  <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">This Month</div>
+                  <div class="growth-comparison" id="patientGrowthComparison" style="justify-content:center;margin-top:8px;">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+0% vs last month</span>
+                  </div>
+                </div>
+                <!-- Completion Rate -->
+                <div style="text-align:center;">
+                  <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;"><i class="fas fa-check-circle" style="margin-right:4px;"></i> Completion Rate</div>
+                  <div class="completion-ring-container">
+                    <div class="completion-ring" id="completionRing">
+                      <svg viewBox="0 0 36 36">
+                        <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                        <path class="ring-fill" id="completionRingFill" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                      </svg>
+                      <span class="ring-text" id="completionRate">0%</span>
+                    </div>
+                  </div>
+                  <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">This Week</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Growth Metrics Grid -->
+          <!-- Growth Metrics Grid (3 items) -->
           <div class="growth-metrics-grid">
-            <!-- Patient Growth -->
+            <!-- Revenue Trend (moved from main grid) -->
             <div class="growth-card">
               <div class="growth-card-header">
-                <i class="fas fa-user-plus"></i>
-                <span>New Patients</span>
+                <i class="fas fa-chart-line"></i>
+                <span>Revenue Trend</span>
+              </div>
+              <div class="growth-card-body">
+                <span class="card-badge revenue-badge" id="monthlyRevenue" style="display:inline-block;margin-bottom:8px;">₹0</span>
+                <div class="revenue-chart-container" id="revenueChartContainer" style="height:100px;"></div>
+              </div>
+            </div>
+
+            <!-- Today's Revenue (moved from stat cards) -->
+            <div class="growth-card">
+              <div class="growth-card-header">
+                <i class="fas fa-indian-rupee-sign"></i>
+                <span>Today's Revenue</span>
               </div>
               <div class="growth-card-body">
                 <div class="growth-stat">
-                  <span class="growth-number" id="newPatientsThisMonth">0</span>
-                  <span class="growth-period">This Month</span>
-                </div>
-                <div class="growth-comparison" id="patientGrowthComparison">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>+0% vs last month</span>
+                  <span class="growth-number">₹<span id="statRevenue">0</span></span>
+                  <span class="growth-period">Today</span>
                 </div>
               </div>
             </div>
 
-            <!-- Appointment Completion Rate -->
-            <div class="growth-card">
-              <div class="growth-card-header">
-                <i class="fas fa-check-circle"></i>
-                <span>Completion Rate</span>
-              </div>
-              <div class="growth-card-body">
-                <div class="completion-ring-container">
-                  <div class="completion-ring" id="completionRing">
-                    <svg viewBox="0 0 36 36">
-                      <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                      <path class="ring-fill" id="completionRingFill" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                    </svg>
-                    <span class="ring-text" id="completionRate">0%</span>
-                  </div>
-                </div>
-                <span class="growth-period">This Week</span>
-              </div>
-            </div>
-
-            <!-- Popular Services -->
-            <div class="growth-card">
-              <div class="growth-card-header">
-                <i class="fas fa-star"></i>
-                <span>Top Services</span>
-              </div>
-              <div class="growth-card-body">
-                <div class="top-services-list" id="topServicesList"></div>
-              </div>
-            </div>
-
-            <!-- Revenue This Month -->
+            <!-- Monthly Revenue -->
             <div class="growth-card highlight">
               <div class="growth-card-header">
                 <i class="fas fa-indian-rupee-sign"></i>
