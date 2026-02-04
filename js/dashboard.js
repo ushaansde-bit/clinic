@@ -965,6 +965,7 @@ function viewPatient(id) {
     const btnRx = document.getElementById('btnWriteRx');
     const btnFu = document.getElementById('btnScheduleFu');
     const btnWa = document.getElementById('btnPatientWa');
+    const btnBook = document.getElementById('btnBookAppt');
 
     if (btnRx) {
         btnRx.onclick = function () {
@@ -972,6 +973,8 @@ function viewPatient(id) {
             writePrescription(id);
         };
         btnRx.style.display = '';
+        btnRx.style.opacity = '';
+        btnRx.style.cursor = '';
     }
     if (btnFu) {
         btnFu.onclick = function () {
@@ -979,6 +982,13 @@ function viewPatient(id) {
             scheduleFollowup(id);
         };
         btnFu.style.display = '';
+    }
+    if (btnBook) {
+        btnBook.onclick = function () {
+            closeModal('viewPatientModal');
+            openQuickBooking(id);
+        };
+        btnBook.style.display = '';
     }
     if (btnWa) {
         btnWa.onclick = function () {
@@ -1546,6 +1556,7 @@ function viewAppointmentDetails(id) {
     // Wire up action buttons
     const btnRx = document.getElementById('btnWriteRx');
     const btnWa = document.getElementById('btnPatientWa');
+    const btnBook = document.getElementById('btnBookAppt');
 
     // Check if appointment is in the future
     const todayDate = new Date().toISOString().split('T')[0];
@@ -1567,6 +1578,13 @@ function viewAppointmentDetails(id) {
                 writePrescription(apt.patientId);
             };
         }
+    }
+    if (btnBook) {
+        btnBook.onclick = function () {
+            closeModal('viewPatientModal');
+            openQuickBooking(apt.patientId);
+        };
+        btnBook.style.display = apt.patientId ? '' : 'none';
     }
     if (btnWa) {
         btnWa.onclick = function () {
@@ -1966,10 +1984,12 @@ function viewPrescription(id) {
     const btnRx = document.getElementById('btnWriteRx');
     const btnFu = document.getElementById('btnScheduleFu');
     const btnWa = document.getElementById('btnPatientWa');
+    const btnBook = document.getElementById('btnBookAppt');
 
     if (btnRx) btnRx.style.display = 'none';
     if (btnFu) btnFu.style.display = 'none';
     if (btnWa) btnWa.style.display = 'none';
+    if (btnBook) btnBook.style.display = 'none';
 
     const modalTitle = document.querySelector('#viewPatientModal .modal h2');
     if (modalTitle) modalTitle.textContent = 'Prescription Details';
@@ -1983,6 +2003,7 @@ function viewPrescription(id) {
             if (btnRx) btnRx.style.display = '';
             if (btnFu) btnFu.style.display = '';
             if (btnWa) btnWa.style.display = '';
+            if (btnBook) btnBook.style.display = '';
             if (modalTitle) modalTitle.textContent = 'Patient Details';
             observer.disconnect();
         }
