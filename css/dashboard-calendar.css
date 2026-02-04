@@ -3,48 +3,104 @@
    Clean, Professional, User-Friendly
    ============================================= */
 
-/* Dashboard Navbar - Brand Logo */
-.nav-brand {
+/* Dashboard Navbar - Brand with Medical Logo */
+.dashboard-nav .nav-brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     text-decoration: none;
 }
 
 .brand-logo {
-    width: 40px;
-    height: 40px;
-    background: var(--primary);
-    border-radius: 10px;
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, var(--primary) 0%, #2d9a7a 100%);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    font-size: 1.1rem;
     flex-shrink: 0;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(27, 77, 62, 0.25);
+}
+
+/* Medical cross made with CSS for a clean, professional look */
+.brand-logo::before,
+.brand-logo::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+    border-radius: 2px;
+}
+.brand-logo::before {
+    width: 16px;
+    height: 4px;
+}
+.brand-logo::after {
+    width: 4px;
+    height: 16px;
 }
 
 .brand-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.2;
+    gap: 1px;
 }
 
-/* Nav Right Group */
+.dashboard-nav .brand-name {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.2px;
+}
+
+.dashboard-nav .brand-subtitle {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    letter-spacing: 0.3px;
+}
+
+/* Nav Right - Links + Logout */
 .nav-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0;
     margin-left: auto;
 }
 
 .nav-right .nav-menu {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 0;
     list-style: none;
     margin: 0;
     padding: 0;
+}
+
+.nav-right .nav-item {
+    list-style: none;
+}
+
+.nav-right .nav-link {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-right .nav-link::after {
+    display: none;
+}
+
+.nav-right .nav-link:hover {
+    color: var(--primary);
+    background: rgba(27, 77, 62, 0.06);
 }
 
 /* Logout Button */
@@ -52,10 +108,10 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 18px;
+    padding: 8px 20px;
     background: transparent;
     color: #DC2626;
-    border: 1.5px solid #DC2626;
+    border: 1.5px solid rgba(220, 38, 38, 0.3);
     border-radius: 8px;
     font-size: 0.82rem;
     font-weight: 600;
@@ -63,25 +119,34 @@
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
-    margin-left: 8px;
+    margin-left: 12px;
 }
 
 .btn-logout:hover {
     background: #DC2626;
     color: #fff;
+    border-color: #DC2626;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
 }
 
 .btn-logout i {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
+}
+
+@media (max-width: 900px) {
+    .nav-right .nav-menu { display: none; }
+    .btn-logout { margin-left: auto; }
 }
 
 @media (max-width: 768px) {
-    .nav-right .nav-menu { display: none; }
-    .brand-logo { width: 34px; height: 34px; font-size: 0.95rem; border-radius: 8px; }
+    .brand-logo { width: 36px; height: 36px; border-radius: 10px; }
+    .brand-logo::before { width: 13px; height: 3px; }
+    .brand-logo::after { width: 3px; height: 13px; }
+    .dashboard-nav .brand-name { font-size: 1rem; }
+    .dashboard-nav .brand-subtitle { font-size: 0.65rem; }
     .btn-logout {
-        padding: 6px 12px;
+        padding: 6px 14px;
         font-size: 0.75rem;
-        margin-left: 0;
     }
 }
 
