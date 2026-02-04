@@ -697,7 +697,7 @@ function loadPatients() {
     // Filter patients
     let filteredPatients = patients;
 
-    // Filter by date (patients who had appointments on that date)
+    // Filter by date (patients who had appointments on that date OR were added on that date)
     if (dateFilter) {
         const patientIdsOnDate = new Set();
         appointments.forEach(a => {
@@ -705,7 +705,10 @@ function loadPatients() {
                 patientIdsOnDate.add(a.patientId);
             }
         });
-        filteredPatients = filteredPatients.filter(p => patientIdsOnDate.has(p.id));
+        filteredPatients = filteredPatients.filter(p =>
+            patientIdsOnDate.has(p.id) ||
+            (p.createdAt && p.createdAt.startsWith(dateFilter))
+        );
     }
 
     // Filter by status
