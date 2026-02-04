@@ -773,7 +773,6 @@ function loadPatients() {
             <td>${completedVisits}</td>
             <td class="last-visit">${lastVisit}</td>
             <td>
-                <button class="action-btn edit" title="Book Appointment" onclick="openQuickBooking('${p.id}')"><i class="fas fa-calendar-plus"></i></button>
                 <button class="action-btn delete" title="Delete" onclick="deletePatient('${p.id}')"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
@@ -964,7 +963,6 @@ function viewPatient(id) {
     const btnRx = document.getElementById('btnWriteRx');
     const btnFu = document.getElementById('btnScheduleFu');
     const btnWa = document.getElementById('btnPatientWa');
-    const btnBook = document.getElementById('btnBookAppt');
 
     if (btnRx) {
         btnRx.onclick = function () {
@@ -985,12 +983,6 @@ function viewPatient(id) {
             openWhatsApp(patient.phone, `Hello ${patient.name}, this is Shree Physiotherapy Clinic. We hope you are doing well. Please reach us at 822004084 or 9092294466 for any queries.`);
         };
         btnWa.style.display = '';
-    }
-    if (btnBook) {
-        btnBook.onclick = function () {
-            closeModal('viewPatientModal');
-            openQuickBooking(id);
-        };
     }
 
     // Reset modal title and subtitle
@@ -1553,7 +1545,6 @@ function viewAppointmentDetails(id) {
     // Wire up action buttons
     const btnRx = document.getElementById('btnWriteRx');
     const btnWa = document.getElementById('btnPatientWa');
-    const btnBook = document.getElementById('btnBookAppt');
 
     if (btnRx) {
         btnRx.onclick = function () {
@@ -1567,13 +1558,6 @@ function viewAppointmentDetails(id) {
             openWhatsApp(patientPhone, `Hello ${patientName}, this is a reminder about your appointment at Shree Physiotherapy Clinic.`);
         };
         btnWa.style.display = '';
-    }
-    if (btnBook) {
-        btnBook.onclick = function () {
-            closeModal('viewPatientModal');
-            openQuickBooking(apt.patientId);
-        };
-        btnBook.style.display = apt.patientId ? '' : 'none';
     }
 
     // Set modal title and subtitle
