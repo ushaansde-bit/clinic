@@ -1105,7 +1105,6 @@ function loadAppointments() {
             <td><span class="payment-badge ${paymentClass}">${paymentStatus}${a.amountPaid ? ` (${amountDisplay})` : ''}</span></td>
             <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
             <td>
-                <button class="action-btn edit" title="Reschedule" onclick="rescheduleAppointment('${a.id}')"><i class="fas fa-calendar-alt"></i></button>
                 <button class="action-btn delete" title="Delete" onclick="deleteAppointment('${a.id}')"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
