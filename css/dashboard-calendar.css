@@ -3,6 +3,42 @@
    Clean, Professional, User-Friendly
    ============================================= */
 
+/* Logout Button */
+.btn-logout {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: transparent;
+    color: #DC2626;
+    border: 1.5px solid #DC2626;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.btn-logout:hover {
+    background: #DC2626;
+    color: #fff;
+}
+
+.btn-logout i {
+    font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    .btn-logout {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+    .btn-logout span { display: none; }
+}
+
 /* =============================================
    Overview Tab - Elegant Modern Layout
    ============================================= */

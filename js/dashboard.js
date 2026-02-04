@@ -99,6 +99,11 @@ function checkSession() {
     return false;
 }
 
+function logoutDashboard() {
+    sessionStorage.removeItem('dashLoggedIn');
+    window.location.href = 'index.html';
+}
+
 /* ============================================
    1. TAB NAVIGATION
    ============================================ */
