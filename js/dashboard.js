@@ -1561,46 +1561,25 @@ function viewAppointmentDetails(id) {
     const btnWa = document.getElementById('btnPatientWa');
     const btnBook = document.getElementById('btnBookAppt');
 
-    // Check if appointment is in the future (use IST date, normalize apt.date)
-    const todayIST = getIndiaTodayDate();
-    const aptDateNormalized = new Date(apt.date).toISOString().split('T')[0];
-    const isFutureAppointment = aptDateNormalized > todayIST;
-
     if (btnRx) {
         btnRx.style.display = apt.patientId ? '' : 'none';
-        if (isFutureAppointment) {
-            btnRx.style.opacity = '0.6';
-            btnRx.style.cursor = 'not-allowed';
-            btnRx.onclick = function () {
-                showToast('Cannot write prescription for upcoming appointments.', 'error');
-            };
-        } else {
-            btnRx.style.opacity = '';
-            btnRx.style.cursor = '';
-            btnRx.onclick = function () {
-                const pid = apt.patientId;
-                closeModal('viewPatientModal');
-                setTimeout(function () { writePrescription(pid); }, 150);
-            };
-        }
+        btnRx.style.opacity = '';
+        btnRx.style.cursor = '';
+        btnRx.onclick = function () {
+            const pid = apt.patientId;
+            closeModal('viewPatientModal');
+            setTimeout(function () { writePrescription(pid); }, 150);
+        };
     }
     if (btnBook) {
         btnBook.style.display = apt.patientId ? '' : 'none';
-        if (isFutureAppointment) {
-            btnBook.style.opacity = '0.6';
-            btnBook.style.cursor = 'not-allowed';
-            btnBook.onclick = function () {
-                showToast('Cannot book appointment for upcoming appointments.', 'error');
-            };
-        } else {
-            btnBook.style.opacity = '';
-            btnBook.style.cursor = '';
-            btnBook.onclick = function () {
-                const pid = apt.patientId;
-                closeModal('viewPatientModal');
-                setTimeout(function () { openQuickBooking(pid); }, 150);
-            };
-        }
+        btnBook.style.opacity = '';
+        btnBook.style.cursor = '';
+        btnBook.onclick = function () {
+            const pid = apt.patientId;
+            closeModal('viewPatientModal');
+            setTimeout(function () { openQuickBooking(pid); }, 150);
+        };
     }
     if (btnWa) {
         btnWa.onclick = function () {
