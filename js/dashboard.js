@@ -204,7 +204,7 @@ function switchTab(tabName) {
         link.classList.remove('active');
     });
     const links = document.querySelectorAll('.sidebar-nav a');
-    const tabMap = ['overview', 'patients', 'appointments', 'calendar', 'prescriptions', 'followups', 'accounts', 'settings', 'trash'];
+    const tabMap = ['overview', 'patients', 'appointments', 'calendar', 'accounts', 'settings', 'trash'];
     const index = tabMap.indexOf(tabName);
     if (index >= 0 && links[index]) {
         links[index].classList.add('active');
@@ -230,12 +230,6 @@ function switchTab(tabName) {
         case 'calendar':
             renderMiniCalendar();
             renderCalendlyView();
-            break;
-        case 'prescriptions':
-            loadPrescriptions();
-            break;
-        case 'followups':
-            loadFollowups();
             break;
         case 'accounts':
             loadAccountsBook();
@@ -675,7 +669,7 @@ function renderOverdueAlert(overdueFollowups) {
         <div class="alert alert-warning">
             <i class="fas fa-exclamation-triangle"></i>
             <span><strong>${overdueFollowups.length}</strong> overdue follow-up${overdueFollowups.length > 1 ? 's' : ''} need attention</span>
-            <button class="btn btn-sm" onclick="switchTab('followups')">View</button>
+            <button class="btn btn-sm" onclick="switchTab('patients')">View Patients</button>
         </div>
     `;
 }
@@ -1548,10 +1542,16 @@ function showAppointmentModal(title, content, aptId, patientId, phone) {
     // Add action buttons
     const actionsDiv = document.getElementById('aptModalActions');
     actionsDiv.innerHTML = `
-        <button class="btn btn-whatsapp" onclick="openWhatsApp('${phone}', 'Hello, this is a reminder about your appointment at Shree Physiotherapy Clinic.')">
+        ${patientId ? `<button class="btn btn-primary" onclick="closeModal('appointmentViewModal'); writePrescription('${patientId}')" style="padding:10px 20px;font-size:0.85rem;">
+            <i class="fas fa-file-prescription"></i> Write Prescription
+        </button>` : ''}
+        ${patientId ? `<button class="btn btn-secondary" onclick="closeModal('appointmentViewModal'); scheduleFollowup('${patientId}')" style="padding:10px 20px;font-size:0.85rem;">
+            <i class="fas fa-bell"></i> Schedule Follow-up
+        </button>` : ''}
+        <button class="btn btn-whatsapp" onclick="openWhatsApp('${phone}', 'Hello, this is a reminder about your appointment at Shree Physiotherapy Clinic.')" style="padding:10px 20px;font-size:0.85rem;">
             <i class="fab fa-whatsapp"></i> WhatsApp
         </button>
-        ${patientId ? `<button class="btn btn-primary" onclick="closeModal('appointmentViewModal'); viewPatient('${patientId}')">
+        ${patientId ? `<button class="btn btn-accent" onclick="closeModal('appointmentViewModal'); viewPatient('${patientId}')" style="padding:10px 20px;font-size:0.85rem;">
             <i class="fas fa-user"></i> View Patient
         </button>` : ''}
     `;
