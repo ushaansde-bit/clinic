@@ -222,9 +222,13 @@ function switchTab(tabName) {
             refreshDashboard();
             break;
         case 'patients':
+            var ptDateFilter = document.getElementById('patientDateFilter');
+            if (ptDateFilter && !ptDateFilter.value) ptDateFilter.value = new Date().toISOString().split('T')[0];
             loadPatients();
             break;
         case 'appointments':
+            var aptDateFilter = document.getElementById('appointmentFilter');
+            if (aptDateFilter && !aptDateFilter.value) aptDateFilter.value = new Date().toISOString().split('T')[0];
             loadAppointments();
             break;
         case 'calendar':
