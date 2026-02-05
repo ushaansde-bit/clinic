@@ -1024,6 +1024,16 @@ function deletePatient(id) {
     appointments = appointments.filter(a => a.patientId !== id);
     setData('appointments', appointments);
 
+    // Also delete related prescriptions
+    let prescriptions = getData('prescriptions');
+    prescriptions = prescriptions.filter(rx => rx.patientId !== id);
+    setData('prescriptions', prescriptions);
+
+    // Also delete related follow-ups
+    let followups = getData('followups');
+    followups = followups.filter(f => f.patientId !== id);
+    setData('followups', followups);
+
     loadPatients();
     loadAppointments();
     refreshDashboard();
