@@ -681,9 +681,11 @@
       var newBadge = isNew ? '<span class="blog-new-badge">New</span>' : "";
       var sourceBadge = blog.source ? '<span class="blog-source-badge">' + escapeHTML(blog.source) + "</span>" : "";
       var readTime = Math.max(3, Math.ceil((blog.summary || "").split(" ").length / 40)) + " min read";
-      var linkUrl = blog.link || "#blog";
+      var linkUrl = blog.link || "blog.html";
       var isExternal = linkUrl.indexOf("http") === 0;
       var targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : "";
+      // Default to blog page for articles without external links
+      if (!blog.link) linkUrl = "blog.html#" + (blog.category || "").toLowerCase().replace(/\s+/g, '-');
 
       card.innerHTML =
         '<div class="blog-card-image">' +
