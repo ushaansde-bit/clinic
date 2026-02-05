@@ -2964,3 +2964,113 @@
         margin: 0;
     }
 }
+
+/* ============================================
+   ENHANCED MOBILE & CROSS-DEVICE COMPATIBILITY
+   ============================================ */
+
+/* Ultra Small Devices (320px) */
+@media (max-width: 320px) {
+    .dashboard-nav {
+        width: 200px;
+    }
+
+    .dashboard-nav a {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .stat-card-modern {
+        padding: 14px 12px;
+    }
+
+    .stat-number {
+        font-size: 1.4rem;
+    }
+
+    .dashboard-card {
+        padding: 14px;
+    }
+
+    .popup-content {
+        margin: 10px;
+        padding: 16px;
+    }
+}
+
+/* Touch-Friendly (all mobile) */
+@media (max-width: 1024px) {
+    /* Minimum touch target */
+    .btn,
+    .dashboard-nav a,
+    .tab-nav button {
+        min-height: 44px;
+    }
+
+    /* Better form inputs */
+    input, select, textarea {
+        font-size: 16px !important;
+        min-height: 44px;
+        padding: 12px;
+    }
+
+    /* Smooth scrolling */
+    html {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Better popup on mobile */
+    .popup-content {
+        margin: 10px;
+        max-height: calc(100vh - 20px);
+        overflow-y: auto;
+    }
+
+    /* Hide sidebar by default on mobile */
+    .dashboard-nav {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .dashboard-nav.active {
+        transform: translateX(0);
+    }
+}
+
+/* iPad / Tablet */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .stats-row {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .dashboard-main {
+        padding: 20px;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-nav,
+    .popup-content,
+    .dashboard-card {
+        transition: none !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .dashboard-nav,
+    .popup-overlay,
+    .whatsapp-float {
+        display: none !important;
+    }
+
+    .dashboard-main {
+        margin-left: 0;
+        padding: 20px;
+    }
+
+    .dashboard-card {
+        break-inside: avoid;
+    }
+}

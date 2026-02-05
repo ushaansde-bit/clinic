@@ -6498,3 +6498,177 @@ button.read-more-link {
     width: auto;
   }
 }
+
+/* ============================================
+   ENHANCED MOBILE & CROSS-DEVICE COMPATIBILITY
+   ============================================ */
+
+/* Ultra Small Devices (320px - iPhone SE, small Android) */
+@media (max-width: 320px) {
+  html {
+    font-size: 13px;
+  }
+
+  .container {
+    padding: 0 10px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+  }
+
+  .btn {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+  }
+
+  .nav-links {
+    padding: 16px;
+  }
+
+  .nav-links a {
+    font-size: 1rem;
+    padding: 12px 0;
+  }
+
+  .stat-number {
+    font-size: 1.3rem;
+  }
+
+  .service-card {
+    margin: 0 -5px;
+  }
+}
+
+/* Touch-Friendly Improvements (all mobile devices) */
+@media (max-width: 1024px) {
+  /* Minimum touch target size 44px */
+  .btn,
+  .nav-links a,
+  .footer-social a,
+  .service-learn-more,
+  .blog-learn-more {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Better tap spacing */
+  .nav-links a {
+    padding: 14px 0;
+  }
+
+  /* Prevent text selection on buttons */
+  .btn {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Better form inputs on mobile */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    -webkit-appearance: none;
+    border-radius: 8px;
+  }
+}
+
+/* iPad / Tablet Optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .hero-container {
+    gap: 30px;
+  }
+
+  .services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .why-choose-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .testimonials-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .contact-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* iPad Pro / Large Tablets */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .container {
+    max-width: 960px;
+  }
+
+  .hero-title {
+    font-size: 2.8rem;
+  }
+}
+
+/* High DPI / Retina Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .hero-image img,
+  .about-image img,
+  .service-image img {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* Dark Mode Support (if user prefers) */
+@media (prefers-color-scheme: dark) {
+  /* Keep light theme - clinic branding */
+}
+
+/* Reduced Motion (accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .navbar,
+  .whatsapp-float,
+  .mobile-nav,
+  .footer-social,
+  .btn {
+    display: none !important;
+  }
+
+  .hero {
+    padding: 20px 0;
+    min-height: auto;
+  }
+
+  body {
+    font-size: 12pt;
+    color: #000;
+    background: #fff;
+  }
+
+  .section {
+    page-break-inside: avoid;
+  }
+}

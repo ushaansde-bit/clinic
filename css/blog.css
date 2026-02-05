@@ -2801,3 +2801,101 @@
         font-size: 1.35rem;
     }
 }
+
+/* ============================================
+   ENHANCED MOBILE & CROSS-DEVICE COMPATIBILITY
+   ============================================ */
+
+/* Ultra Small Devices (320px) */
+@media (max-width: 320px) {
+    html {
+        font-size: 13px;
+    }
+
+    .blog-hero-content h1 {
+        font-size: 1.6rem;
+    }
+
+    .trending-card {
+        padding: 14px;
+    }
+
+    .article-card {
+        margin: 0 -5px;
+    }
+
+    .faq-item {
+        padding: 16px 12px;
+    }
+
+    .faq-item h3 {
+        font-size: 0.9rem;
+    }
+}
+
+/* Touch-Friendly (all mobile) */
+@media (max-width: 1024px) {
+    .learn-more-btn,
+    .trending-card,
+    .article-card {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .learn-more-btn {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Smooth scrolling */
+    html {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Better modal on mobile */
+    .article-modal-content {
+        margin: 10px;
+        max-height: calc(100vh - 20px);
+    }
+}
+
+/* iPad / Tablet */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .trending-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .articles-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .faq-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .fade-in,
+    .trending-card,
+    .article-card {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .blog-header,
+    .article-modal,
+    .blog-cta-section {
+        display: none !important;
+    }
+
+    .trending-card,
+    .article-card,
+    .faq-item {
+        break-inside: avoid;
+    }
+}
