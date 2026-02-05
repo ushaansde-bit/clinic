@@ -1080,15 +1080,19 @@
     });
   }
 
+  // Store articles globally for popup access
+  var currentArticles = [];
+
   function renderBlogPreview(articles) {
     var grid = document.getElementById("blogPreviewGrid");
     if (!grid) return;
 
     var selected = pickDailyArticles(articles, 6);
+    currentArticles = selected; // Store for popup access
 
     grid.innerHTML = "";
 
-    selected.forEach(function (blog) {
+    selected.forEach(function (blog, index) {
       var card = document.createElement("div");
       card.className = "blog-card fade-in";
 
@@ -1097,16 +1101,6 @@
       var newBadge = isNew ? '<span class="blog-new-badge">New</span>' : "";
       var sourceBadge = blog.source ? '<span class="blog-source-badge">' + escapeHTML(blog.source) + "</span>" : "";
       var readTime = Math.max(3, Math.ceil((blog.summary || "").split(" ").length / 40)) + " min read";
-      // Create article slug from title for linking to full article
-      var articleSlug = (blog.title || "").toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .substring(0, 60);
-
-      // ALL "Read More" buttons now link to blog page with article parameter to open popup modal
-      // No more external links - all articles open as popups
-      var linkUrl = "blog.html?article=" + encodeURIComponent(articleSlug);
-      var targetAttr = "";
 
       card.innerHTML =
         '<div class="blog-card-image">' +
@@ -1123,7 +1117,7 @@
         "  <p>" + escapeHTML(blog.summary) + "</p>" +
         '  <div class="blog-card-footer">' +
         sourceBadge +
-        '    <a href="' + escapeHTML(linkUrl) + '"' + targetAttr + ' class="read-more-link">Read More &rarr;</a>' +
+        '    <button class="read-more-link" onclick="openArticlePopup(' + index + ')">Read More &rarr;</button>' +
         "  </div>" +
         "</div>";
 
@@ -1159,6 +1153,65 @@
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
   }
+
+  /* ----------------------------------------------------------
+     ARTICLE POPUP MODAL
+     ---------------------------------------------------------- */
+  var ARTICLE_CONTENT = {
+    "5 Proven Ways to Relieve Lower Back Pain": "<p>Lower back pain affects approximately 80% of adults at some point in their lives. At Shree Physiotherapy Clinic, we use evidence-based approaches to provide lasting relief.</p><h3>1. Fascial Manipulation</h3><p>This Italian-certified technique targets the root cause of pain by releasing fascial restrictions. Unlike traditional massage, it addresses the interconnected web of connective tissue throughout your body.</p><h3>2. Core Strengthening</h3><p>A strong core provides essential support for your spine. We design personalized exercise programs that gradually build strength without aggravating your condition.</p><h3>3. Posture Correction</h3><p>Poor posture is a leading cause of back pain. We assess your daily habits and provide ergonomic recommendations for work and home.</p><h3>4. Manual Therapy</h3><p>Hands-on techniques including joint mobilization and soft tissue work help restore normal movement patterns.</p><h3>5. Heat and Cold Therapy</h3><p>Strategic use of temperature therapy reduces inflammation and promotes healing when combined with other treatments.</p><p><strong>Don't let back pain control your life.</strong> Book an appointment with Dr. Aarthi Ganesh for a comprehensive assessment and personalized treatment plan.</p>",
+
+    "What is Fascial Manipulation?": "<p>Fascial Manipulation is a revolutionary manual therapy technique developed by Italian physiotherapist Luigi Stecco. Dr. Aarthi Ganesh is one of the few certified practitioners in this region.</p><h3>Understanding Fascia</h3><p>Fascia is the connective tissue that surrounds every muscle, bone, nerve, and organ in your body. Think of it as a three-dimensional web holding everything together.</p><h3>How It Works</h3><p>Unlike traditional treatments that focus on muscles, Fascial Manipulation targets specific points called 'Centers of Coordination' and 'Centers of Fusion'. By applying precise friction to these points, we can:</p><ul><li>Release deep tissue restrictions</li><li>Restore normal gliding between fascial layers</li><li>Eliminate referred pain patterns</li><li>Improve range of motion immediately</li></ul><h3>Conditions Treated</h3><p>Fascial Manipulation is highly effective for chronic neck pain, frozen shoulder, tennis elbow, carpal tunnel syndrome, sciatica, headaches, and post-surgical stiffness.</p><p><strong>Experience the difference</strong> of this advanced technique at Shree Physiotherapy Clinic.</p>",
+
+    "Women's Health Physiotherapy Guide": "<p>Women's bodies undergo unique physiological changes throughout life. Dr. Aarthi Ganesh provides specialized care addressing these specific needs.</p><h3>Prenatal Care</h3><p>During pregnancy, physiotherapy helps manage lower back pain, pelvic girdle pain, and prepares your body for childbirth through safe exercises and breathing techniques.</p><h3>Postnatal Recovery</h3><p>After delivery, your body needs specialized care including diastasis recti rehabilitation, C-section scar management, and core strengthening programs.</p><h3>Pelvic Floor Rehabilitation</h3><p>Many women suffer silently from urinary incontinence, pelvic organ prolapse, or pelvic pain. Our confidential treatments help restore function and confidence.</p><h3>Menopause Management</h3><p>Hormonal changes affect joints and muscles. We provide targeted exercises and treatments for menopausal joint pain and bone health.</p><p>All consultations are conducted in a <strong>private, comfortable environment</strong> with complete confidentiality.</p>",
+
+    "Understanding Frozen Shoulder: Causes and Treatment": "<p>Frozen shoulder (adhesive capsulitis) is a condition causing pain and stiffness that can last for months without proper treatment.</p><h3>Three Stages</h3><p><strong>Freezing Stage:</strong> Gradual onset of pain with increasing stiffness (2-9 months)</p><p><strong>Frozen Stage:</strong> Pain may decrease but stiffness remains severe (4-12 months)</p><p><strong>Thawing Stage:</strong> Gradual return of movement (6-24 months)</p><h3>Why Physiotherapy Works</h3><p>Early intervention with Fascial Manipulation and targeted exercises can significantly shorten recovery time. Our approach includes:</p><ul><li>Fascial release techniques</li><li>Gentle stretching protocols</li><li>Strengthening exercises</li><li>Home exercise programs</li></ul><p>Many patients see <strong>significant improvement within 3-5 sessions</strong> with our advanced techniques.</p>",
+
+    "Neck Pain from Desk Work: A Physiotherapist's Guide": "<p>In today's digital age, neck pain from prolonged desk work has become increasingly common. Here's how to prevent and treat it.</p><h3>Common Causes</h3><ul><li>Forward head posture</li><li>Improper monitor height</li><li>Prolonged static positions</li><li>Stress and tension</li></ul><h3>Ergonomic Tips</h3><p><strong>Monitor Position:</strong> Top of screen at eye level, arm's length away</p><p><strong>Chair Height:</strong> Feet flat on floor, knees at 90 degrees</p><p><strong>Keyboard Position:</strong> Elbows at 90 degrees, wrists neutral</p><h3>Exercises You Can Do</h3><p>Chin tucks, neck stretches, and shoulder blade squeezes performed every hour can prevent pain buildup.</p><p>If pain persists, <strong>professional assessment is essential</strong> to identify and treat the underlying cause.</p>",
+
+    "Post-Surgical Rehabilitation: What to Expect": "<p>Recovery after surgery requires structured rehabilitation for optimal outcomes. At Shree Physiotherapy Clinic, we guide you through every phase.</p><h3>Phase 1: Protection (Week 1-2)</h3><p>Focus on wound healing, pain management, and preventing complications like blood clots through gentle movements.</p><h3>Phase 2: Early Motion (Week 2-6)</h3><p>Gradual increase in range of motion with guided exercises while respecting tissue healing timelines.</p><h3>Phase 3: Strengthening (Week 6-12)</h3><p>Progressive resistance training to rebuild muscle strength and endurance.</p><h3>Phase 4: Functional Training (Week 12+)</h3><p>Return to daily activities, work, and sports with confidence.</p><p>Our rehabilitation programs are <strong>tailored to your specific surgery</strong> and recovery goals.</p>",
+
+    "Benefits of Physiotherapy for Senior Citizens": "<p>Aging doesn't have to mean losing independence. Physiotherapy helps seniors maintain mobility, prevent falls, and enjoy a better quality of life.</p><h3>Fall Prevention</h3><p>Balance training and strength exercises reduce fall risk by up to 40%. We assess your home environment and recommend modifications.</p><h3>Arthritis Management</h3><p>Gentle exercises and manual therapy reduce joint pain and stiffness without medication side effects.</p><h3>Post-Surgery Recovery</h3><p>Whether it's hip replacement, knee surgery, or cardiac procedures, we help you recover safely.</p><h3>Home Care Services</h3><p>Can't travel to the clinic? Dr. Aarthi provides <strong>home visit physiotherapy</strong> services for elderly patients throughout Coimbatore.</p>",
+
+    "Sciatica: Causes, Symptoms and Physiotherapy Treatment": "<p>Sciatica causes pain radiating from the lower back through the buttock and down the leg. Understanding the cause is key to effective treatment.</p><h3>Common Causes</h3><ul><li>Herniated disc pressing on nerve</li><li>Spinal stenosis</li><li>Piriformis syndrome</li><li>Degenerative disc disease</li></ul><h3>Symptoms</h3><p>Sharp, burning pain down one leg, numbness, tingling, or weakness in the affected leg.</p><h3>How We Treat It</h3><p>Fascial Manipulation is highly effective for sciatica, releasing restrictions that contribute to nerve compression. Combined with specific exercises and postural training, most patients experience significant relief.</p><p><strong>Early treatment prevents chronic pain</strong> - don't wait for symptoms to worsen.</p>"
+  };
+
+  window.openArticlePopup = function(index) {
+    var article = currentArticles[index];
+    if (!article) return;
+
+    var modal = document.getElementById("articlePopupModal");
+    if (!modal) return;
+
+    var readTime = Math.max(3, Math.ceil((article.summary || "").split(" ").length / 40)) + " min read";
+    var content = ARTICLE_CONTENT[article.title] || "<p>" + escapeHTML(article.summary) + "</p><p>For more detailed information about this topic, please book a consultation with Dr. Aarthi Ganesh. She will provide personalized advice based on your specific condition and needs.</p><h3>Why Choose Shree Physiotherapy?</h3><ul><li>Gold medalist physiotherapist</li><li>Italy-certified Fascial Manipulation specialist</li><li>Personalized treatment plans</li><li>Home visit services available</li></ul><p><strong>Take the first step towards recovery today.</strong></p>";
+
+    modal.querySelector(".article-popup-category").textContent = article.category;
+    modal.querySelector(".article-popup-title").textContent = article.title;
+    modal.querySelector(".article-popup-date").innerHTML = '<i class="fas fa-calendar"></i> ' + formatDateFull(article.date);
+    modal.querySelector(".article-popup-readtime").innerHTML = '<i class="fas fa-clock"></i> ' + readTime;
+    modal.querySelector(".article-popup-body").innerHTML = content;
+
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
+  };
+
+  window.closeArticlePopup = function() {
+    var modal = document.getElementById("articlePopupModal");
+    if (modal) {
+      modal.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  };
+
+  // Close on Escape key
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+      var modal = document.getElementById("articlePopupModal");
+      if (modal && modal.classList.contains("active")) {
+        closeArticlePopup();
+      }
+    }
+  });
 
   /* ----------------------------------------------------------
      13. DOM CONTENT LOADED
