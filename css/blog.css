@@ -1808,3 +1808,811 @@
         gap: 12px;
     }
 }
+
+/* ============================================
+   COMPREHENSIVE BLOG PAGE RESPONSIVE FIXES
+   For all devices: Desktop, Tablet, Mobile
+   ============================================ */
+
+/* Base text alignment */
+.section-header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.section-subtitle {
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+/* iPad Pro / Large Tablet (1024px - 1199px) */
+@media (max-width: 1199px) and (min-width: 1024px) {
+    .blog-hero {
+        padding: 140px 0 80px;
+    }
+
+    .blog-hero-title {
+        font-size: 3.5rem;
+    }
+
+    .trending-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    .infographic-grid {
+        gap: 24px;
+    }
+
+    .pain-cards-grid {
+        gap: 24px;
+    }
+
+    .womens-grid {
+        gap: 24px;
+    }
+}
+
+/* iPad / Tablet Portrait (768px - 1023px) */
+@media (max-width: 1023px) and (min-width: 768px) {
+    .blog-hero {
+        padding: 130px 0 70px;
+    }
+
+    .blog-hero-title {
+        font-size: 2.8rem;
+    }
+
+    .blog-hero-subtitle {
+        font-size: 1.1rem;
+        padding: 0 20px;
+    }
+
+    .blog-hero-meta {
+        gap: 16px;
+    }
+
+    .blog-hero-meta span {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .stat-card {
+        min-height: 160px;
+    }
+
+    .trending-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .infographic-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .infographic-facts {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .pain-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .womens-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .elderly-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .faq-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .blog-cta-content h2 {
+        font-size: 2rem;
+    }
+
+    .blog-cta-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* Large Mobile / Small Tablet (481px - 767px) */
+@media (max-width: 767px) and (min-width: 481px) {
+    .blog-hero {
+        padding: 120px 0 60px;
+    }
+
+    .blog-hero-title {
+        font-size: 2.2rem;
+        line-height: 1.2;
+    }
+
+    .blog-hero-subtitle {
+        font-size: 1rem;
+        padding: 0 16px;
+        margin-bottom: 28px;
+    }
+
+    .blog-hero-meta {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .blog-hero-meta span {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+    }
+
+    .stats-section {
+        padding: 50px 0;
+        margin-top: -40px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .stat-card {
+        padding: 24px 16px;
+        min-height: 150px;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+    }
+
+    .trending-section {
+        padding: 60px 0;
+    }
+
+    .trending-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .trending-image {
+        height: 180px;
+    }
+
+    .trending-content h3 {
+        font-size: 1.05rem;
+    }
+
+    .infographic-section {
+        padding: 60px 0;
+    }
+
+    .infographic-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .chart-card {
+        padding: 24px 20px;
+    }
+
+    .chart-container {
+        height: 240px;
+    }
+
+    .infographic-facts {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .fact-card {
+        padding: 20px;
+    }
+
+    .pain-guide-section {
+        padding: 60px 0;
+    }
+
+    .pain-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .pain-card-header {
+        padding: 20px;
+    }
+
+    .pain-card-header h3 {
+        font-size: 1.15rem;
+    }
+
+    .pain-card-body {
+        padding: 20px;
+    }
+
+    .womens-health-section {
+        padding: 60px 0;
+    }
+
+    .womens-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .womens-card {
+        padding: 28px 24px;
+    }
+
+    .elderly-section {
+        padding: 60px 0;
+    }
+
+    .elderly-content {
+        grid-template-columns: 1fr;
+        padding: 28px;
+        gap: 28px;
+    }
+
+    .faq-section {
+        padding: 60px 0;
+    }
+
+    .faq-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .faq-item {
+        padding: 24px 20px;
+    }
+
+    .faq-item h3 {
+        font-size: 1rem;
+    }
+
+    .faq-item p {
+        font-size: 0.9rem;
+        padding-left: 28px;
+    }
+
+    .blog-cta-section {
+        padding: 60px 0;
+    }
+
+    .blog-cta-content h2 {
+        font-size: 1.6rem;
+    }
+
+    .blog-cta-content p {
+        font-size: 1rem;
+    }
+
+    .blog-cta-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .blog-cta-buttons .btn {
+        width: 100%;
+        max-width: 280px;
+    }
+}
+
+/* Mobile Portrait (up to 480px) - iPhone, Android */
+@media (max-width: 480px) {
+    .blog-hero {
+        padding: 110px 0 50px;
+    }
+
+    .blog-hero .hero-badge {
+        font-size: 0.85rem;
+        padding: 10px 20px;
+        margin-bottom: 20px;
+    }
+
+    .blog-hero-title {
+        font-size: 1.8rem;
+        line-height: 1.2;
+        margin-bottom: 16px;
+    }
+
+    .blog-hero-subtitle {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 24px;
+        padding: 0 8px;
+    }
+
+    .blog-hero-meta {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .blog-hero-meta span {
+        width: 100%;
+        max-width: 220px;
+        justify-content: center;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+
+    .stats-section {
+        padding: 40px 0;
+        margin-top: -30px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 20px 12px;
+        min-height: 140px;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 12px;
+    }
+
+    .stat-icon i {
+        font-size: 1.2rem;
+    }
+
+    .stat-number {
+        font-size: 1.6rem;
+        margin-bottom: 6px;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        line-height: 1.3;
+    }
+
+    .trending-section {
+        padding: 50px 0;
+    }
+
+    .section-tag {
+        font-size: 0.8rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .section-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .trending-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .trending-card {
+        border-radius: 16px;
+    }
+
+    .trending-image {
+        height: 160px;
+    }
+
+    .trending-content {
+        padding: 18px 16px;
+    }
+
+    .trending-meta {
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .trending-category {
+        font-size: 0.7rem;
+        padding: 3px 10px;
+    }
+
+    .trending-new {
+        font-size: 0.7rem;
+        padding: 3px 10px;
+    }
+
+    .trending-date {
+        font-size: 0.75rem;
+    }
+
+    .trending-content h3 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .trending-content p {
+        font-size: 0.85rem;
+        line-height: 1.5;
+        margin-bottom: 14px;
+    }
+
+    .trending-footer {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .read-time {
+        font-size: 0.75rem;
+    }
+
+    .read-more-btn {
+        font-size: 0.8rem;
+    }
+
+    .auto-update-note {
+        font-size: 0.8rem;
+        margin-top: 24px;
+    }
+
+    .infographic-section {
+        padding: 50px 0;
+    }
+
+    .infographic-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .chart-card {
+        padding: 20px 16px;
+    }
+
+    .chart-card h3 {
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+
+    .chart-container {
+        height: 220px;
+    }
+
+    .infographic-facts {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .fact-card {
+        padding: 18px 16px;
+    }
+
+    .fact-icon {
+        width: 44px;
+        height: 44px;
+    }
+
+    .fact-content strong {
+        font-size: 1.3rem;
+    }
+
+    .fact-content span {
+        font-size: 0.85rem;
+    }
+
+    .pain-guide-section {
+        padding: 50px 0;
+    }
+
+    .pain-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .pain-card {
+        border-radius: 16px;
+    }
+
+    .pain-card-header {
+        padding: 18px 16px;
+        gap: 14px;
+    }
+
+    .pain-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .pain-icon i {
+        font-size: 1.2rem;
+    }
+
+    .pain-card-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .pain-card-body {
+        padding: 18px 16px;
+    }
+
+    .pain-card-body > p {
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+    }
+
+    .pain-card-body ul li {
+        font-size: 0.88rem;
+        padding: 8px 0;
+    }
+
+    .pain-stats {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pain-stats span {
+        font-size: 0.85rem;
+    }
+
+    .womens-health-section {
+        padding: 50px 0;
+    }
+
+    .womens-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .womens-card {
+        padding: 24px 20px;
+        border-radius: 16px;
+    }
+
+    .womens-icon {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 18px;
+    }
+
+    .womens-icon i {
+        font-size: 1.6rem;
+    }
+
+    .womens-card h3 {
+        font-size: 1.15rem;
+        margin-bottom: 10px;
+    }
+
+    .womens-card > p {
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+    }
+
+    .womens-card ul li {
+        font-size: 0.85rem;
+        padding: 8px 0;
+    }
+
+    .elderly-section {
+        padding: 50px 0;
+    }
+
+    .elderly-content {
+        padding: 20px 16px;
+        gap: 24px;
+        border-radius: 16px;
+    }
+
+    .elderly-info h3 {
+        font-size: 1.15rem;
+        margin-bottom: 20px;
+    }
+
+    .benefit-item {
+        gap: 12px;
+    }
+
+    .benefit-item > i {
+        font-size: 1.1rem;
+    }
+
+    .benefit-item strong {
+        font-size: 0.95rem;
+    }
+
+    .benefit-item p {
+        font-size: 0.85rem;
+    }
+
+    .elderly-cta .btn {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .elderly-coverage {
+        padding: 20px 16px;
+        border-radius: 12px;
+    }
+
+    .elderly-coverage h3 {
+        font-size: 1.05rem;
+        margin-bottom: 18px;
+    }
+
+    .coverage-list {
+        gap: 8px;
+    }
+
+    .coverage-list span {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+    }
+
+    .faq-section {
+        padding: 50px 0;
+    }
+
+    .faq-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .faq-item {
+        padding: 20px 16px;
+        border-radius: 12px;
+    }
+
+    .faq-item h3 {
+        font-size: 0.95rem;
+        gap: 10px;
+    }
+
+    .faq-item h3 i {
+        font-size: 1rem;
+    }
+
+    .faq-item p {
+        font-size: 0.88rem;
+        padding-left: 24px;
+        line-height: 1.6;
+    }
+
+    .blog-cta-section {
+        padding: 50px 0;
+    }
+
+    .blog-cta-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 16px;
+    }
+
+    .blog-cta-content p {
+        font-size: 0.95rem;
+        margin-bottom: 28px;
+    }
+
+    .blog-cta-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .blog-cta-buttons .btn {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 0.9rem;
+    }
+
+    /* Article Modal Mobile */
+    .article-modal-container {
+        width: 100%;
+        max-height: 100vh;
+        border-radius: 0;
+    }
+
+    .article-modal-image {
+        height: 200px;
+    }
+
+    .article-modal-meta {
+        padding: 30px 16px 12px;
+        gap: 8px;
+    }
+
+    .article-modal-title {
+        font-size: 1.3rem;
+        padding: 16px 16px 12px;
+    }
+
+    .article-modal-body {
+        padding: 0 16px 20px;
+    }
+
+    .article-modal-body h2 {
+        font-size: 1.2rem;
+        margin: 24px 0 12px;
+    }
+
+    .article-modal-body h3 {
+        font-size: 1.05rem;
+    }
+
+    .article-modal-body p {
+        font-size: 0.92rem;
+    }
+
+    .article-modal-footer {
+        padding: 20px 16px;
+    }
+
+    .article-modal-author {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .article-modal-author .author-image {
+        width: 56px;
+        height: 56px;
+    }
+
+    .article-modal-cta {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .article-modal-cta .btn {
+        width: 100%;
+        min-width: auto;
+    }
+}
+
+/* Extra Small Mobile (up to 360px) */
+@media (max-width: 360px) {
+    .blog-hero-title {
+        font-size: 1.6rem;
+    }
+
+    .stat-card {
+        padding: 16px 10px;
+        min-height: 130px;
+    }
+
+    .stat-number {
+        font-size: 1.4rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+    }
+
+    .trending-content h3 {
+        font-size: 0.95rem;
+    }
+
+    .pain-card-header h3 {
+        font-size: 1rem;
+    }
+
+    .womens-card h3 {
+        font-size: 1.05rem;
+    }
+
+    .blog-cta-content h2 {
+        font-size: 1.35rem;
+    }
+}
