@@ -6,16 +6,8 @@
 (function() {
     'use strict';
 
-    // Hardcoded Firebase config - works across all browsers automatically
-    var FIREBASE_CONFIG = {
-        apiKey: "AIzaSyDJZdEx1CU6W8jE9uctbcJJji7IiUwG7b0",
-        authDomain: "physiotheraphy-d4fd1.firebaseapp.com",
-        databaseURL: "https://physiotheraphy-d4fd1-default-rtdb.firebaseio.com",
-        projectId: "physiotheraphy-d4fd1",
-        storageBucket: "physiotheraphy-d4fd1.firebasestorage.app",
-        messagingSenderId: "264416238852",
-        appId: "1:264416238852:web:8e594394d9c16c6b468451"
-    };
+    // Firebase config - loaded from user settings (no hardcoded keys)
+    var FIREBASE_CONFIG = null;
 
     // Data keys to sync across browsers
     var DATA_KEYS = ['patients', 'appointments', 'prescriptions', 'followups'];
