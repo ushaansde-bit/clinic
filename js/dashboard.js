@@ -4546,3 +4546,14 @@ document.addEventListener('DOMContentLoaded', () => {
     switchTab('overview');
     initDashboardData();
 });
+
+// Secret admin shortcut: Ctrl+Shift+C to access Cloud Sync settings
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        if (checkSession()) {
+            switchTab('settings');
+            showToast('Admin: Cloud Sync settings opened', 'info');
+        }
+    }
+});
