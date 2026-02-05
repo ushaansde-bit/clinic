@@ -1175,10 +1175,338 @@
     setupSmoothScroll();
     setupHamburger();
     setupModalOverlayClose();
+    loadTestimonials();
+    setupTestimonialModal();
 
     var reviewForm = document.getElementById("reviewForm");
     if (reviewForm) {
       reviewForm.addEventListener("submit", submitReview);
     }
   });
+
+  /* ----------------------------------------------------------
+     TESTIMONIALS AUTO-UPDATE SYSTEM
+     ---------------------------------------------------------- */
+  var DEFAULT_TESTIMONIALS = [
+    {
+      id: "default_1",
+      name: "Priya Ramesh",
+      service: "Back Pain Recovery",
+      rating: 5,
+      text: "Dr. Aarthi's fascial manipulation technique completely transformed my life. After months of chronic back pain, I found lasting relief in just a few sessions. Her expertise and gentle approach made all the difference.",
+      date: "2025-01-15",
+      month: 1
+    },
+    {
+      id: "default_2",
+      name: "Suganya Krishnan",
+      service: "Post-Natal Care",
+      rating: 5,
+      text: "As a new mother, I was struggling with post-natal pain and pelvic issues. Dr. Aarthi's women's health expertise and compassionate care helped me recover beautifully. I highly recommend her to all new mothers.",
+      date: "2025-02-10",
+      month: 2
+    },
+    {
+      id: "default_3",
+      name: "Karthik Sundaram",
+      service: "Elderly Home Care",
+      rating: 5,
+      text: "My father couldn't visit the clinic due to his age, and Dr. Aarthi's home care service was a blessing. She treated him at home with the same professionalism and care. His mobility improved remarkably.",
+      date: "2025-03-05",
+      month: 3
+    },
+    {
+      id: "default_4",
+      name: "Meena Lakshmi",
+      service: "Shoulder Injury Recovery",
+      rating: 5,
+      text: "I had a frozen shoulder for over six months. Other treatments gave temporary relief, but Dr. Aarthi's fascial manipulation provided a permanent solution. I can now move my arm freely without any pain.",
+      date: "2025-04-12",
+      month: 4
+    },
+    {
+      id: "default_5",
+      name: "Rajeshwari Devi",
+      service: "Knee Replacement Rehab",
+      rating: 5,
+      text: "After my knee replacement surgery, Dr. Aarthi's rehabilitation program was instrumental in my recovery. Her systematic approach and constant encouragement helped me walk independently again.",
+      date: "2025-05-20",
+      month: 5
+    },
+    {
+      id: "default_6",
+      name: "Vijayalakshmi S",
+      service: "Chronic Pain Management",
+      rating: 5,
+      text: "I suffered from chronic neck and back pain for years. Dr. Aarthi identified the root cause through her fascial assessment and treated it effectively. Her clinic is the best in the area.",
+      date: "2025-06-08",
+      month: 6
+    },
+    {
+      id: "default_7",
+      name: "Anand Kumar",
+      service: "Sports Injury",
+      rating: 5,
+      text: "As a cricket player, my career was at risk due to a persistent shoulder injury. Dr. Aarthi's treatment plan and rehabilitation exercises got me back on the field stronger than before. Truly grateful!",
+      date: "2025-07-15",
+      month: 7
+    },
+    {
+      id: "default_8",
+      name: "Deepa Venkatesh",
+      service: "Neuro Rehabilitation",
+      rating: 5,
+      text: "My mother had a stroke and lost mobility on one side. Dr. Aarthi's neuro rehabilitation program showed remarkable results. Within months, she regained significant movement. The patience and expertise were outstanding.",
+      date: "2025-08-22",
+      month: 8
+    },
+    {
+      id: "default_9",
+      name: "Ramesh Babu",
+      service: "Sciatica Treatment",
+      rating: 5,
+      text: "Sciatica pain made my daily life miserable. Dr. Aarthi's fascial manipulation and targeted exercises provided relief that I couldn't find elsewhere. Her knowledge of the fascial system is exceptional.",
+      date: "2025-09-10",
+      month: 9
+    },
+    {
+      id: "default_10",
+      name: "Saranya M",
+      service: "Pediatric Physiotherapy",
+      rating: 5,
+      text: "My son has cerebral palsy and Dr. Aarthi has been amazing with him. Her gentle approach and child-friendly techniques have helped him achieve milestones we never thought possible. She treats him like family.",
+      date: "2025-10-05",
+      month: 10
+    },
+    {
+      id: "default_11",
+      name: "Gopalakrishnan R",
+      service: "Post-Surgery Rehab",
+      rating: 5,
+      text: "After my spinal surgery, I was scared about recovery. Dr. Aarthi's careful and systematic rehabilitation approach helped me regain my confidence and mobility. Her clinic is well-equipped and hygienic.",
+      date: "2025-11-18",
+      month: 11
+    },
+    {
+      id: "default_12",
+      name: "Kavitha Shankar",
+      service: "Pelvic Floor Therapy",
+      rating: 5,
+      text: "Finding a physiotherapist for pelvic floor issues was difficult until I found Dr. Aarthi. Her professional yet compassionate approach made me comfortable discussing sensitive issues. The treatment worked wonders.",
+      date: "2025-12-12",
+      month: 12
+    }
+  ];
+
+  function getMonthlyRotationSeed() {
+    var now = new Date();
+    return now.getFullYear() * 100 + (now.getMonth() + 1);
+  }
+
+  function getTestimonialsForMonth() {
+    var currentMonth = new Date().getMonth() + 1; // 1-12
+    var userTestimonials = getData("testimonials") || [];
+
+    // Filter testimonials for current month rotation
+    var monthlyDefaults = DEFAULT_TESTIMONIALS.filter(function(t) {
+      // Show testimonials that match current month or are within rotation
+      var rotationIndex = (currentMonth + t.month) % 12;
+      return rotationIndex < 6; // Show 6 testimonials
+    });
+
+    // If not enough, fill with seeded shuffle
+    if (monthlyDefaults.length < 6) {
+      var seed = getMonthlyRotationSeed();
+      var shuffled = seededShuffle(DEFAULT_TESTIMONIALS.slice(), seed);
+      monthlyDefaults = shuffled.slice(0, 6);
+    }
+
+    // Add recent user testimonials (last 30 days)
+    var thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    var recentUserTestimonials = userTestimonials.filter(function(t) {
+      return new Date(t.date) >= thirtyDaysAgo;
+    });
+
+    // Combine: recent user testimonials first, then monthly defaults
+    var combined = recentUserTestimonials.concat(monthlyDefaults);
+
+    // Return max 6 testimonials
+    return combined.slice(0, 6);
+  }
+
+  function loadTestimonials() {
+    var grid = document.getElementById("testimonialsGrid");
+    if (!grid) return;
+
+    var testimonials = getTestimonialsForMonth();
+    grid.innerHTML = "";
+
+    testimonials.forEach(function(testimonial) {
+      var card = document.createElement("div");
+      card.className = "testimonial-card fade-in";
+
+      var initials = getInitials(testimonial.name);
+      var starsHTML = buildStarsHTML(testimonial.rating);
+      var isNew = isRecentTestimonial(testimonial.date);
+      var newBadge = isNew ? '<span class="testimonial-new-badge">New</span>' : '';
+
+      card.innerHTML =
+        '<div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>' +
+        newBadge +
+        '<div class="testimonial-stars">' + starsHTML + '</div>' +
+        '<p class="testimonial-text">' + escapeHTML(testimonial.text) + '</p>' +
+        '<div class="testimonial-author">' +
+        '  <div class="author-avatar">' + initials + '</div>' +
+        '  <div class="author-info">' +
+        '    <h4>' + escapeHTML(testimonial.name) + '</h4>' +
+        '    <span>' + escapeHTML(testimonial.service) + '</span>' +
+        '  </div>' +
+        '</div>';
+
+      grid.appendChild(card);
+    });
+
+    // Trigger fade-in animations
+    setTimeout(function() {
+      var cards = grid.querySelectorAll(".fade-in");
+      cards.forEach(function(card) {
+        card.classList.add("visible");
+      });
+    }, 100);
+  }
+
+  function getInitials(name) {
+    if (!name) return "??";
+    var parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
+
+  function isRecentTestimonial(dateStr) {
+    if (!dateStr) return false;
+    var testimonialDate = new Date(dateStr);
+    var now = new Date();
+    var diffDays = (now - testimonialDate) / (1000 * 60 * 60 * 24);
+    return diffDays <= 30;
+  }
+
+  function buildStarsHTML(rating) {
+    var stars = "";
+    for (var i = 1; i <= 5; i++) {
+      if (i <= rating) {
+        stars += '<i class="fas fa-star"></i>';
+      } else {
+        stars += '<i class="far fa-star"></i>';
+      }
+    }
+    return stars;
+  }
+
+  // Testimonial Modal Functions
+  window.openTestimonialModal = function() {
+    var modal = document.getElementById("testimonialModal");
+    if (modal) {
+      modal.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+  };
+
+  window.closeTestimonialModal = function() {
+    var modal = document.getElementById("testimonialModal");
+    if (modal) {
+      modal.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  };
+
+  function setupTestimonialModal() {
+    var modal = document.getElementById("testimonialModal");
+    if (!modal) return;
+
+    // Close on overlay click
+    var overlay = modal.querySelector(".testimonial-modal-overlay");
+    if (overlay) {
+      overlay.addEventListener("click", closeTestimonialModal);
+    }
+
+    // Star rating interaction
+    var starContainer = document.getElementById("starRatingInput");
+    var ratingInput = document.getElementById("testimonialRating");
+    if (starContainer && ratingInput) {
+      var stars = starContainer.querySelectorAll("i");
+      stars.forEach(function(star) {
+        star.addEventListener("click", function() {
+          var rating = parseInt(this.getAttribute("data-rating"), 10);
+          ratingInput.value = rating;
+          updateStarDisplay(stars, rating);
+        });
+        star.addEventListener("mouseenter", function() {
+          var rating = parseInt(this.getAttribute("data-rating"), 10);
+          updateStarDisplay(stars, rating);
+        });
+      });
+      starContainer.addEventListener("mouseleave", function() {
+        var currentRating = parseInt(ratingInput.value, 10);
+        updateStarDisplay(stars, currentRating);
+      });
+      // Initialize with 5 stars
+      updateStarDisplay(stars, 5);
+    }
+  }
+
+  function updateStarDisplay(stars, rating) {
+    stars.forEach(function(star, index) {
+      if (index < rating) {
+        star.classList.remove("far");
+        star.classList.add("fas");
+        star.style.color = "#F59E0B";
+      } else {
+        star.classList.remove("fas");
+        star.classList.add("far");
+        star.style.color = "#D1D5DB";
+      }
+    });
+  }
+
+  window.submitTestimonial = function(event) {
+    event.preventDefault();
+
+    var name = document.getElementById("testimonialName").value.trim();
+    var service = document.getElementById("testimonialService").value;
+    var rating = parseInt(document.getElementById("testimonialRating").value, 10);
+    var text = document.getElementById("testimonialText").value.trim();
+
+    if (!name || !service || !text) {
+      showToast("Please fill in all fields", "error");
+      return;
+    }
+
+    var testimonial = {
+      id: generateId(),
+      name: name,
+      service: service,
+      rating: rating,
+      text: text,
+      date: new Date().toISOString().split("T")[0]
+    };
+
+    var testimonials = getData("testimonials") || [];
+    testimonials.push(testimonial);
+    setData("testimonials", testimonials);
+
+    // Reload testimonials display
+    loadTestimonials();
+
+    // Reset form and close modal
+    document.getElementById("testimonialForm").reset();
+    document.getElementById("testimonialRating").value = "5";
+    var stars = document.querySelectorAll("#starRatingInput i");
+    updateStarDisplay(stars, 5);
+
+    closeTestimonialModal();
+    showToast("Thank you for sharing your experience!", "success");
+  };
 })();

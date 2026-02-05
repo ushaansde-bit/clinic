@@ -150,11 +150,12 @@
 
             <ul class="nav-menu" id="navMenu">
                 <li class="nav-item"><a href="#home" class="nav-link active">Home</a></li>
-                <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="#about" class="nav-link">About Us</a></li>
                 <li class="nav-item"><a href="#services" class="nav-link">Services</a></li>
+                <li class="nav-item"><a href="#blog" class="nav-link">Health Resources</a></li>
                 <li class="nav-item"><a href="#testimonials" class="nav-link">Testimonials</a></li>
-                <li class="nav-item"><a href="#blog" class="nav-link">Blog</a></li>
-                <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
+                <li class="nav-item"><a href="#contact" class="nav-link">Contact Us</a></li>
             </ul>
 
             <div class="nav-cta">
@@ -391,69 +392,65 @@
                 <h2 class="section-title">Testimonials</h2>
                 <p class="section-subtitle">Hear from our patients about their recovery journey with Dr. Aarthi Ganesh.</p>
             </div>
-            <div class="testimonials-grid">
-                <div class="testimonial-card fade-in">
-                    <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
-                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                    <p class="testimonial-text">Dr. Aarthi's fascial manipulation technique completely transformed my life. After months of chronic back pain, I found lasting relief in just a few sessions. Her expertise and gentle approach made all the difference.</p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">PR</div>
-                        <div class="author-info"><h4>Priya Ramesh</h4><span>Back Pain Recovery</span></div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card fade-in">
-                    <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
-                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                    <p class="testimonial-text">As a new mother, I was struggling with post-natal pain and pelvic issues. Dr. Aarthi's women's health expertise and compassionate care helped me recover beautifully. I highly recommend her to all new mothers.</p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">SK</div>
-                        <div class="author-info"><h4>Suganya Krishnan</h4><span>Post-Natal Care</span></div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card fade-in">
-                    <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
-                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                    <p class="testimonial-text">My father couldn't visit the clinic due to his age, and Dr. Aarthi's home care service was a blessing. She treated him at home with the same professionalism and care. His mobility improved remarkably.</p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">KS</div>
-                        <div class="author-info"><h4>Karthik Sundaram</h4><span>Elderly Home Care</span></div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card fade-in">
-                    <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
-                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                    <p class="testimonial-text">I had a frozen shoulder for over six months. Other treatments gave temporary relief, but Dr. Aarthi's fascial manipulation provided a permanent solution. I can now move my arm freely without any pain.</p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">ML</div>
-                        <div class="author-info"><h4>Meena Lakshmi</h4><span>Shoulder Injury Recovery</span></div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card fade-in">
-                    <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
-                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                    <p class="testimonial-text">After my knee replacement surgery, Dr. Aarthi's rehabilitation program was instrumental in my recovery. Her systematic approach and constant encouragement helped me walk independently again.</p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">RD</div>
-                        <div class="author-info"><h4>Rajeshwari Devi</h4><span>Knee Replacement Rehab</span></div>
-                    </div>
-                </div>
-
-                <div class="testimonial-card fade-in">
-                    <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
-                    <div class="testimonial-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                    <p class="testimonial-text">I suffered from chronic neck and back pain for years. Dr. Aarthi identified the root cause through her fascial assessment and treated it effectively. Her clinic is the best in the area.</p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">VS</div>
-                        <div class="author-info"><h4>Vijayalakshmi S</h4><span>Chronic Pain Management</span></div>
-                    </div>
-                </div>
+            <div class="testimonials-grid" id="testimonialsGrid">
+                <!-- Testimonials will be loaded dynamically -->
+            </div>
+            <div class="testimonials-cta fade-in">
+                <p class="testimonials-update-note"><i class="fas fa-sync-alt"></i> Testimonials auto-update monthly with new patient stories</p>
+                <button class="btn btn-accent" onclick="openTestimonialModal()"><i class="fas fa-pen"></i> Share Your Experience</button>
             </div>
         </div>
     </section>
+
+    <!-- Testimonial Submission Modal -->
+    <div class="testimonial-modal" id="testimonialModal">
+        <div class="testimonial-modal-overlay"></div>
+        <div class="testimonial-modal-container">
+            <button class="testimonial-modal-close" onclick="closeTestimonialModal()"><i class="fas fa-times"></i></button>
+            <div class="testimonial-modal-content">
+                <div class="testimonial-modal-header">
+                    <i class="fas fa-comment-medical"></i>
+                    <h2>Share Your Experience</h2>
+                    <p>Your feedback helps others discover quality physiotherapy care</p>
+                </div>
+                <form id="testimonialForm" onsubmit="submitTestimonial(event)">
+                    <div class="form-group">
+                        <label for="testimonialName"><i class="fas fa-user"></i> Your Name</label>
+                        <input type="text" id="testimonialName" required placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="testimonialService"><i class="fas fa-stethoscope"></i> Treatment Received</label>
+                        <select id="testimonialService" required>
+                            <option value="">Select treatment type</option>
+                            <option value="Fascial Manipulation">Fascial Manipulation</option>
+                            <option value="Orthopedic Rehabilitation">Orthopedic Rehabilitation</option>
+                            <option value="Neuro Rehabilitation">Neuro Rehabilitation</option>
+                            <option value="Women's Health Physio">Women's Health Physio</option>
+                            <option value="Elderly Home Care">Elderly Home Care</option>
+                            <option value="Pediatric Physiotherapy">Pediatric Physiotherapy</option>
+                            <option value="General Physiotherapy">General Physiotherapy</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-star"></i> Your Rating</label>
+                        <div class="star-rating-input" id="starRatingInput">
+                            <i class="fas fa-star" data-rating="1"></i>
+                            <i class="fas fa-star" data-rating="2"></i>
+                            <i class="fas fa-star" data-rating="3"></i>
+                            <i class="fas fa-star" data-rating="4"></i>
+                            <i class="fas fa-star" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="testimonialRating" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="testimonialText"><i class="fas fa-comment"></i> Your Experience</label>
+                        <textarea id="testimonialText" required placeholder="Tell us about your recovery journey and experience with Dr. Aarthi..." rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-paper-plane"></i> Submit Testimonial</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- ======================== BLOG PREVIEW ======================== -->
     <section class="blog section" id="blog">
