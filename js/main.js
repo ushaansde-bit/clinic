@@ -681,11 +681,19 @@
       var newBadge = isNew ? '<span class="blog-new-badge">New</span>' : "";
       var sourceBadge = blog.source ? '<span class="blog-source-badge">' + escapeHTML(blog.source) + "</span>" : "";
       var readTime = Math.max(3, Math.ceil((blog.summary || "").split(" ").length / 40)) + " min read";
+      // Create article slug from title for linking to full article
+      var articleSlug = (blog.title || "").toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .substring(0, 60);
+
       var linkUrl = blog.link || "blog.html";
       var isExternal = linkUrl.indexOf("http") === 0;
       var targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : "";
-      // Default to blog page for articles without external links
-      if (!blog.link) linkUrl = "blog.html#" + (blog.category || "").toLowerCase().replace(/\s+/g, '-');
+      // Link to blog page with article parameter to open full article modal
+      if (!blog.link || blog.link === "#blog") {
+        linkUrl = "blog.html?article=" + encodeURIComponent(articleSlug);
+      }
 
       card.innerHTML =
         '<div class="blog-card-image">' +
