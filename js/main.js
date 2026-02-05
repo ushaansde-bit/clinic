@@ -1381,150 +1381,158 @@
 
   /* ----------------------------------------------------------
      TESTIMONIALS AUTO-UPDATE SYSTEM
+     Weekly rotation with latest reviews on top
      ---------------------------------------------------------- */
   var DEFAULT_TESTIMONIALS = [
     {
       id: "default_1",
-      name: "Priya Ramesh",
-      service: "Back Pain Recovery",
-      rating: 5,
-      text: "Dr. Aarthi's fascial manipulation technique completely transformed my life. After months of chronic back pain, I found lasting relief in just a few sessions. Her expertise and gentle approach made all the difference.",
-      date: "2025-01-15",
-      month: 1
-    },
-    {
-      id: "default_2",
-      name: "Suganya Krishnan",
-      service: "Post-Natal Care",
-      rating: 5,
-      text: "As a new mother, I was struggling with post-natal pain and pelvic issues. Dr. Aarthi's women's health expertise and compassionate care helped me recover beautifully. I highly recommend her to all new mothers.",
-      date: "2025-02-10",
-      month: 2
-    },
-    {
-      id: "default_3",
-      name: "Karthik Sundaram",
-      service: "Elderly Home Care",
-      rating: 5,
-      text: "My father couldn't visit the clinic due to his age, and Dr. Aarthi's home care service was a blessing. She treated him at home with the same professionalism and care. His mobility improved remarkably.",
-      date: "2025-03-05",
-      month: 3
-    },
-    {
-      id: "default_4",
-      name: "Meena Lakshmi",
-      service: "Shoulder Injury Recovery",
-      rating: 5,
-      text: "I had a frozen shoulder for over six months. Other treatments gave temporary relief, but Dr. Aarthi's fascial manipulation provided a permanent solution. I can now move my arm freely without any pain.",
-      date: "2025-04-12",
-      month: 4
-    },
-    {
-      id: "default_5",
-      name: "Rajeshwari Devi",
-      service: "Knee Replacement Rehab",
-      rating: 5,
-      text: "After my knee replacement surgery, Dr. Aarthi's rehabilitation program was instrumental in my recovery. Her systematic approach and constant encouragement helped me walk independently again.",
-      date: "2025-05-20",
-      month: 5
-    },
-    {
-      id: "default_6",
-      name: "Vijayalakshmi S",
-      service: "Chronic Pain Management",
-      rating: 5,
-      text: "I suffered from chronic neck and back pain for years. Dr. Aarthi identified the root cause through her fascial assessment and treated it effectively. Her clinic is the best in the area.",
-      date: "2025-06-08",
-      month: 6
-    },
-    {
-      id: "default_7",
-      name: "Anand Kumar",
-      service: "Sports Injury",
-      rating: 5,
-      text: "As a cricket player, my career was at risk due to a persistent shoulder injury. Dr. Aarthi's treatment plan and rehabilitation exercises got me back on the field stronger than before. Truly grateful!",
-      date: "2025-07-15",
-      month: 7
-    },
-    {
-      id: "default_8",
-      name: "Deepa Venkatesh",
-      service: "Neuro Rehabilitation",
-      rating: 5,
-      text: "My mother had a stroke and lost mobility on one side. Dr. Aarthi's neuro rehabilitation program showed remarkable results. Within months, she regained significant movement. The patience and expertise were outstanding.",
-      date: "2025-08-22",
-      month: 8
-    },
-    {
-      id: "default_9",
-      name: "Ramesh Babu",
-      service: "Sciatica Treatment",
-      rating: 5,
-      text: "Sciatica pain made my daily life miserable. Dr. Aarthi's fascial manipulation and targeted exercises provided relief that I couldn't find elsewhere. Her knowledge of the fascial system is exceptional.",
-      date: "2025-09-10",
-      month: 9
-    },
-    {
-      id: "default_10",
-      name: "Saranya M",
-      service: "Pediatric Physiotherapy",
-      rating: 5,
-      text: "My son has cerebral palsy and Dr. Aarthi has been amazing with him. Her gentle approach and child-friendly techniques have helped him achieve milestones we never thought possible. She treats him like family.",
-      date: "2025-10-05",
-      month: 10
-    },
-    {
-      id: "default_11",
-      name: "Gopalakrishnan R",
-      service: "Post-Surgery Rehab",
-      rating: 5,
-      text: "After my spinal surgery, I was scared about recovery. Dr. Aarthi's careful and systematic rehabilitation approach helped me regain my confidence and mobility. Her clinic is well-equipped and hygienic.",
-      date: "2025-11-18",
-      month: 11
-    },
-    {
-      id: "default_12",
       name: "Kavitha Shankar",
       service: "Pelvic Floor Therapy",
       rating: 5,
       text: "Finding a physiotherapist for pelvic floor issues was difficult until I found Dr. Aarthi. Her professional yet compassionate approach made me comfortable discussing sensitive issues. The treatment worked wonders.",
-      date: "2025-12-12",
-      month: 12
+      date: "2026-02-03",
+      week: 5
+    },
+    {
+      id: "default_2",
+      name: "Gopalakrishnan R",
+      service: "Post-Surgery Rehab",
+      rating: 5,
+      text: "After my spinal surgery, I was scared about recovery. Dr. Aarthi's careful and systematic rehabilitation approach helped me regain my confidence and mobility. Her clinic is well-equipped and hygienic.",
+      date: "2026-01-28",
+      week: 4
+    },
+    {
+      id: "default_3",
+      name: "Priya Ramesh",
+      service: "Back Pain Recovery",
+      rating: 5,
+      text: "Dr. Aarthi's fascial manipulation technique completely transformed my life. After months of chronic back pain, I found lasting relief in just a few sessions. Her expertise and gentle approach made all the difference.",
+      date: "2026-01-21",
+      week: 3
+    },
+    {
+      id: "default_4",
+      name: "Suganya Krishnan",
+      service: "Post-Natal Care",
+      rating: 5,
+      text: "As a new mother, I was struggling with post-natal pain and pelvic issues. Dr. Aarthi's women's health expertise and compassionate care helped me recover beautifully. I highly recommend her to all new mothers.",
+      date: "2026-01-15",
+      week: 2
+    },
+    {
+      id: "default_5",
+      name: "Karthik Sundaram",
+      service: "Elderly Home Care",
+      rating: 5,
+      text: "My father couldn't visit the clinic due to his age, and Dr. Aarthi's home care service was a blessing. She treated him at home with the same professionalism and care. His mobility improved remarkably.",
+      date: "2026-01-08",
+      week: 1
+    },
+    {
+      id: "default_6",
+      name: "Meena Lakshmi",
+      service: "Shoulder Injury Recovery",
+      rating: 5,
+      text: "I had a frozen shoulder for over six months. Other treatments gave temporary relief, but Dr. Aarthi's fascial manipulation provided a permanent solution. I can now move my arm freely without any pain.",
+      date: "2025-12-30",
+      week: 52
+    },
+    {
+      id: "default_7",
+      name: "Rajeshwari Devi",
+      service: "Knee Replacement Rehab",
+      rating: 5,
+      text: "After my knee replacement surgery, Dr. Aarthi's rehabilitation program was instrumental in my recovery. Her systematic approach and constant encouragement helped me walk independently again.",
+      date: "2025-12-22",
+      week: 51
+    },
+    {
+      id: "default_8",
+      name: "Vijayalakshmi S",
+      service: "Chronic Pain Management",
+      rating: 5,
+      text: "I suffered from chronic neck and back pain for years. Dr. Aarthi identified the root cause through her fascial assessment and treated it effectively. Her clinic is the best in the area.",
+      date: "2025-12-15",
+      week: 50
+    },
+    {
+      id: "default_9",
+      name: "Anand Kumar",
+      service: "Sports Injury",
+      rating: 5,
+      text: "As a cricket player, my career was at risk due to a persistent shoulder injury. Dr. Aarthi's treatment plan and rehabilitation exercises got me back on the field stronger than before. Truly grateful!",
+      date: "2025-12-08",
+      week: 49
+    },
+    {
+      id: "default_10",
+      name: "Deepa Venkatesh",
+      service: "Neuro Rehabilitation",
+      rating: 5,
+      text: "My mother had a stroke and lost mobility on one side. Dr. Aarthi's neuro rehabilitation program showed remarkable results. Within months, she regained significant movement. The patience and expertise were outstanding.",
+      date: "2025-12-01",
+      week: 48
+    },
+    {
+      id: "default_11",
+      name: "Ramesh Babu",
+      service: "Sciatica Treatment",
+      rating: 5,
+      text: "Sciatica pain made my daily life miserable. Dr. Aarthi's fascial manipulation and targeted exercises provided relief that I couldn't find elsewhere. Her knowledge of the fascial system is exceptional.",
+      date: "2025-11-24",
+      week: 47
+    },
+    {
+      id: "default_12",
+      name: "Saranya M",
+      service: "Pediatric Physiotherapy",
+      rating: 5,
+      text: "My son has cerebral palsy and Dr. Aarthi has been amazing with him. Her gentle approach and child-friendly techniques have helped him achieve milestones we never thought possible. She treats him like family.",
+      date: "2025-11-17",
+      week: 46
     }
   ];
 
-  function getMonthlyRotationSeed() {
+  function getWeeklyRotationSeed() {
     var now = new Date();
-    return now.getFullYear() * 100 + (now.getMonth() + 1);
+    var startOfYear = new Date(now.getFullYear(), 0, 1);
+    var weekNumber = Math.ceil(((now - startOfYear) / 86400000 + startOfYear.getDay() + 1) / 7);
+    return now.getFullYear() * 100 + weekNumber;
   }
 
-  function getTestimonialsForMonth() {
-    var currentMonth = new Date().getMonth() + 1; // 1-12
+  function getTestimonialsForWeek() {
+    // Get user-submitted testimonials from localStorage (e.g., from Google Reviews form)
     var userTestimonials = getData("testimonials") || [];
 
-    // Filter testimonials for current month rotation
-    var monthlyDefaults = DEFAULT_TESTIMONIALS.filter(function(t) {
-      // Show testimonials that match current month or are within rotation
-      var rotationIndex = (currentMonth + t.month) % 12;
-      return rotationIndex < 6; // Show 6 testimonials
+    // Sort all user testimonials by date (latest first)
+    userTestimonials.sort(function(a, b) {
+      return new Date(b.date) - new Date(a.date);
     });
 
-    // If not enough, fill with seeded shuffle
-    if (monthlyDefaults.length < 6) {
-      var seed = getMonthlyRotationSeed();
-      var shuffled = seededShuffle(DEFAULT_TESTIMONIALS.slice(), seed);
-      monthlyDefaults = shuffled.slice(0, 6);
+    // Get current week number for rotation
+    var seed = getWeeklyRotationSeed();
+
+    // Weekly rotation: shift the default testimonials based on week
+    var weekOffset = seed % DEFAULT_TESTIMONIALS.length;
+    var rotatedDefaults = [];
+    for (var i = 0; i < DEFAULT_TESTIMONIALS.length; i++) {
+      var index = (i + weekOffset) % DEFAULT_TESTIMONIALS.length;
+      rotatedDefaults.push(DEFAULT_TESTIMONIALS[index]);
     }
 
-    // Add recent user testimonials (last 30 days)
-    var thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    var recentUserTestimonials = userTestimonials.filter(function(t) {
-      return new Date(t.date) >= thirtyDaysAgo;
+    // Sort rotated defaults by date (latest first)
+    rotatedDefaults.sort(function(a, b) {
+      return new Date(b.date) - new Date(a.date);
     });
 
-    // Combine: recent user testimonials first, then monthly defaults
-    var combined = recentUserTestimonials.concat(monthlyDefaults);
+    // Combine: user testimonials first (latest), then default testimonials
+    var combined = userTestimonials.concat(rotatedDefaults);
+
+    // Sort combined list by date (latest first)
+    combined.sort(function(a, b) {
+      return new Date(b.date) - new Date(a.date);
+    });
 
     // Return max 6 testimonials
     return combined.slice(0, 6);
@@ -1534,7 +1542,7 @@
     var grid = document.getElementById("testimonialsGrid");
     if (!grid) return;
 
-    var testimonials = getTestimonialsForMonth();
+    var testimonials = getTestimonialsForWeek();
     grid.innerHTML = "";
 
     // Google logo SVG
