@@ -204,6 +204,422 @@
   }
 
   /* ----------------------------------------------------------
+     7B. SERVICE MODAL SYSTEM
+     ---------------------------------------------------------- */
+  var SERVICE_DATA = {
+    'fascial-manipulation': {
+      title: 'Fascial Manipulation',
+      icon: 'fas fa-hand-sparkles',
+      content: `
+        <div class="service-detail-intro">
+          <p>Fascial Manipulation is a revolutionary manual therapy technique developed in Italy by physiotherapist Luigi Stecco. At Shree Physiotherapy Clinic, Dr. Aarthi is one of the few certified practitioners of this advanced technique in the region.</p>
+        </div>
+
+        <h3><i class="fas fa-question-circle"></i> What is Fascia?</h3>
+        <p>Fascia is the connective tissue that surrounds and interconnects every muscle, bone, nerve, and organ in your body. Think of it as a three-dimensional web that holds your entire body together. When fascia becomes restricted or damaged, it can cause pain that seems unrelated to the original injury site.</p>
+
+        <h3><i class="fas fa-stethoscope"></i> How Does Fascial Manipulation Work?</h3>
+        <p>Unlike traditional massage or physiotherapy, Fascial Manipulation targets specific points called "Centers of Coordination" (CC) and "Centers of Fusion" (CF). By applying precise friction to these points, we can:</p>
+        <ul>
+          <li>Release deep tissue restrictions that other therapies cannot reach</li>
+          <li>Restore normal gliding between fascial layers</li>
+          <li>Eliminate referred pain patterns</li>
+          <li>Improve range of motion immediately</li>
+        </ul>
+
+        <h3><i class="fas fa-check-circle"></i> Conditions We Treat</h3>
+        <ul>
+          <li>Chronic neck and back pain</li>
+          <li>Frozen shoulder (Adhesive Capsulitis)</li>
+          <li>Tennis elbow and Golfer's elbow</li>
+          <li>Carpal tunnel syndrome</li>
+          <li>Sciatica and leg pain</li>
+          <li>Headaches and migraines</li>
+          <li>Post-surgical stiffness</li>
+          <li>Sports injuries</li>
+        </ul>
+
+        <h3><i class="fas fa-bolt"></i> Why Choose Fascial Manipulation?</h3>
+        <div class="service-benefits">
+          <div class="benefit-item">
+            <i class="fas fa-clock"></i>
+            <span><strong>Immediate Results:</strong> Most patients experience significant relief within 1-3 sessions</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-pills"></i>
+            <span><strong>Drug-Free:</strong> No medications or injections required</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-bullseye"></i>
+            <span><strong>Root Cause Treatment:</strong> Addresses the source of pain, not just symptoms</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-infinity"></i>
+            <span><strong>Long-Lasting Relief:</strong> Results are sustained with proper follow-up care</span>
+          </div>
+        </div>
+      `
+    },
+    'orthopedic-rehabilitation': {
+      title: 'Orthopedic Rehabilitation',
+      icon: 'fas fa-bone',
+      content: `
+        <div class="service-detail-intro">
+          <p>Orthopedic rehabilitation at Shree Physiotherapy Clinic combines evidence-based protocols with personalized care to help you recover from injuries, surgeries, and musculoskeletal conditions. Our comprehensive approach ensures optimal healing and return to normal function.</p>
+        </div>
+
+        <h3><i class="fas fa-procedures"></i> Post-Surgical Rehabilitation</h3>
+        <p>We specialize in rehabilitation following:</p>
+        <ul>
+          <li><strong>Joint Replacements:</strong> Total knee replacement (TKR), total hip replacement (THR), shoulder replacement</li>
+          <li><strong>Fracture Surgeries:</strong> ORIF (Open Reduction Internal Fixation), external fixation recovery</li>
+          <li><strong>Ligament Reconstructions:</strong> ACL, PCL, rotator cuff repairs</li>
+          <li><strong>Spinal Surgeries:</strong> Discectomy, laminectomy, spinal fusion</li>
+          <li><strong>Arthroscopic Procedures:</strong> Knee, shoulder, and ankle arthroscopy</li>
+        </ul>
+
+        <h3><i class="fas fa-running"></i> Sports Injury Management</h3>
+        <p>Whether you're a professional athlete or weekend warrior, we treat:</p>
+        <ul>
+          <li>Muscle strains and ligament sprains</li>
+          <li>Tendinitis and tendinopathy</li>
+          <li>Meniscus and cartilage injuries</li>
+          <li>Stress fractures</li>
+          <li>Overuse injuries</li>
+        </ul>
+
+        <h3><i class="fas fa-cogs"></i> Our Rehabilitation Process</h3>
+        <div class="service-process">
+          <div class="process-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>Comprehensive Assessment</h4>
+              <p>Detailed evaluation of your condition, surgical reports, and functional limitations</p>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>Customized Treatment Plan</h4>
+              <p>Individualized rehabilitation protocol based on your specific needs and goals</p>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>Progressive Therapy</h4>
+              <p>Phase-wise progression from pain management to strengthening to functional training</p>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h4>Return to Activity</h4>
+              <p>Safe and gradual return to work, sports, or daily activities</p>
+            </div>
+          </div>
+        </div>
+
+        <h3><i class="fas fa-tools"></i> Treatment Modalities</h3>
+        <ul>
+          <li>Manual therapy and joint mobilization</li>
+          <li>Therapeutic exercises and stretching</li>
+          <li>Electrotherapy (TENS, IFT, Ultrasound)</li>
+          <li>Kinesiology taping</li>
+          <li>Gait training and balance exercises</li>
+          <li>Home exercise programs</li>
+        </ul>
+      `
+    },
+    'neuro-rehabilitation': {
+      title: 'Neuro Rehabilitation',
+      icon: 'fas fa-brain',
+      content: `
+        <div class="service-detail-intro">
+          <p>Neurological rehabilitation requires specialized expertise and compassionate care. At Shree Physiotherapy Clinic, we help patients with neurological conditions regain independence, improve mobility, and enhance quality of life through targeted therapeutic interventions.</p>
+        </div>
+
+        <h3><i class="fas fa-heartbeat"></i> Conditions We Treat</h3>
+        <ul>
+          <li><strong>Stroke (CVA):</strong> Hemiplegia, hemiparesis, and post-stroke rehabilitation</li>
+          <li><strong>Parkinson's Disease:</strong> Movement disorders, rigidity, and balance problems</li>
+          <li><strong>Multiple Sclerosis:</strong> Fatigue management, mobility, and coordination</li>
+          <li><strong>Spinal Cord Injuries:</strong> Paraplegia and quadriplegia rehabilitation</li>
+          <li><strong>Traumatic Brain Injury:</strong> Cognitive and motor function recovery</li>
+          <li><strong>Peripheral Neuropathy:</strong> Numbness, weakness, and balance issues</li>
+          <li><strong>Bell's Palsy:</strong> Facial muscle weakness and recovery</li>
+          <li><strong>Guillain-Barré Syndrome:</strong> Post-acute rehabilitation</li>
+        </ul>
+
+        <h3><i class="fas fa-brain"></i> Our Neurological Rehabilitation Approach</h3>
+        <p>We utilize evidence-based neurological rehabilitation techniques including:</p>
+        <ul>
+          <li><strong>Bobath/NDT Concept:</strong> Facilitating normal movement patterns</li>
+          <li><strong>PNF (Proprioceptive Neuromuscular Facilitation):</strong> Improving strength and coordination</li>
+          <li><strong>Motor Relearning Programme:</strong> Task-specific training for functional recovery</li>
+          <li><strong>Constraint-Induced Movement Therapy:</strong> Encouraging use of affected limbs</li>
+          <li><strong>Balance and Gait Training:</strong> Safe mobility and fall prevention</li>
+        </ul>
+
+        <h3><i class="fas fa-chart-line"></i> Goals of Neuro Rehabilitation</h3>
+        <div class="service-benefits">
+          <div class="benefit-item">
+            <i class="fas fa-walking"></i>
+            <span><strong>Restore Mobility:</strong> Improve walking, transfers, and movement patterns</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-hand-paper"></i>
+            <span><strong>Regain Function:</strong> Enhance hand function and daily activity performance</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-balance-scale"></i>
+            <span><strong>Improve Balance:</strong> Reduce fall risk and increase confidence</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-home"></i>
+            <span><strong>Maximize Independence:</strong> Return to home and community activities</span>
+          </div>
+        </div>
+
+        <h3><i class="fas fa-users"></i> Family Involvement</h3>
+        <p>We believe in involving family members in the rehabilitation process. We provide:</p>
+        <ul>
+          <li>Caregiver training and education</li>
+          <li>Home exercise programs</li>
+          <li>Home modification recommendations</li>
+          <li>Assistive device guidance</li>
+        </ul>
+      `
+    },
+    'womens-health': {
+      title: "Women's Health Physiotherapy",
+      icon: 'fas fa-person-dress',
+      content: `
+        <div class="service-detail-intro">
+          <p>Women's health physiotherapy addresses the unique physiological needs of women throughout all life stages. Dr. Aarthi provides compassionate, confidential care in a comfortable and private setting at Shree Physiotherapy Clinic.</p>
+        </div>
+
+        <h3><i class="fas fa-baby"></i> Prenatal (Pregnancy) Care</h3>
+        <p>Physiotherapy during pregnancy helps manage common discomforts and prepares your body for childbirth:</p>
+        <ul>
+          <li>Lower back and pelvic girdle pain relief</li>
+          <li>Sciatica management during pregnancy</li>
+          <li>Safe exercise guidance for each trimester</li>
+          <li>Breathing techniques for labor preparation</li>
+          <li>Posture correction and body mechanics education</li>
+          <li>Prevention of diastasis recti (abdominal separation)</li>
+        </ul>
+
+        <h3><i class="fas fa-heart"></i> Postnatal Recovery</h3>
+        <p>After childbirth, your body needs specialized care to recover properly:</p>
+        <ul>
+          <li>Diastasis recti assessment and rehabilitation</li>
+          <li>C-section scar tissue management</li>
+          <li>Core strengthening and abdominal rehabilitation</li>
+          <li>Posture correction for breastfeeding</li>
+          <li>Gradual return to exercise programs</li>
+          <li>Back pain from carrying and nursing</li>
+        </ul>
+
+        <h3><i class="fas fa-shield-alt"></i> Pelvic Floor Rehabilitation</h3>
+        <p>Pelvic floor dysfunction affects many women but is often not discussed. We provide confidential treatment for:</p>
+        <ul>
+          <li><strong>Urinary Incontinence:</strong> Stress incontinence, urge incontinence, mixed incontinence</li>
+          <li><strong>Pelvic Organ Prolapse:</strong> Bladder, uterine, or rectal prolapse management</li>
+          <li><strong>Pelvic Pain:</strong> Chronic pelvic pain, painful intercourse (dyspareunia)</li>
+          <li><strong>Post-Surgical Recovery:</strong> After hysterectomy or pelvic surgeries</li>
+        </ul>
+
+        <h3><i class="fas fa-female"></i> Other Women's Health Conditions</h3>
+        <ul>
+          <li>Osteoporosis management and bone health</li>
+          <li>Breast cancer rehabilitation (post-mastectomy)</li>
+          <li>Lymphedema management</li>
+          <li>Menopausal joint and muscle pain</li>
+          <li>PCOS-related musculoskeletal issues</li>
+        </ul>
+
+        <h3><i class="fas fa-lock"></i> Your Privacy Matters</h3>
+        <p>All women's health consultations are conducted in a private, comfortable environment. Dr. Aarthi ensures complete confidentiality and takes time to understand your concerns without judgment.</p>
+      `
+    },
+    'elderly-home-care': {
+      title: 'Elderly Home Care Physiotherapy',
+      icon: 'fas fa-house-chimney-medical',
+      content: `
+        <div class="service-detail-intro">
+          <p>We understand that many elderly patients find it difficult to travel to clinics. Shree Physiotherapy Clinic offers dedicated home visit services, bringing professional physiotherapy care to the comfort and safety of your loved one's home.</p>
+        </div>
+
+        <h3><i class="fas fa-home"></i> Benefits of Home-Based Physiotherapy</h3>
+        <ul>
+          <li>Treatment in a familiar, comfortable environment</li>
+          <li>No travel stress or transportation challenges</li>
+          <li>Exercises tailored to home environment and available space</li>
+          <li>Family can observe and learn caregiving techniques</li>
+          <li>Reduced risk of infection exposure</li>
+          <li>More personalized, one-on-one attention</li>
+        </ul>
+
+        <h3><i class="fas fa-user-injured"></i> Conditions We Treat at Home</h3>
+        <ul>
+          <li><strong>Post-Surgical Recovery:</strong> Hip/knee replacement, fracture rehabilitation</li>
+          <li><strong>Stroke Rehabilitation:</strong> Home-based neuro physiotherapy</li>
+          <li><strong>Arthritis Management:</strong> Joint pain, stiffness, and mobility issues</li>
+          <li><strong>Parkinson's Disease:</strong> Movement and balance training</li>
+          <li><strong>General Weakness:</strong> Post-hospitalization deconditioning</li>
+          <li><strong>Bed-Bound Patients:</strong> Preventing complications and maintaining mobility</li>
+          <li><strong>Palliative Care:</strong> Comfort and quality of life management</li>
+        </ul>
+
+        <h3><i class="fas fa-exclamation-triangle"></i> Fall Prevention Program</h3>
+        <p>Falls are a leading cause of injury in the elderly. Our fall prevention program includes:</p>
+        <div class="service-benefits">
+          <div class="benefit-item">
+            <i class="fas fa-search"></i>
+            <span><strong>Risk Assessment:</strong> Identifying fall risk factors in the home</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-dumbbell"></i>
+            <span><strong>Strength Training:</strong> Exercises to improve leg strength</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-balance-scale"></i>
+            <span><strong>Balance Exercises:</strong> Activities to improve stability</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-lightbulb"></i>
+            <span><strong>Home Modifications:</strong> Recommendations to make home safer</span>
+          </div>
+        </div>
+
+        <h3><i class="fas fa-clock"></i> Our Home Visit Process</h3>
+        <ol>
+          <li><strong>Initial Phone Consultation:</strong> Understanding the patient's condition and needs</li>
+          <li><strong>Home Assessment:</strong> Comprehensive evaluation at home</li>
+          <li><strong>Treatment Plan:</strong> Customized therapy plan with family involvement</li>
+          <li><strong>Regular Sessions:</strong> Scheduled visits based on treatment needs</li>
+          <li><strong>Progress Updates:</strong> Regular communication with family members</li>
+        </ol>
+
+        <h3><i class="fas fa-map-marker-alt"></i> Service Area</h3>
+        <p>We provide home visits throughout Coimbatore and surrounding areas. Contact us to check if your location is covered.</p>
+      `
+    },
+    'pediatric-physiotherapy': {
+      title: 'Pediatric Physiotherapy',
+      icon: 'fas fa-child',
+      content: `
+        <div class="service-detail-intro">
+          <p>Children are not small adults – they require specialized care that considers their unique developmental needs. At Shree Physiotherapy Clinic, we use child-friendly approaches to help children achieve their developmental milestones and overcome physical challenges.</p>
+        </div>
+
+        <h3><i class="fas fa-baby"></i> Developmental Conditions</h3>
+        <p>We help children with various developmental challenges:</p>
+        <ul>
+          <li><strong>Cerebral Palsy:</strong> Improving motor function, reducing spasticity, and enhancing independence</li>
+          <li><strong>Developmental Delays:</strong> Helping children who are not meeting age-appropriate milestones</li>
+          <li><strong>Down Syndrome:</strong> Strengthening muscles and improving coordination</li>
+          <li><strong>Autism Spectrum Disorder:</strong> Motor skill development and sensory integration</li>
+          <li><strong>Muscular Dystrophy:</strong> Maintaining strength and function</li>
+          <li><strong>Spina Bifida:</strong> Mobility training and adaptive techniques</li>
+        </ul>
+
+        <h3><i class="fas fa-child"></i> Common Pediatric Concerns</h3>
+        <ul>
+          <li>Delayed walking or crawling</li>
+          <li>Toe walking</li>
+          <li>Poor posture and coordination</li>
+          <li>Flat feet (pes planus)</li>
+          <li>Torticollis (neck tilting)</li>
+          <li>Sports injuries in young athletes</li>
+          <li>Post-fracture rehabilitation</li>
+          <li>Juvenile arthritis</li>
+        </ul>
+
+        <h3><i class="fas fa-gamepad"></i> Our Child-Friendly Approach</h3>
+        <p>We make physiotherapy fun for children through:</p>
+        <div class="service-benefits">
+          <div class="benefit-item">
+            <i class="fas fa-puzzle-piece"></i>
+            <span><strong>Play-Based Therapy:</strong> Exercises disguised as games and play activities</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-music"></i>
+            <span><strong>Interactive Sessions:</strong> Using songs, stories, and toys to engage children</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-star"></i>
+            <span><strong>Positive Reinforcement:</strong> Celebrating achievements to build confidence</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-users"></i>
+            <span><strong>Parent Involvement:</strong> Teaching parents exercises to continue at home</span>
+          </div>
+        </div>
+
+        <h3><i class="fas fa-chart-line"></i> Developmental Milestone Support</h3>
+        <p>We help children achieve important milestones including:</p>
+        <ul>
+          <li>Head control and sitting</li>
+          <li>Crawling and standing</li>
+          <li>Walking and running</li>
+          <li>Climbing and jumping</li>
+          <li>Fine motor skills (grasping, writing)</li>
+          <li>Balance and coordination</li>
+        </ul>
+
+        <h3><i class="fas fa-hands-helping"></i> Parent and Caregiver Training</h3>
+        <p>Parents are an essential part of the therapy team. We provide:</p>
+        <ul>
+          <li>Home exercise programs</li>
+          <li>Handling and positioning techniques</li>
+          <li>Activity and play suggestions</li>
+          <li>Progress tracking guidance</li>
+          <li>Emotional support and counseling</li>
+        </ul>
+      `
+    }
+  };
+
+  window.openServiceModal = function(serviceId) {
+    var service = SERVICE_DATA[serviceId];
+    if (!service) return;
+
+    var modal = document.getElementById('serviceModal');
+    if (!modal) return;
+
+    modal.querySelector('.service-modal-icon').innerHTML = '<i class="' + service.icon + '"></i>';
+    modal.querySelector('.service-modal-title').textContent = service.title;
+    modal.querySelector('.service-modal-body').innerHTML = service.content;
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeServiceModal = function() {
+    var modal = document.getElementById('serviceModal');
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  };
+
+  function setupServiceModal() {
+    var modal = document.getElementById('serviceModal');
+    if (!modal) return;
+
+    modal.querySelector('.service-modal-overlay').addEventListener('click', closeServiceModal);
+    modal.querySelector('.service-modal-close').addEventListener('click', closeServiceModal);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeServiceModal();
+      }
+    });
+  }
+
+  /* ----------------------------------------------------------
      8. LOCALSTORAGE HELPERS
      ---------------------------------------------------------- */
   window.getData = function (key) {
@@ -753,6 +1169,7 @@
     fetchBlogFromRSS();
     setupScrollAnimations();
     setupStatCounters();
+    setupServiceModal();
     window.addEventListener("scroll", handleNavbarScroll);
     handleNavbarScroll();
     setupSmoothScroll();

@@ -281,63 +281,69 @@
                 <p class="section-subtitle">Comprehensive physiotherapy solutions tailored to your unique needs, delivered with expertise and compassion.</p>
             </div>
             <div class="services-grid">
-                <div class="service-card fade-in">
+                <div class="service-card fade-in" data-service="fascial-manipulation">
                     <div class="service-image">
                         <div class="service-icon"><i class="fas fa-hand-sparkles"></i></div>
                     </div>
                     <div class="service-content">
                         <h3>Fascial Manipulation</h3>
                         <p>Advanced Italian-certified fascial manipulation technique targeting deep tissue restrictions for immediate pain relief and restored mobility.</p>
+                        <button class="service-learn-more" onclick="openServiceModal('fascial-manipulation')">Learn More <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
-                <div class="service-card fade-in">
+                <div class="service-card fade-in" data-service="orthopedic-rehabilitation">
                     <div class="service-image">
                         <div class="service-icon"><i class="fas fa-bone"></i></div>
                     </div>
                     <div class="service-content">
                         <h3>Orthopedic Rehabilitation</h3>
                         <p>Comprehensive rehabilitation programs for fractures, joint replacements, sports injuries, and musculoskeletal conditions with proven recovery protocols.</p>
+                        <button class="service-learn-more" onclick="openServiceModal('orthopedic-rehabilitation')">Learn More <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
-                <div class="service-card fade-in">
+                <div class="service-card fade-in" data-service="neuro-rehabilitation">
                     <div class="service-image">
                         <div class="service-icon"><i class="fas fa-brain"></i></div>
                     </div>
                     <div class="service-content">
                         <h3>Neuro Rehabilitation</h3>
                         <p>Specialized neurological rehabilitation for stroke recovery, paralysis, Parkinson's disease, and other neurological conditions with personalized care plans.</p>
+                        <button class="service-learn-more" onclick="openServiceModal('neuro-rehabilitation')">Learn More <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
-                <div class="service-card fade-in">
+                <div class="service-card fade-in" data-service="womens-health">
                     <div class="service-image">
                         <div class="service-icon"><i class="fas fa-person-dress"></i></div>
                     </div>
                     <div class="service-content">
                         <h3>Women's Health Physio</h3>
                         <p>Expert care for pre-natal and post-natal conditions, pelvic floor therapy, and women-specific musculoskeletal issues in a comfortable, private setting.</p>
+                        <button class="service-learn-more" onclick="openServiceModal('womens-health')">Learn More <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
-                <div class="service-card fade-in">
+                <div class="service-card fade-in" data-service="elderly-home-care">
                     <div class="service-image">
                         <div class="service-icon"><i class="fas fa-house-chimney-medical"></i></div>
                     </div>
                     <div class="service-content">
                         <h3>Elderly Home Care</h3>
                         <p>Dedicated home visit physiotherapy services for senior citizens, focusing on mobility improvement, fall prevention, and pain management in the comfort of home.</p>
+                        <button class="service-learn-more" onclick="openServiceModal('elderly-home-care')">Learn More <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
-                <div class="service-card fade-in">
+                <div class="service-card fade-in" data-service="pediatric-physiotherapy">
                     <div class="service-image">
                         <div class="service-icon"><i class="fas fa-child"></i></div>
                     </div>
                     <div class="service-content">
                         <h3>Pediatric Physiotherapy</h3>
                         <p>Gentle and effective physiotherapy for children with developmental delays, cerebral palsy, and other pediatric conditions using child-friendly therapeutic approaches.</p>
+                        <button class="service-learn-more" onclick="openServiceModal('pediatric-physiotherapy')">Learn More <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
             </div>
@@ -611,6 +617,29 @@
     </a>
 
     <!-- Toast -->
+    <!-- Service Modal -->
+    <div class="service-modal" id="serviceModal">
+        <div class="service-modal-overlay"></div>
+        <div class="service-modal-container">
+            <button class="service-modal-close" aria-label="Close"><i class="fas fa-times"></i></button>
+            <div class="service-modal-content">
+                <div class="service-modal-header">
+                    <div class="service-modal-icon"></div>
+                    <h2 class="service-modal-title"></h2>
+                </div>
+                <div class="service-modal-body"></div>
+                <div class="service-modal-footer">
+                    <a href="#contact" class="service-modal-cta" onclick="closeServiceModal()">
+                        <i class="fas fa-calendar-check"></i> Book Appointment
+                    </a>
+                    <a href="tel:+918220040844" class="service-modal-phone">
+                        <i class="fas fa-phone"></i> Call Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast">
         <div class="toast-content">
             <i class="fas fa-check-circle toast-icon"></i>
