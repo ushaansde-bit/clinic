@@ -1310,6 +1310,38 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--radius-lg);
 }
 
+.map-directions-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 14px 28px;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--radius);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.map-directions-link:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.map-directions-link i {
+  font-size: 1.1rem;
+}
+
+/* Blog CTA Button on Homepage */
+.blog-cta {
+  text-align: center;
+  margin-top: 40px;
+}
+
 /* =============================================
    14. CTA + INSTAGRAM SECTION
    ============================================= */
