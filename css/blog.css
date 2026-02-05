@@ -885,10 +885,24 @@
 
 .trending-footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
     margin-top: auto;
     padding-top: 12px;
+}
+
+.post-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.post-date i {
+    color: var(--primary-light);
 }
 
 .read-time {

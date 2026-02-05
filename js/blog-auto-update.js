@@ -1475,6 +1475,11 @@
 
         const articles = getTodaysArticles(6);
 
+        // Get today's date for the daily auto-generated posts
+        const today = new Date();
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const todayDate = `${monthNames[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
+
         container.innerHTML = articles.map((article, index) => {
             const isNew = index < 2;
             // Use dynamic category-based image that rotates daily
@@ -1493,6 +1498,7 @@
                         <h3>${article.title}</h3>
                         <p>${article.summary}</p>
                         <div class="trending-footer">
+                            <span class="post-date"><i class="fas fa-calendar-alt"></i> ${todayDate}</span>
                             <span class="read-time"><i class="fas fa-clock"></i> ${article.readTime}</span>
                             <button class="learn-more-btn" data-article-index="${index}">Learn More <i class="fas fa-arrow-right"></i></button>
                         </div>
