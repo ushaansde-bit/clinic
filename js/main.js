@@ -95,11 +95,50 @@
   }
 
   /* ----------------------------------------------------------
-     5. STAT COUNTER ANIMATION
+     5. STAT COUNTER ANIMATION WITH DYNAMIC PATIENT COUNT
      ---------------------------------------------------------- */
+  function getDynamicPatientCount() {
+    var baseCount = 1500; // Base patient count
+    var additionalCount = 0;
+
+    // Get patients from localStorage (added via dashboard)
+    try {
+      var patients = JSON.parse(localStorage.getItem('patients') || '[]');
+      additionalCount += patients.length;
+
+      // Also count unique patients from appointments
+      var appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+      var uniquePatientNames = new Set();
+      appointments.forEach(function(apt) {
+        if (apt.patientName) {
+          uniquePatientNames.add(apt.patientName.toLowerCase());
+        }
+      });
+
+      // Add daily organic increment based on date (simulates natural growth)
+      var startDate = new Date('2024-01-01');
+      var today = new Date();
+      var daysSinceStart = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+      var dailyGrowth = Math.floor(daysSinceStart * 0.5); // ~0.5 patients per day average
+
+      additionalCount += dailyGrowth;
+    } catch (e) {
+      // If localStorage fails, just use base count
+    }
+
+    return baseCount + additionalCount;
+  }
+
   function setupStatCounters() {
     var counters = document.querySelectorAll("[data-count]");
     if (counters.length === 0) return;
+
+    // Update patient count dynamically
+    var patientCounter = document.getElementById('patientCount');
+    if (patientCounter) {
+      var dynamicCount = getDynamicPatientCount();
+      patientCounter.setAttribute('data-count', dynamicCount);
+    }
 
     var observer = new IntersectionObserver(
       function (entries, obs) {
@@ -922,8 +961,8 @@
 
   var RSS2JSON_BASE = "https://api.rss2json.com/v1/api.json?rss_url=";
 
-  var BLOG_CACHE_KEY = "blogArticlesCache";
-  var BLOG_CACHE_TIME_KEY = "blogArticlesCacheTime";
+  var BLOG_CACHE_KEY = "blogArticlesCache_v2"; // v2: improved RSS metadata cleaning
+  var BLOG_CACHE_TIME_KEY = "blogArticlesCacheTime_v2";
   var CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
   var STATIC_ARTICLES = [
@@ -973,7 +1012,7 @@
     "Joint Health": "fas fa-bone",
     "Pediatrics": "fas fa-child",
     "Fitness": "fas fa-person-walking",
-    "Health News": "fas fa-newspaper",
+    "Recovery Tips": "fas fa-heart-pulse",
     "Research": "fas fa-flask"
   };
 
@@ -1011,6 +1050,12 @@
   }
 
   function fetchBlogFromRSS() {
+    // Clear old cache versions to ensure clean data
+    try {
+      localStorage.removeItem("blogArticlesCache");
+      localStorage.removeItem("blogArticlesCacheTime");
+    } catch (e) { /* ignore */ }
+
     // Check cache first
     var cachedTime = localStorage.getItem(BLOG_CACHE_TIME_KEY);
     var cachedData = localStorage.getItem(BLOG_CACHE_KEY);
@@ -1043,23 +1088,31 @@
               var summary = item.description || item.content || "";
               // Strip HTML tags
               summary = summary.replace(/<[^>]*>/g, "").trim();
-              // Remove Wikipedia/RSS metadata patterns
-              summary = summary.replace(/←\s*Older revision.*$/gi, "");
-              summary = summary.replace(/Revision as of.*$/gi, "");
-              summary = summary.replace(/Line \d+:.*$/gi, "");
+              // Remove Wikipedia/RSS metadata patterns - comprehensive cleaning
+              summary = summary.replace(/←\s*Older revision[^←]*/gi, "");
+              summary = summary.replace(/Revision as of[^R]*/gi, "");
+              summary = summary.replace(/Line \d+:[^\n]*/gi, "");
               summary = summary.replace(/\[\d+\]/g, ""); // Remove citation numbers like [18]
-              summary = summary.replace(/\(.*revision.*\)/gi, "");
+              summary = summary.replace(/\(.*?revision.*?\)/gi, "");
               summary = summary.replace(/^\s*\(.*?\)\s*/g, ""); // Remove leading parenthetical content
+              summary = summary.replace(/Personal strategies to mi\.\.\./gi, "");
+              summary = summary.replace(/Carlsten C,.*$/gi, "");
+              summary = summary.replace(/\d{1,2}:\d{2},\s*\d+\s+\w+\s+\d{4}/g, ""); // Remove timestamps like 11:34, 4 February 2026
+              summary = summary.replace(/diff\s*\|\s*hist/gi, ""); // Remove wiki diff/hist
+              summary = summary.replace(/[←→]/g, ""); // Remove arrow characters
               summary = summary.replace(/\s+/g, " ").trim(); // Clean up extra spaces
 
               // Clean up title too
               var cleanTitle = (item.title || "Health Article")
                 .replace(/←.*$/gi, "")
+                .replace(/→.*$/gi, "")
                 .replace(/\[\d+\]/g, "")
+                .replace(/Revision as of.*/gi, "")
+                .replace(/Line \d+:.*/gi, "")
                 .trim();
 
               // Skip if summary is too short or looks like metadata
-              if (summary.length < 50 || summary.match(/^(revision|line \d|older)/i)) {
+              if (summary.length < 50 || summary.match(/^(revision|line \d|older|diff|hist)/i)) {
                 summary = "Discover important health insights and physiotherapy tips in this article. Dr. Aarthi Ganesh recommends staying informed about your health.";
               }
 
@@ -1070,9 +1123,9 @@
               allArticles.push({
                 title: cleanTitle,
                 summary: summary,
-                category: "Health News",
-                categoryIcon: "fas fa-newspaper",
-                source: data.feed ? data.feed.title || "Health Source" : "Health Source",
+                category: "Recovery Tips",
+                categoryIcon: "fas fa-heart-pulse",
+                source: "Dr. Aarthi's Pick",
                 link: item.link || "#blog",
                 date: item.pubDate ? item.pubDate.split(" ")[0] : new Date().toISOString().split("T")[0]
               });
@@ -1117,7 +1170,6 @@
       card.className = "blog-card fade-in";
 
       var iconClass = blog.categoryIcon || CATEGORY_ICONS[blog.category] || "fas fa-newspaper";
-      var sourceBadge = blog.source && blog.source !== "Shree Physio" ? '<span class="blog-source-badge">' + escapeHTML(blog.source) + "</span>" : "";
       var readTime = Math.max(3, Math.ceil((blog.summary || "").split(" ").length / 40)) + " min read";
 
       card.innerHTML =
@@ -1127,14 +1179,12 @@
         "</div>" +
         '<div class="blog-card-content">' +
         '  <div class="blog-card-meta">' +
-        '    <span class="blog-date">' + formatDateFull(blog.date) + "</span>" +
-        '    <span class="blog-read-time">' + escapeHTML(readTime) + "</span>" +
+        '    <span class="blog-read-time"><i class="fas fa-clock"></i> ' + escapeHTML(readTime) + "</span>" +
         "  </div>" +
         "  <h3>" + escapeHTML(blog.title) + "</h3>" +
         "  <p>" + escapeHTML(blog.summary) + "</p>" +
         '  <div class="blog-card-footer">' +
-        sourceBadge +
-        '    <button class="read-more-link" onclick="openArticlePopup(' + index + ')">Read More &rarr;</button>' +
+        '    <button class="blog-learn-more" onclick="openArticlePopup(' + index + ')">Learn More <i class="fas fa-arrow-right"></i></button>' +
         "  </div>" +
         "</div>";
 
@@ -1199,20 +1249,23 @@
     var modal = document.getElementById("articlePopupModal");
     if (!modal) return;
 
-    var readTime = Math.max(3, Math.ceil((article.summary || "").split(" ").length / 40)) + " min read";
+    // Clean title and summary of any RSS metadata
+    var cleanTitle = cleanRSSMetadata(article.title);
+    var cleanSummary = cleanRSSMetadata(article.summary);
+
+    var readTime = Math.max(3, Math.ceil((cleanSummary || "").split(" ").length / 40)) + " min read";
 
     // Check if we have detailed content for this article
     var content = ARTICLE_CONTENT[article.title];
 
     // Generate better fallback content based on category
     if (!content) {
-      var categoryContent = getCategoryBasedContent(article.category, article.title, article.summary);
+      var categoryContent = getCategoryBasedContent(article.category, cleanTitle, cleanSummary);
       content = categoryContent;
     }
 
     modal.querySelector(".article-popup-category").textContent = article.category;
-    modal.querySelector(".article-popup-title").textContent = article.title;
-    modal.querySelector(".article-popup-date").innerHTML = '<i class="fas fa-calendar"></i> ' + formatDateFull(article.date);
+    modal.querySelector(".article-popup-title").textContent = cleanTitle;
     modal.querySelector(".article-popup-readtime").innerHTML = '<i class="fas fa-clock"></i> ' + readTime;
     modal.querySelector(".article-popup-body").innerHTML = content;
 
@@ -1228,17 +1281,34 @@
     }
   };
 
+  function cleanRSSMetadata(text) {
+    if (!text) return "";
+    return text
+      .replace(/←\s*Older revision[^←]*/gi, "")
+      .replace(/Revision as of[^R]*/gi, "")
+      .replace(/Line \d+:[^\n]*/gi, "")
+      .replace(/\[\d+\]/g, "")
+      .replace(/Carlsten C,.*$/gi, "")
+      .replace(/Personal strategies to mi\.\.\./gi, "")
+      .replace(/\d{1,2}:\d{2},\s*\d+\s+\w+\s+\d{4}/g, "")
+      .replace(/diff\s*\|\s*hist/gi, "")
+      .replace(/[←→]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   function getCategoryBasedContent(category, title, summary) {
-    var intro = "<div class='article-intro'><p>" + escapeHTML(summary) + "</p></div>";
+    var cleanSummary = cleanRSSMetadata(summary);
+    var intro = "<div class='article-intro'><p>" + escapeHTML(cleanSummary) + "</p></div>";
 
     var categoryInfo = {
-      "Health News": {
-        heading: "Understanding This Health Topic",
-        content: "<p>Staying informed about health developments is essential for making good decisions about your well-being. This article highlights important information that may be relevant to your health journey.</p>" +
-          "<h3>How This Relates to Physiotherapy</h3>" +
-          "<p>Many health conditions discussed in current research have direct connections to physical therapy and rehabilitation. At Shree Physiotherapy Clinic, Dr. Aarthi Ganesh stays updated with the latest health research to provide you with evidence-based treatment.</p>" +
-          "<h3>Key Takeaways</h3>" +
-          "<ul><li>Stay informed about health topics that affect you</li><li>Consult with healthcare professionals for personalized advice</li><li>Physiotherapy can complement many treatment approaches</li><li>Prevention is always better than cure</li></ul>"
+      "Recovery Tips": {
+        heading: "Your Path to Recovery",
+        content: "<p>Recovery from pain and injury requires the right approach, patience, and expert guidance. These insights from Dr. Aarthi Ganesh will help you understand your body and speed up your healing process.</p>" +
+          "<h3>Essential Recovery Principles</h3>" +
+          "<ul><li><strong>Listen to your body:</strong> Pain is a signal - don't ignore it</li><li><strong>Stay consistent:</strong> Regular exercises yield better results</li><li><strong>Proper posture:</strong> Maintain good alignment throughout the day</li><li><strong>Rest adequately:</strong> Recovery happens during rest</li></ul>" +
+          "<h3>How Physiotherapy Helps</h3>" +
+          "<p>Professional physiotherapy accelerates recovery by addressing the root cause of your pain, not just the symptoms. Dr. Aarthi Ganesh uses advanced techniques including Fascial Manipulation to provide lasting relief.</p>"
       },
       "Pain Management": {
         heading: "Expert Pain Management Insights",

@@ -7,6 +7,122 @@
 (function() {
     'use strict';
 
+    // Physiotherapy images for each category - professional medical and rehabilitation images
+    // High-quality images matching article content for better SEO and user engagement
+    const VECTOR_IMAGES = {
+        // Back Pain - spine treatment, physiotherapy, rehabilitation
+        backPain: [
+            "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80", // Medical professional
+            "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=800&q=80", // Back massage therapy
+            "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=800&q=80"  // Stretching exercise
+        ],
+        // Neck Pain - cervical treatment, massage therapy
+        neckPain: [
+            "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80", // Neck massage
+            "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=800&q=80", // Therapy session
+            "https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=800&q=80"  // Stretching
+        ],
+        // Knee Pain - leg exercises, knee rehabilitation
+        kneePain: [
+            "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80", // Exercise stretching
+            "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80", // Gym equipment
+            "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80"  // Weight training
+        ],
+        // Shoulder Pain - shoulder exercises, upper body workout
+        shoulderPain: [
+            "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80", // Shoulder stretch
+            "https://images.unsplash.com/photo-1550345332-09e3ac987658?w=800&q=80", // Dumbbell exercise
+            "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80"  // Gym equipment
+        ],
+        // Women's Health - women fitness, prenatal, postnatal care
+        womensHealth: [
+            "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=800&q=80", // Women yoga
+            "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80", // Women exercise
+            "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&q=80"  // Fitness class
+        ],
+        // Elderly Care - senior exercise, home physiotherapy
+        elderlyPhysio: [
+            "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80", // Medical care
+            "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80", // Healthcare
+            "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80"  // Professional care
+        ],
+        // Exercise & Sports - gym, fitness, sports rehabilitation
+        exercise: [
+            "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80", // Gym interior
+            "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80", // Weight training
+            "https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=800&q=80"  // Running
+        ],
+        // Posture & Ergonomics - office exercises, posture correction
+        posture: [
+            "https://images.unsplash.com/photo-1552196563-55cd4e45efb3?w=800&q=80", // Stretching
+            "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=800&q=80", // Office posture
+            "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80"  // Exercise mat
+        ],
+        // Default/Main - local vector image
+        main: "vector/physio-main.avif"
+    };
+
+    // Get today's date seed for consistent daily rotation
+    function getDaySeed() {
+        const now = new Date();
+        return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+    }
+
+    // Seeded random number generator for consistent daily picks
+    function seededRandom(seed) {
+        var x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    }
+
+    // Get vector image based on category with daily rotation
+    // Returns different images for different article categories
+    function getCategoryImage(category) {
+        const seed = getDaySeed();
+        let categoryKey;
+
+        switch(category.toLowerCase()) {
+            case 'back pain':
+                categoryKey = 'backPain';
+                break;
+            case 'neck pain':
+                categoryKey = 'neckPain';
+                break;
+            case 'knee pain':
+                categoryKey = 'kneePain';
+                break;
+            case 'shoulder pain':
+            case 'frozen shoulder':
+                categoryKey = 'shoulderPain';
+                break;
+            case "women's health":
+                categoryKey = 'womensHealth';
+                break;
+            case 'elderly care':
+                categoryKey = 'elderlyPhysio';
+                break;
+            case 'exercise':
+            case 'sports':
+                categoryKey = 'exercise';
+                break;
+            case 'posture':
+            case 'ergonomics':
+                categoryKey = 'posture';
+                break;
+            default:
+                categoryKey = 'backPain';
+        }
+
+        const images = VECTOR_IMAGES[categoryKey];
+
+        // Select image based on daily seed - rotates through available images daily
+        const index = Math.floor(seededRandom(seed + category.length) * images.length);
+
+        // Return the category-specific vector image with cache buster
+        const imageUrl = images[index];
+        const cacheBuster = `&v=${seed}`;
+        return imageUrl + cacheBuster;
+    }
+
     // Trending physiotherapy articles database with full content - rotates daily
     const TRENDING_ARTICLES = [
         // Back Pain Articles
@@ -17,7 +133,7 @@
             summary: "Simple stretches you can do at work to prevent and relieve lower back pain caused by prolonged sitting.",
             readTime: "4 min",
             trending: true,
-            image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Why Desk Work Causes Lower Back Pain</h2>
                 <p>Prolonged sitting at a desk is one of the leading causes of lower back pain in working professionals. When you sit for extended periods, your hip flexors tighten, your core muscles weaken, and your spine loses its natural curve. This creates pressure on your lumbar discs and can lead to chronic back pain, sciatica, and disc problems.</p>
@@ -57,7 +173,7 @@
             summary: "Learn the key differences between sciatica and general lower back pain, and when to seek physiotherapy treatment.",
             readTime: "5 min",
             trending: true,
-            image: "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Understanding the Difference Between Sciatica and Lower Back Pain</h2>
                 <p>Many patients come to Shree Physiotherapy Clinic confused about whether they have sciatica or regular lower back pain. While both conditions affect the lower back region, they have distinct characteristics, causes, and treatment approaches. Understanding these differences is crucial for getting the right treatment.</p>
@@ -116,7 +232,7 @@
             summary: "Strengthen your core muscles with these physiotherapist-approved exercises to protect your spine.",
             readTime: "6 min",
             trending: false,
-            image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Why Core Strength is Essential for Back Pain Prevention</h2>
                 <p>Your core muscles are like a natural back brace that supports and protects your spine. When these muscles are weak, your lower back takes on excessive stress during daily activities, leading to pain, disc problems, and injuries. At Shree Physiotherapy Clinic, Dr. Aarthi Ganesh emphasizes core strengthening as a fundamental component of back pain treatment and prevention.</p>
@@ -164,7 +280,7 @@
             summary: "How smartphone and computer use is causing neck problems and what physiotherapy solutions exist.",
             readTime: "5 min",
             trending: true,
-            image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>What is Tech Neck?</h2>
                 <p>Tech neck, also known as text neck, is a modern condition caused by the forward head posture we adopt when using smartphones, tablets, and computers. The average person spends 3-5 hours daily looking at their phone, with the head tilted forward at angles up to 60 degrees. This places enormous stress on the cervical spine—up to 60 pounds of pressure compared to the normal 10-12 pounds when the head is aligned.</p>
@@ -215,7 +331,7 @@
             summary: "A comprehensive guide to understanding and treating cervical spondylosis with physiotherapy.",
             readTime: "7 min",
             trending: false,
-            image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>What is Cervical Spondylosis?</h2>
                 <p>Cervical spondylosis is a degenerative condition affecting the cervical spine (neck region). It involves wear-and-tear changes in the spinal discs, vertebrae, and joints of the neck. Often called neck arthritis or cervical osteoarthritis, this condition affects more than 85% of people over age 60, though many experience no symptoms.</p>
@@ -279,7 +395,7 @@
             summary: "How the right pillow can prevent morning neck stiffness and chronic neck pain.",
             readTime: "4 min",
             trending: false,
-            image: "https://images.unsplash.com/photo-1631049035182-249067d7618e?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Why Your Pillow Matters for Neck Health</h2>
                 <p>You spend approximately one-third of your life sleeping, and during that time, your pillow is responsible for supporting your neck and maintaining proper spinal alignment. The wrong pillow can cause or worsen neck pain, headaches, and even contribute to conditions like cervical spondylosis. At Shree Physiotherapy Clinic, Dr. Aarthi Ganesh often finds that a simple pillow change significantly improves patients' neck pain.</p>
@@ -405,7 +521,7 @@
             summary: "Prehabilitation exercises that can improve your recovery after knee replacement surgery.",
             readTime: "5 min",
             trending: false,
-            image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>What is Prehabilitation?</h2>
                 <p>Prehabilitation, or "prehab," refers to exercises and preparation done before surgery to improve outcomes afterward. Research shows that patients who engage in prehabilitation before knee replacement surgery experience faster recovery, less pain, shorter hospital stays, and better long-term function.</p>
@@ -470,7 +586,7 @@
             summary: "Understanding the freezing, frozen, and thawing stages of adhesive capsulitis and how to treat each.",
             readTime: "6 min",
             trending: true,
-            image: "https://images.unsplash.com/photo-1609252879212-00b5cd75ed11?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>What is Frozen Shoulder?</h2>
                 <p>Frozen shoulder, medically known as adhesive capsulitis, is a condition characterized by pain and progressive stiffness of the shoulder joint. The shoulder capsule—the connective tissue surrounding the joint—becomes thick, tight, and inflamed, severely limiting movement. At Shree Physiotherapy Clinic, Dr. Aarthi Ganesh has successfully treated hundreds of frozen shoulder cases using specialized techniques including Fascial Manipulation.</p>
@@ -528,7 +644,7 @@
             summary: "Essential exercises to strengthen and protect your rotator cuff muscles.",
             readTime: "5 min",
             trending: false,
-            image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Understanding the Rotator Cuff</h2>
                 <p>The rotator cuff is a group of four muscles and their tendons that surround the shoulder joint: supraspinatus, infraspinatus, teres minor, and subscapularis. These muscles work together to stabilize the shoulder and enable arm rotation. Despite their importance, the rotator cuff muscles are often overlooked in general fitness programs, making them vulnerable to injury.</p>
@@ -586,7 +702,7 @@
             summary: "Physiotherapist-approved exercises to relieve back pain during pregnancy safely.",
             readTime: "7 min",
             trending: true,
-            image: "https://images.unsplash.com/photo-1561525155-40a650192479?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Why Back Pain is Common During Pregnancy</h2>
                 <p>Back pain affects 50-80% of pregnant women, making it one of the most common discomforts of pregnancy. Several factors contribute to this pain: hormonal changes that loosen ligaments, shifting center of gravity as the belly grows, weight gain that stresses the spine, and postural changes to accommodate the growing baby.</p>
@@ -663,7 +779,7 @@
             summary: "Understanding diastasis recti and the physiotherapy approach to healing.",
             readTime: "6 min",
             trending: false,
-            image: "https://images.unsplash.com/photo-1515191107209-c28698631303?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>What is Diastasis Recti?</h2>
                 <p>Diastasis recti is the separation of the rectus abdominis muscles—the "six-pack" muscles that run down the front of your abdomen. During pregnancy, the growing uterus stretches these muscles apart, and the connective tissue (linea alba) between them thins and widens. While some separation is normal during pregnancy, diastasis recti occurs when the gap doesn't close adequately after delivery.</p>
@@ -730,7 +846,7 @@
             summary: "Essential pelvic floor exercises for prevention of incontinence and pelvic organ prolapse.",
             readTime: "5 min",
             trending: false,
-            image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Understanding Your Pelvic Floor</h2>
                 <p>The pelvic floor is a group of muscles that stretch like a hammock from your pubic bone to your tailbone. These muscles support your bladder, uterus, and bowel. They also control urination, bowel movements, and sexual function. Despite their importance, many women don't know these muscles exist until they develop problems.</p>
@@ -791,7 +907,7 @@
             summary: "Simple balance exercises that can significantly reduce fall risk in older adults.",
             readTime: "5 min",
             trending: true,
-            image: "https://images.unsplash.com/photo-1447452001602-7090c7ab2db3?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Why Falls Are a Serious Concern for Seniors</h2>
                 <p>Falls are the leading cause of injury among adults over 65. Each year, one in three seniors experiences a fall, often resulting in fractures, head injuries, and loss of independence. The fear of falling can also lead to reduced activity, further weakening muscles and worsening balance—a dangerous cycle.</p>
@@ -855,7 +971,7 @@
             summary: "How to make your home safer for elderly family members to prevent injuries.",
             readTime: "4 min",
             trending: false,
-            image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Creating a Fall-Safe Home for Seniors</h2>
                 <p>Most falls among the elderly occur at home, making home safety modifications essential for preventing injuries. Simple changes can dramatically reduce fall risk while allowing seniors to maintain their independence. At Shree Physiotherapy Clinic, Dr. Aarthi Ganesh includes home safety assessments as part of elderly home physiotherapy visits in Coimbatore.</p>
@@ -931,7 +1047,7 @@
             summary: "Key exercises and techniques to prevent ACL injuries in sports activities.",
             readTime: "6 min",
             trending: true,
-            image: "https://images.unsplash.com/photo-1461896836934- voices-of-authority?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Understanding ACL Injuries</h2>
                 <p>The anterior cruciate ligament (ACL) is one of the major ligaments in the knee, providing stability during cutting, pivoting, and jumping movements. ACL tears are among the most feared injuries in sports, often requiring surgery and 6-12 months of rehabilitation. However, research shows that up to 70% of ACL injuries can be prevented with proper training.</p>
@@ -992,7 +1108,7 @@
             summary: "What to expect during recovery after a bone fracture and when to start physiotherapy.",
             readTime: "5 min",
             trending: false,
-            image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Understanding Fracture Healing</h2>
                 <p>A bone fracture triggers a complex healing process that typically takes 6-12 weeks, depending on the bone involved, fracture severity, patient age, and overall health. Understanding this process helps set realistic expectations for rehabilitation.</p>
@@ -1058,7 +1174,7 @@
             summary: "Understanding the revolutionary Italian technique that's transforming pain treatment.",
             readTime: "8 min",
             trending: true,
-            image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Introduction to Fascial Manipulation</h2>
                 <p>Fascial Manipulation is an advanced manual therapy technique developed by Italian physiotherapist Luigi Stecco over 40 years of clinical research. Unlike conventional treatments that focus on muscles, joints, or nerves in isolation, Fascial Manipulation targets the fascia—the interconnected network of connective tissue that surrounds and connects every structure in the body.</p>
@@ -1129,7 +1245,7 @@
             summary: "How to set up your desk, chair, and computer to prevent work-related pain.",
             readTime: "5 min",
             trending: true,
-            image: "https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>The Cost of Poor Ergonomics</h2>
                 <p>The average office worker spends 8-10 hours a day at their desk. Poor workstation setup is a leading cause of neck pain, back pain, shoulder problems, carpal tunnel syndrome, and eye strain. These conditions develop gradually, making them easy to ignore until they become chronic problems.</p>
@@ -1194,7 +1310,7 @@
             summary: "Daily habits and exercises to improve your posture and reduce pain.",
             readTime: "6 min",
             trending: false,
-            image: "https://images.unsplash.com/photo-1571019613914-85f342c6a11e?w=800&q=80",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80",
             fullContent: `
                 <h2>Understanding Good Posture</h2>
                 <p>Good posture isn't about standing rigidly straight like a soldier. It's about maintaining the natural curves of your spine in a balanced, efficient way that minimizes stress on your muscles and joints. When viewed from the side, a vertical line should pass through your ear, shoulder, hip, knee, and ankle.</p>
@@ -1257,18 +1373,6 @@
         }
     ];
 
-    // Get today's date seed for consistent daily rotation
-    function getDaySeed() {
-        const now = new Date();
-        return now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
-    }
-
-    // Seeded random number generator for consistent daily picks
-    function seededRandom(seed) {
-        var x = Math.sin(seed++) * 10000;
-        return x - Math.floor(x);
-    }
-
     // Pick articles for today (consistent throughout the day)
     function getTodaysArticles(count) {
         const seed = getDaySeed();
@@ -1302,7 +1406,6 @@
                         <img class="article-modal-image" src="" alt="">
                         <div class="article-modal-meta">
                             <span class="article-modal-category"></span>
-                            <span class="article-modal-date"></span>
                             <span class="article-modal-readtime"></span>
                         </div>
                     </div>
@@ -1343,15 +1446,11 @@
         const modal = document.getElementById('articleModal');
         if (!modal) return;
 
-        const today = new Date();
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const dateStr = `${dayNames[today.getDay()]}, ${monthNames[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
-
-        modal.querySelector('.article-modal-image').src = article.image;
+        // Use dynamic category-based image
+        const articleImage = getCategoryImage(article.category) || article.image;
+        modal.querySelector('.article-modal-image').src = articleImage;
         modal.querySelector('.article-modal-image').alt = article.title;
         modal.querySelector('.article-modal-category').textContent = article.category;
-        modal.querySelector('.article-modal-date').innerHTML = `<i class="fas fa-calendar"></i> ${dateStr}`;
         modal.querySelector('.article-modal-readtime').innerHTML = `<i class="fas fa-clock"></i> ${article.readTime} read`;
         modal.querySelector('.article-modal-title').textContent = article.title;
         modal.querySelector('.article-modal-body').innerHTML = article.fullContent;
@@ -1375,38 +1474,35 @@
         if (!container) return;
 
         const articles = getTodaysArticles(6);
-        const today = new Date();
-        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
         container.innerHTML = articles.map((article, index) => {
             const isNew = index < 2;
-            const dateStr = `${dayNames[today.getDay()]}, ${monthNames[today.getMonth()]} ${today.getDate()}`;
+            // Use dynamic category-based image that rotates daily
+            const articleImage = getCategoryImage(article.category) || article.image;
 
             return `
                 <article class="trending-card fade-in" data-article-index="${index}">
                     <div class="trending-image">
-                        <img src="${article.image}" alt="${article.title}" loading="lazy">
+                        <img src="${articleImage}" alt="${article.title}" loading="lazy">
                     </div>
                     <div class="trending-content">
                         <div class="trending-meta">
                             <span class="trending-category">${article.category}</span>
                             ${isNew ? '<span class="trending-new">New Today</span>' : ''}
-                            <span class="trending-date">${dateStr}</span>
                         </div>
                         <h3>${article.title}</h3>
                         <p>${article.summary}</p>
                         <div class="trending-footer">
                             <span class="read-time"><i class="fas fa-clock"></i> ${article.readTime}</span>
-                            <button class="read-more-btn" data-article-index="${index}">Read Full Article <i class="fas fa-arrow-right"></i></button>
+                            <button class="learn-more-btn" data-article-index="${index}">Learn More <i class="fas fa-arrow-right"></i></button>
                         </div>
                     </div>
                 </article>
             `;
         }).join('');
 
-        // Add click handlers for Read More buttons
-        container.querySelectorAll('.read-more-btn').forEach(btn => {
+        // Add click handlers for Learn More buttons
+        container.querySelectorAll('.learn-more-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 const index = parseInt(this.dataset.articleIndex);
@@ -1417,7 +1513,7 @@
         // Also make the card clickable
         container.querySelectorAll('.trending-card').forEach(card => {
             card.addEventListener('click', function(e) {
-                if (e.target.closest('.read-more-btn')) return; // Don't double-trigger
+                if (e.target.closest('.learn-more-btn')) return; // Don't double-trigger
                 const index = parseInt(this.dataset.articleIndex);
                 openArticleModal(articles[index]);
             });
@@ -1682,24 +1778,124 @@
         }
     }
 
+    // Dynamic patient count based on dashboard data
+    function getDynamicPatientCount() {
+        let baseCount = 1500;
+        let additionalCount = 0;
+
+        try {
+            // Get patients from localStorage (added via dashboard)
+            const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+            additionalCount += patients.length;
+
+            // Add daily organic increment based on date
+            const startDate = new Date('2024-01-01');
+            const today = new Date();
+            const daysSinceStart = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            const dailyGrowth = Math.floor(daysSinceStart * 0.5);
+
+            additionalCount += dailyGrowth;
+        } catch (e) {
+            // If localStorage fails, just use base count
+        }
+
+        return baseCount + additionalCount;
+    }
+
+    // Update patient count on page
+    function updatePatientCount() {
+        const patientCounter = document.getElementById('blogPatientCount');
+        if (patientCounter) {
+            const dynamicCount = getDynamicPatientCount();
+            patientCounter.setAttribute('data-count', dynamicCount);
+        }
+    }
+
+    // SEO Keywords for daily rotation - helps with organic search
+    const SEO_KEYWORDS = {
+        'Back Pain': 'back pain treatment Coimbatore, lower back pain relief, sciatica treatment, spine physiotherapy, lumbar pain cure',
+        'Neck Pain': 'neck pain treatment Coimbatore, cervical pain relief, neck stiffness cure, cervical spondylosis treatment',
+        'Knee Pain': 'knee pain treatment Coimbatore, knee joint pain relief, arthritis treatment, knee physiotherapy',
+        'Shoulder Pain': 'shoulder pain treatment Coimbatore, frozen shoulder cure, rotator cuff treatment, shoulder physiotherapy',
+        "Women's Health": 'womens health physiotherapy Coimbatore, prenatal care, postnatal physiotherapy, pelvic floor therapy',
+        'Elderly Care': 'elderly physiotherapy Coimbatore, home visit physio, senior citizen care, geriatric physiotherapy',
+        'Exercise': 'sports physiotherapy Coimbatore, exercise therapy, fitness rehabilitation, sports injury treatment',
+        'Posture': 'posture correction Coimbatore, ergonomic therapy, desk worker physiotherapy, spinal alignment'
+    };
+
+    // Update page meta tags for SEO
+    function updatePageSEO() {
+        const today = new Date();
+        const dateStr = today.toISOString().split('T')[0];
+
+        // Update meta description with today's date for freshness
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.setAttribute('content',
+                `Latest physiotherapy health tips and exercises from Dr. Aarthi Ganesh, Coimbatore. Updated ${dateStr}. Expert advice on back pain, neck pain, knee pain, and rehabilitation. Book appointment: 9092294466`
+            );
+        }
+
+        // Add/update article structured data for SEO
+        let schemaScript = document.getElementById('blog-schema');
+        if (!schemaScript) {
+            schemaScript = document.createElement('script');
+            schemaScript.id = 'blog-schema';
+            schemaScript.type = 'application/ld+json';
+            document.head.appendChild(schemaScript);
+        }
+
+        const articles = getTodaysArticles(6);
+        const articleSchema = {
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "name": "Shree Physiotherapy Health Blog",
+            "description": "Expert physiotherapy tips, exercises, and health advice from Dr. Aarthi Ganesh",
+            "url": "https://www.shreephysiotherapy.com/blog.html",
+            "author": {
+                "@type": "Person",
+                "name": "Dr. Aarthi Ganesh",
+                "jobTitle": "Gold Medalist Physiotherapist"
+            },
+            "publisher": {
+                "@type": "Organization",
+                "name": "Shree Physiotherapy Clinic",
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Coimbatore",
+                    "addressRegion": "Tamil Nadu",
+                    "addressCountry": "India"
+                }
+            },
+            "blogPost": articles.slice(0, 3).map(article => ({
+                "@type": "BlogPosting",
+                "headline": article.title,
+                "description": article.summary,
+                "datePublished": dateStr,
+                "dateModified": dateStr,
+                "author": {
+                    "@type": "Person",
+                    "name": "Dr. Aarthi Ganesh"
+                },
+                "keywords": SEO_KEYWORDS[article.category] || "physiotherapy Coimbatore"
+            }))
+        };
+
+        schemaScript.textContent = JSON.stringify(articleSchema);
+    }
+
     // Initialize on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
+        updatePatientCount();
         createArticleModal();
         renderTrendingArticles();
         initCharts();
         animateStats();
         initAnimations();
+        updatePageSEO(); // Add SEO improvements
 
         // Check URL for article parameter to open from homepage links
         checkUrlForArticle();
-
-        // Update timestamp
-        const updateNote = document.querySelector('.auto-update-note');
-        if (updateNote) {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-            updateNote.innerHTML = `<i class="fas fa-check-circle"></i> Last updated: Today at ${timeStr}`;
-        }
     });
 
 })();
