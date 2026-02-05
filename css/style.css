@@ -4982,6 +4982,11 @@ h1, h2, h3, h4, h5, h6 {
     max-width: 100%;
   }
 
+  .service-learn-more {
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+
   .why-choose-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
@@ -5180,6 +5185,13 @@ h1, h2, h3, h4, h5, h6 {
   .service-content p {
     font-size: 0.9rem;
     line-height: 1.6;
+  }
+
+  .service-learn-more {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    width: 100%;
+    justify-content: center;
   }
 
   /* Why Choose Us Mobile */
