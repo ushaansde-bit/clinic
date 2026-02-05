@@ -687,13 +687,10 @@
         .replace(/\s+/g, '-')
         .substring(0, 60);
 
-      var linkUrl = blog.link || "blog.html";
-      var isExternal = linkUrl.indexOf("http") === 0;
-      var targetAttr = isExternal ? ' target="_blank" rel="noopener noreferrer"' : "";
-      // Link to blog page with article parameter to open full article modal
-      if (!blog.link || blog.link === "#blog") {
-        linkUrl = "blog.html?article=" + encodeURIComponent(articleSlug);
-      }
+      // ALL "Read More" buttons now link to blog page with article parameter to open popup modal
+      // No more external links - all articles open as popups
+      var linkUrl = "blog.html?article=" + encodeURIComponent(articleSlug);
+      var targetAttr = "";
 
       card.innerHTML =
         '<div class="blog-card-image">' +
