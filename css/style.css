@@ -706,10 +706,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stat-number {
-  font-family: var(--font-heading);
-  font-size: 2.2rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 2.4rem;
   font-weight: 700;
   color: #fff;
+  letter-spacing: 0.5px;
+  line-height: 1;
 }
 
 .stat-label {
@@ -982,6 +984,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-muted);
   line-height: 1.7;
   margin-bottom: 16px;
+  text-align: left;
 }
 
 .service-link {
@@ -1143,10 +1146,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .service-modal-body {
   padding: 18px 25px;
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--text);
   flex: 1;
   overflow-y: auto;
+  text-align: left;
 }
 
 .service-modal-body h3 {
@@ -1563,6 +1567,7 @@ h1, h2, h3, h4, h5, h6 {
   color: rgba(255,255,255,0.7);
   font-size: 0.88rem;
   line-height: 1.7;
+  text-align: left;
 }
 
 /* =============================================
@@ -1608,6 +1613,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--text-muted);
   line-height: 1.75;
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .testimonial-author {
@@ -2629,11 +2635,12 @@ button.read-more-link {
 
 .article-popup-body {
   padding: 18px 25px;
-  line-height: 1.6;
+  line-height: 1.7;
   color: var(--text);
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  text-align: left;
 }
 
 .article-popup-body h3 {
@@ -2989,6 +2996,7 @@ button.read-more-link {
   font-size: 0.88rem;
   line-height: 1.7;
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .footer-social {
@@ -4366,7 +4374,7 @@ button.read-more-link {
     gap: 36px;
   }
   .about-content { text-align: center; }
-  .about-text { text-align: center; }
+  .about-text { text-align: left; }
   .about-mission { justify-content: center; text-align: left; }
   .about-image img { height: 360px; }
   .about-highlights { grid-template-columns: repeat(4, 1fr); }
@@ -4464,13 +4472,13 @@ button.read-more-link {
   .hero-skill-badges { gap: 8px; margin-top: 14px; }
   .skill-badge { font-size: 0.7rem; padding: 5px 10px; }
   .stat-item { padding: 0 12px; }
-  .stat-number { font-size: 1.4rem; }
+  .stat-number { font-size: 1.6rem; }
   .stat-label { font-size: 0.7rem; }
 
   .about-image img { height: 300px; }
   .about-highlights { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .about-content { text-align: center; }
-  .about-text { text-align: center; font-size: 0.9rem; }
+  .about-text { text-align: left; font-size: 0.9rem; }
   .about-mission { text-align: left; }
 
   .cta-section { padding: 56px 0; }
@@ -6182,7 +6190,7 @@ button.read-more-link {
   }
 
   .stat-item .stat-number {
-    font-size: 1.4rem;
+    font-size: 1.6rem;
   }
 
   .stat-item .stat-label {
@@ -6260,6 +6268,7 @@ button.read-more-link {
   .service-content p {
     font-size: 0.9rem;
     line-height: 1.6;
+    text-align: left;
   }
 
   .service-learn-more {
@@ -6290,7 +6299,8 @@ button.read-more-link {
 
   .why-card p {
     font-size: 0.85rem;
-    line-height: 1.5;
+    line-height: 1.6;
+    text-align: left;
   }
 
   /* Testimonials Mobile */
@@ -6305,6 +6315,7 @@ button.read-more-link {
 
   .testimonial-text {
     font-size: 0.95rem;
+    text-align: left;
   }
 
   /* Blog Preview Mobile */

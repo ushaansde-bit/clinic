@@ -451,11 +451,13 @@
 .article-content p {
     font-size: 0.9rem;
     color: var(--text-muted);
-    line-height: 1.65;
+    line-height: 1.7;
     margin-bottom: 16px;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    text-align: justify;
+    text-justify: inter-word;
     overflow: hidden;
     flex: 1;
 }
@@ -487,10 +489,46 @@
     background: linear-gradient(180deg, var(--bg) 0%, #f0f2ef 100%);
 }
 
+.faq-section .section-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.faq-section .section-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.faq-section .section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.2;
+}
+
+.faq-section .section-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 650px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
 .faq-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 28px;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 @media (max-width: 900px) {
@@ -506,11 +544,13 @@
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border);
     transition: var(--transition);
+    text-align: left;
 }
 
 .faq-item:hover {
     box-shadow: var(--shadow);
     border-color: var(--primary-light);
+    transform: translateY(-2px);
 }
 
 .faq-item h3 {
@@ -522,21 +562,25 @@
     color: var(--text);
     margin-bottom: 14px;
     line-height: 1.4;
+    text-align: left;
 }
 
 .faq-item h3 i {
     color: var(--primary);
     font-size: 1.2rem;
-    margin-top: 2px;
+    margin-top: 3px;
     flex-shrink: 0;
+    min-width: 20px;
 }
 
 .faq-item p {
     font-size: 0.95rem;
     color: var(--text-muted);
-    line-height: 1.75;
+    line-height: 1.8;
     margin: 0;
     padding-left: 34px;
+    text-align: justify;
+    text-justify: inter-word;
 }
 
 /* Blog CTA Section */
@@ -749,11 +793,13 @@
 }
 
 .stat-number {
-    font-family: var(--font-heading);
-    font-size: 2.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 2.8rem;
     font-weight: 700;
     color: white;
     margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    line-height: 1;
 }
 
 .stat-label {
@@ -774,7 +820,7 @@
         gap: 16px;
     }
     .stat-number {
-        font-size: 1.8rem;
+        font-size: 2rem;
     }
     .stat-card {
         padding: 20px 15px;
@@ -878,9 +924,11 @@
 .trending-content p {
     font-size: 0.9rem;
     color: var(--text-muted);
-    line-height: 1.6;
+    line-height: 1.7;
     margin-bottom: 16px;
     flex: 1;
+    text-align: justify;
+    text-justify: inter-word;
 }
 
 .trending-footer {
@@ -1178,6 +1226,8 @@
     color: var(--text-muted);
     margin-bottom: 20px;
     line-height: 1.7;
+    text-align: justify;
+    text-justify: inter-word;
 }
 
 .pain-card-body ul {
@@ -1188,9 +1238,11 @@
 
 .pain-card-body ul li {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     padding: 10px 0;
+    text-align: justify;
+    text-justify: inter-word;
     color: var(--text);
     font-size: 0.95rem;
     border-bottom: 1px solid var(--border-light);
@@ -1285,7 +1337,8 @@
 .womens-card > p {
     color: var(--text-muted);
     margin-bottom: 20px;
-    line-height: 1.6;
+    line-height: 1.7;
+    text-align: left;
 }
 
 .womens-card ul {
@@ -1302,6 +1355,7 @@
     border-bottom: 1px solid var(--border-light);
     padding-left: 24px;
     position: relative;
+    text-align: left;
 }
 
 .womens-card ul li:last-child {
@@ -1386,8 +1440,10 @@
 .benefit-item p {
     color: var(--text-muted);
     font-size: 0.9rem;
-    line-height: 1.5;
+    line-height: 1.6;
     margin: 0;
+    text-align: justify;
+    text-justify: inter-word;
 }
 
 .elderly-cta {
@@ -1655,10 +1711,12 @@
 .article-modal-body {
     padding: 0 25px 18px;
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.7;
     flex: 1;
     overflow-y: auto;
     min-height: 0;
+    text-align: justify;
+    text-justify: inter-word;
 }
 
 .article-modal-body h2 {
@@ -1688,6 +1746,8 @@
 .article-modal-body p {
     margin-bottom: 10px;
     font-size: 0.9rem;
+    text-align: justify;
+    text-justify: inter-word;
 }
 
 .article-modal-body ul {
@@ -1701,6 +1761,8 @@
     position: relative;
     border-bottom: 1px solid var(--border-light);
     font-size: 0.9rem;
+    text-align: justify;
+    text-justify: inter-word;
 }
 
 .article-modal-body ul li:last-child {
@@ -2154,6 +2216,18 @@
         padding: 60px 0;
     }
 
+    .faq-section .section-header {
+        margin-bottom: 40px;
+    }
+
+    .faq-section .section-title {
+        font-size: 1.8rem;
+    }
+
+    .faq-section .section-subtitle {
+        font-size: 1rem;
+    }
+
     .faq-grid {
         grid-template-columns: 1fr;
         gap: 16px;
@@ -2170,6 +2244,8 @@
     .faq-item p {
         font-size: 0.9rem;
         padding-left: 28px;
+        text-align: justify;
+        text-justify: inter-word;
     }
 
     .blog-cta-section {
@@ -2329,8 +2405,10 @@
 
     .trending-content p {
         font-size: 0.85rem;
-        line-height: 1.5;
+        line-height: 1.6;
         margin-bottom: 14px;
+        text-align: justify;
+        text-justify: inter-word;
     }
 
     .trending-footer {
@@ -2433,11 +2511,15 @@
     .pain-card-body > p {
         font-size: 0.9rem;
         margin-bottom: 16px;
+        text-align: justify;
+        text-justify: inter-word;
     }
 
     .pain-card-body ul li {
         font-size: 0.88rem;
         padding: 8px 0;
+        text-align: justify;
+        text-justify: inter-word;
     }
 
     .pain-stats {
@@ -2481,11 +2563,13 @@
     .womens-card > p {
         font-size: 0.9rem;
         margin-bottom: 16px;
+        text-align: left;
     }
 
     .womens-card ul li {
         font-size: 0.85rem;
         padding: 8px 0;
+        text-align: left;
     }
 
     .elderly-section {
@@ -2517,6 +2601,8 @@
 
     .benefit-item p {
         font-size: 0.85rem;
+        text-align: justify;
+        text-justify: inter-word;
     }
 
     .elderly-cta .btn {
@@ -2547,6 +2633,23 @@
         padding: 50px 0;
     }
 
+    .faq-section .section-header {
+        margin-bottom: 30px;
+    }
+
+    .faq-section .section-tag {
+        font-size: 0.75rem;
+        padding: 6px 16px;
+    }
+
+    .faq-section .section-title {
+        font-size: 1.5rem;
+    }
+
+    .faq-section .section-subtitle {
+        font-size: 0.9rem;
+    }
+
     .faq-grid {
         grid-template-columns: 1fr;
         gap: 12px;
@@ -2569,7 +2672,9 @@
     .faq-item p {
         font-size: 0.88rem;
         padding-left: 24px;
-        line-height: 1.6;
+        line-height: 1.7;
+        text-align: justify;
+        text-justify: inter-word;
     }
 
     .blog-cta-section {
@@ -2673,7 +2778,7 @@
     }
 
     .stat-number {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
     }
 
     .stat-label {
