@@ -387,6 +387,43 @@ h1, h2, h3, h4, h5, h6 {
   color: #fff;
 }
 
+/* Google Review Button in Header */
+.nav-google-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #4285F4 0%, #3367D6 100%);
+  color: #fff;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(66, 133, 244, 0.3);
+  text-decoration: none;
+}
+
+.nav-google-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
+  color: #fff;
+}
+
+.nav-google-link svg {
+  flex-shrink: 0;
+}
+
+.nav-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-rating i {
+  color: #FBBC05;
+  font-size: 0.75rem;
+}
+
 /* Hide mobile-only Blog link on desktop */
 .nav-item-mobile {
   display: none;
@@ -2405,6 +2442,21 @@ button.read-more-link {
 
 .article-popup-body h3:first-child {
   margin-top: 0;
+}
+
+.article-popup-body .article-intro {
+  background: linear-gradient(135deg, rgba(29, 78, 137, 0.05) 0%, rgba(42, 157, 143, 0.05) 100%);
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid var(--primary);
+  margin-bottom: 25px;
+}
+
+.article-popup-body .article-intro p {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text);
+  line-height: 1.8;
 }
 
 .article-popup-body p {

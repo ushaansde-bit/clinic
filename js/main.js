@@ -1097,16 +1097,13 @@
       card.className = "blog-card fade-in";
 
       var iconClass = blog.categoryIcon || CATEGORY_ICONS[blog.category] || "fas fa-newspaper";
-      var isNew = isRecentArticle(blog.date);
-      var newBadge = isNew ? '<span class="blog-new-badge">New</span>' : "";
-      var sourceBadge = blog.source ? '<span class="blog-source-badge">' + escapeHTML(blog.source) + "</span>" : "";
+      var sourceBadge = blog.source && blog.source !== "Shree Physio" ? '<span class="blog-source-badge">' + escapeHTML(blog.source) + "</span>" : "";
       var readTime = Math.max(3, Math.ceil((blog.summary || "").split(" ").length / 40)) + " min read";
 
       card.innerHTML =
         '<div class="blog-card-image">' +
         '  <div class="blog-card-icon"><i class="' + iconClass + '"></i></div>' +
         '  <span class="blog-category-badge">' + escapeHTML(blog.category) + "</span>" +
-        newBadge +
         "</div>" +
         '<div class="blog-card-content">' +
         '  <div class="blog-card-meta">' +
@@ -1183,7 +1180,15 @@
     if (!modal) return;
 
     var readTime = Math.max(3, Math.ceil((article.summary || "").split(" ").length / 40)) + " min read";
-    var content = ARTICLE_CONTENT[article.title] || "<p>" + escapeHTML(article.summary) + "</p><p>For more detailed information about this topic, please book a consultation with Dr. Aarthi Ganesh. She will provide personalized advice based on your specific condition and needs.</p><h3>Why Choose Shree Physiotherapy?</h3><ul><li>Gold medalist physiotherapist</li><li>Italy-certified Fascial Manipulation specialist</li><li>Personalized treatment plans</li><li>Home visit services available</li></ul><p><strong>Take the first step towards recovery today.</strong></p>";
+
+    // Check if we have detailed content for this article
+    var content = ARTICLE_CONTENT[article.title];
+
+    // Generate better fallback content based on category
+    if (!content) {
+      var categoryContent = getCategoryBasedContent(article.category, article.title, article.summary);
+      content = categoryContent;
+    }
 
     modal.querySelector(".article-popup-category").textContent = article.category;
     modal.querySelector(".article-popup-title").textContent = article.title;
@@ -1202,6 +1207,53 @@
       document.body.style.overflow = "";
     }
   };
+
+  function getCategoryBasedContent(category, title, summary) {
+    var intro = "<div class='article-intro'><p>" + escapeHTML(summary) + "</p></div>";
+
+    var categoryInfo = {
+      "Health News": {
+        heading: "Understanding This Health Topic",
+        content: "<p>Staying informed about health developments is essential for making good decisions about your well-being. This article highlights important information that may be relevant to your health journey.</p>" +
+          "<h3>How This Relates to Physiotherapy</h3>" +
+          "<p>Many health conditions discussed in current research have direct connections to physical therapy and rehabilitation. At Shree Physiotherapy Clinic, Dr. Aarthi Ganesh stays updated with the latest health research to provide you with evidence-based treatment.</p>" +
+          "<h3>Key Takeaways</h3>" +
+          "<ul><li>Stay informed about health topics that affect you</li><li>Consult with healthcare professionals for personalized advice</li><li>Physiotherapy can complement many treatment approaches</li><li>Prevention is always better than cure</li></ul>"
+      },
+      "Pain Management": {
+        heading: "Expert Pain Management Insights",
+        content: "<p>Pain management requires a comprehensive approach that addresses the root cause, not just the symptoms. Dr. Aarthi Ganesh specializes in identifying and treating the underlying issues causing your pain.</p>" +
+          "<h3>Our Approach to Pain Relief</h3>" +
+          "<ul><li><strong>Fascial Manipulation:</strong> Advanced technique targeting deep tissue restrictions</li><li><strong>Manual Therapy:</strong> Hands-on treatment for immediate relief</li><li><strong>Exercise Therapy:</strong> Customized programs for long-term management</li><li><strong>Postural Correction:</strong> Addressing lifestyle factors that contribute to pain</li></ul>"
+      },
+      "Rehabilitation": {
+        heading: "Comprehensive Rehabilitation Care",
+        content: "<p>Rehabilitation is a journey that requires patience, expertise, and personalized care. At Shree Physiotherapy Clinic, we design rehabilitation programs that help you regain function and independence.</p>" +
+          "<h3>Our Rehabilitation Services</h3>" +
+          "<ul><li>Post-surgical rehabilitation</li><li>Sports injury recovery</li><li>Stroke and neurological rehabilitation</li><li>Joint replacement recovery</li></ul>"
+      },
+      "default": {
+        heading: "Expert Physiotherapy Insights",
+        content: "<p>This topic is relevant to many patients seeking physiotherapy care. Dr. Aarthi Ganesh can provide personalized guidance based on your specific situation.</p>" +
+          "<h3>How We Can Help</h3>" +
+          "<ul><li>Comprehensive assessment of your condition</li><li>Personalized treatment plan</li><li>Evidence-based physiotherapy techniques</li><li>Ongoing support and guidance</li></ul>"
+      }
+    };
+
+    var info = categoryInfo[category] || categoryInfo["default"];
+
+    return intro +
+      "<h3>" + info.heading + "</h3>" +
+      info.content +
+      "<h3>Why Choose Shree Physiotherapy?</h3>" +
+      "<ul>" +
+      "<li><strong>Gold Medalist Physiotherapist:</strong> Dr. Aarthi Ganesh brings academic excellence and clinical expertise</li>" +
+      "<li><strong>Fascial Manipulation Specialist:</strong> Italy-certified in this advanced technique</li>" +
+      "<li><strong>Personalized Care:</strong> Every treatment plan is tailored to your needs</li>" +
+      "<li><strong>Home Visits Available:</strong> We come to you when needed</li>" +
+      "</ul>" +
+      "<p><strong>Ready to take the next step?</strong> Book a consultation with Dr. Aarthi Ganesh to discuss how we can help you.</p>";
+  }
 
   // Close on Escape key
   document.addEventListener("keydown", function(e) {
