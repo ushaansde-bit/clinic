@@ -1516,10 +1516,11 @@
             });
         });
 
-        // Also make the card clickable
+        // Also make the card clickable (except footer elements)
         container.querySelectorAll('.trending-card').forEach(card => {
             card.addEventListener('click', function(e) {
-                if (e.target.closest('.learn-more-btn')) return; // Don't double-trigger
+                // Don't trigger popup when clicking on footer elements (date, time, button)
+                if (e.target.closest('.trending-footer')) return;
                 const index = parseInt(this.dataset.articleIndex);
                 openArticleModal(articles[index]);
             });
