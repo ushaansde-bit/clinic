@@ -1043,13 +1043,33 @@
               var summary = item.description || item.content || "";
               // Strip HTML tags
               summary = summary.replace(/<[^>]*>/g, "").trim();
+              // Remove Wikipedia/RSS metadata patterns
+              summary = summary.replace(/←\s*Older revision.*$/gi, "");
+              summary = summary.replace(/Revision as of.*$/gi, "");
+              summary = summary.replace(/Line \d+:.*$/gi, "");
+              summary = summary.replace(/\[\d+\]/g, ""); // Remove citation numbers like [18]
+              summary = summary.replace(/\(.*revision.*\)/gi, "");
+              summary = summary.replace(/^\s*\(.*?\)\s*/g, ""); // Remove leading parenthetical content
+              summary = summary.replace(/\s+/g, " ").trim(); // Clean up extra spaces
+
+              // Clean up title too
+              var cleanTitle = (item.title || "Health Article")
+                .replace(/←.*$/gi, "")
+                .replace(/\[\d+\]/g, "")
+                .trim();
+
+              // Skip if summary is too short or looks like metadata
+              if (summary.length < 50 || summary.match(/^(revision|line \d|older)/i)) {
+                summary = "Discover important health insights and physiotherapy tips in this article. Dr. Aarthi Ganesh recommends staying informed about your health.";
+              }
+
               if (summary.length > 160) {
                 summary = summary.substring(0, 157) + "...";
               }
 
               allArticles.push({
-                title: item.title || "Health Article",
-                summary: summary || "Read this latest health and physiotherapy article.",
+                title: cleanTitle,
+                summary: summary,
                 category: "Health News",
                 categoryIcon: "fas fa-newspaper",
                 source: data.feed ? data.feed.title || "Health Source" : "Health Source",
