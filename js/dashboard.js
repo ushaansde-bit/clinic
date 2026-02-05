@@ -853,6 +853,8 @@ function addPatient(event) {
     closeModal('addPatientModal');
     loadPatients();
     refreshDashboard();
+    renderCalendarView();
+    loadAccountsBook();
     showToast('Patient added successfully!', 'success');
 }
 
@@ -1017,8 +1019,16 @@ function deletePatient(id) {
     patients = patients.filter(p => p.id !== id);
     setData('patients', patients);
 
+    // Also delete related appointments
+    let appointments = getData('appointments');
+    appointments = appointments.filter(a => a.patientId !== id);
+    setData('appointments', appointments);
+
     loadPatients();
+    loadAppointments();
     refreshDashboard();
+    renderCalendarView();
+    loadAccountsBook();
     showToast('Patient deleted.', 'info');
 }
 
@@ -1153,6 +1163,7 @@ function updateAppointmentStatus(id, status) {
     loadAppointments();
     refreshDashboard();
     renderCalendarView();
+    loadAccountsBook();
     showToast(`Appointment ${status.toLowerCase()}.`, status === 'Completed' ? 'success' : 'info');
 }
 
@@ -1650,6 +1661,7 @@ function deleteAppointment(id) {
     loadAppointments();
     refreshDashboard();
     renderCalendarView();
+    loadAccountsBook();
     showToast('Appointment deleted successfully.', 'success');
 }
 
@@ -1881,6 +1893,7 @@ function savePrescription(event) {
     loadAppointments();
     refreshDashboard();
     renderCalendarView();
+    loadAccountsBook();
     showToast('Prescription saved' + (matchingApt ? ' & appointment completed' : '') + (paymentAmount ? ` with ₹${paymentAmount} payment` : '') + '!', 'success');
 
     return prescription.id;
@@ -2634,7 +2647,8 @@ function saveQuickBooking(event) {
     closeModal('quickBookingModal');
     loadAppointments();
     refreshDashboard();
-    renderCalendlyView();
+    renderCalendarView();
+    loadAccountsBook();
     showToast(rescheduleFrom ? 'Appointment rescheduled successfully!' : 'Appointment booked successfully!', 'success');
 }
 
@@ -3311,9 +3325,10 @@ function saveCompletedTreatment() {
     currentTreatmentAptId = null;
 
     // Refresh views
-    renderCalendlyView();
+    renderCalendarView();
     loadAppointments();
     refreshDashboard();
+    loadAccountsBook();
     showToast('Treatment completed successfully!', 'success');
 }
 
