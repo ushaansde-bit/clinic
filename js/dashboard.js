@@ -255,12 +255,21 @@ function refreshDashboard() {
     const appointments = getData('appointments');
     const prescriptions = getData('prescriptions');
     const followups = getData('followups');
+    const trash = getData('trash') || [];
+
+    // Get IDs of patients in trash (excluded from dashboard stats)
+    const trashedPatientIds = new Set(trash.map(p => p.id));
+
+    // Filter out trashed patient data
+    const activeAppointments = appointments.filter(a => !trashedPatientIds.has(a.patientId));
+    const activePrescriptions = prescriptions.filter(rx => !trashedPatientIds.has(rx.patientId));
+    const activeFollowups = followups.filter(f => !trashedPatientIds.has(f.patientId));
 
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
 
     // Today's appointments
-    const todayAppointments = appointments.filter(a => {
+    const todayAppointments = activeAppointments.filter(a => {
         const aptDate = new Date(a.date).toISOString().split('T')[0];
         return aptDate === todayStr && a.status !== 'Cancelled';
     });
@@ -274,13 +283,13 @@ function refreshDashboard() {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
 
-    const weekAppointments = appointments.filter(a => {
+    const weekAppointments = activeAppointments.filter(a => {
         const aptDate = new Date(a.date);
         return aptDate >= weekStart && aptDate <= weekEnd && a.status !== 'Cancelled';
     });
 
     // Pending follow-ups (including overdue)
-    const pendingFollowups = followups.filter(f => f.status !== 'Completed');
+    const pendingFollowups = activeFollowups.filter(f => f.status !== 'Completed');
     const overdueFollowups = pendingFollowups.filter(f => new Date(f.date) < today);
 
     // Update stat cards
@@ -294,7 +303,7 @@ function refreshDashboard() {
     if (elPatients) elPatients.textContent = patients.length;
     if (elToday) elToday.textContent = todayAppointments.length;
     if (elWeek) elWeek.textContent = weekAppointments.length;
-    if (elPrescriptions) elPrescriptions.textContent = prescriptions.length;
+    if (elPrescriptions) elPrescriptions.textContent = activePrescriptions.length;
     if (elFollowups) elFollowups.textContent = pendingFollowups.length;
     if (elRevenue) elRevenue.textContent = todayRevenue.toLocaleString('en-IN');
 
@@ -1013,33 +1022,28 @@ function viewPatient(id) {
 }
 
 function deletePatient(id) {
-    if (!confirm('Are you sure you want to delete this patient? This action cannot be undone.')) return;
+    if (!confirm('Move this patient to trash? Their data will not appear in Accounts until restored.')) return;
 
     let patients = getData('patients');
+    const patient = patients.find(p => p.id === id);
+    if (!patient) return;
+
+    // Move patient to trash
+    let trash = getData('trash') || [];
+    patient.deletedAt = new Date().toISOString();
+    trash.unshift(patient);
+    setData('trash', trash);
+
+    // Remove from active patients
     patients = patients.filter(p => p.id !== id);
     setData('patients', patients);
-
-    // Also delete related appointments
-    let appointments = getData('appointments');
-    appointments = appointments.filter(a => a.patientId !== id);
-    setData('appointments', appointments);
-
-    // Also delete related prescriptions
-    let prescriptions = getData('prescriptions');
-    prescriptions = prescriptions.filter(rx => rx.patientId !== id);
-    setData('prescriptions', prescriptions);
-
-    // Also delete related follow-ups
-    let followups = getData('followups');
-    followups = followups.filter(f => f.patientId !== id);
-    setData('followups', followups);
 
     loadPatients();
     loadAppointments();
     refreshDashboard();
     renderCalendarView();
     loadAccountsBook();
-    showToast('Patient deleted.', 'info');
+    showToast('Patient moved to trash.', 'info');
 }
 
 // Patient search filter
@@ -1063,12 +1067,17 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadAppointments() {
     const appointments = getData('appointments');
     const patients = getData('patients');
+    const trash = getData('trash') || [];
     const filterDate = document.getElementById('appointmentFilter') ? document.getElementById('appointmentFilter').value : '';
     const filterStatus = document.getElementById('appointmentStatusFilter') ? document.getElementById('appointmentStatusFilter').value : 'all';
     const tbody = document.querySelector('#appointmentsTable tbody');
     if (!tbody) return;
 
-    let filtered = appointments;
+    // Get IDs of patients in trash (excluded from appointments list)
+    const trashedPatientIds = new Set(trash.map(p => p.id));
+
+    // Filter out appointments for trashed patients
+    let filtered = appointments.filter(a => !trashedPatientIds.has(a.patientId));
 
     if (filterDate) {
         filtered = filtered.filter(a => {
@@ -1249,7 +1258,9 @@ function renderWeekView() {
     const container = document.getElementById('calendarContainer');
     if (!container) return;
 
-    const appointments = getData('appointments').filter(a => a.status !== 'Cancelled');
+    const trash = getData('trash') || [];
+    const trashedPatientIds = new Set(trash.map(p => p.id));
+    const appointments = getData('appointments').filter(a => a.status !== 'Cancelled' && !trashedPatientIds.has(a.patientId));
     const weekEnd = new Date(currentWeekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
 
@@ -1393,8 +1404,10 @@ function renderMonthView() {
     const todayMonth = today.getMonth();
     const todayYear = today.getFullYear();
 
-    // Get appointments for this month
-    const appointments = getData('appointments');
+    // Get appointments for this month (exclude trashed patients)
+    const trash = getData('trash') || [];
+    const trashedPatientIds = new Set(trash.map(p => p.id));
+    const appointments = getData('appointments').filter(a => !trashedPatientIds.has(a.patientId));
     const appointmentDates = {};
     appointments.forEach(a => {
         if (!a.date || a.status === 'Cancelled') return;
@@ -3719,16 +3732,22 @@ function loadAccountsBook() {
     const appointments = getData('appointments');
     const prescriptions = getData('prescriptions');
     const patients = getData('patients');
+    const trash = getData('trash') || [];
+
+    // Get IDs of patients in trash (excluded from accounts)
+    const trashedPatientIds = new Set(trash.map(p => p.id));
 
     // Calculate this month's totals for the header cards
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    // Filter completed appointments for this month
+    // Filter completed appointments for this month (exclude trashed patients)
     const monthAppts = appointments.filter(a => {
         const aptDate = new Date(a.date);
-        return aptDate >= monthStart && aptDate <= monthEnd && a.status === 'Completed';
+        return aptDate >= monthStart && aptDate <= monthEnd &&
+               a.status === 'Completed' &&
+               !trashedPatientIds.has(a.patientId);
     });
 
     // Calculate totals
@@ -3746,7 +3765,11 @@ function loadAccountsBook() {
 
     // Include prescription payments ONLY if no matching completed appointment has the payment
     // This avoids double-counting when prescription payment is copied to appointment
+    // Also exclude prescriptions for trashed patients
     prescriptions.filter(rx => {
+        // Exclude trashed patients
+        if (trashedPatientIds.has(rx.patientId)) return false;
+
         const rxDate = new Date(rx.date || rx.createdAt);
         if (!(rxDate >= monthStart && rxDate <= monthEnd && rx.paymentAmount)) return false;
 
@@ -3834,9 +3857,13 @@ function loadDailyReport() {
     const appointments = getData('appointments');
     const prescriptions = getData('prescriptions');
     const patients = getData('patients');
+    const trash = getData('trash') || [];
 
-    // Filter for selected date
-    const dayAppts = appointments.filter(a => a.date && a.date.startsWith(selectedDate));
+    // Get IDs of patients in trash (excluded from reports)
+    const trashedPatientIds = new Set(trash.map(p => p.id));
+
+    // Filter for selected date (exclude trashed patients)
+    const dayAppts = appointments.filter(a => a.date && a.date.startsWith(selectedDate) && !trashedPatientIds.has(a.patientId));
     const completedAppts = dayAppts.filter(a => a.status === 'Completed');
 
     // Calculate totals
@@ -3851,7 +3878,10 @@ function loadDailyReport() {
     });
 
     // Include prescriptions ONLY if no matching completed appointment has the payment
+    // Also exclude prescriptions for trashed patients
     prescriptions.filter(rx => {
+        // Exclude trashed patients
+        if (trashedPatientIds.has(rx.patientId)) return false;
         if (!((rx.date || rx.createdAt || '').startsWith(selectedDate) && rx.paymentAmount)) return false;
         // Check if there's a matching completed appointment with this payment already
         const hasMatchingApt = appointments.some(a =>
@@ -3931,6 +3961,10 @@ function loadWeeklyReport() {
 
     const appointments = getData('appointments');
     const patients = getData('patients');
+    const trash = getData('trash') || [];
+
+    // Get IDs of patients in trash (excluded from reports)
+    const trashedPatientIds = new Set(trash.map(p => p.id));
 
     // Update label
     const label = document.getElementById('weeklyReportLabel');
@@ -3955,7 +3989,7 @@ function loadWeeklyReport() {
         day.setDate(day.getDate() + i);
         const dayStr = day.toISOString().split('T')[0];
 
-        const dayAppts = appointments.filter(a => a.date && a.date.startsWith(dayStr));
+        const dayAppts = appointments.filter(a => a.date && a.date.startsWith(dayStr) && !trashedPatientIds.has(a.patientId));
         const completed = dayAppts.filter(a => a.status === 'Completed');
 
         let revenue = 0, cash = 0, gpay = 0, card = 0;
@@ -4029,7 +4063,11 @@ function loadMonthlyReport() {
 
     const appointments = getData('appointments');
     const patients = getData('patients');
+    const trash = getData('trash') || [];
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    // Get IDs of patients in trash (excluded from reports)
+    const trashedPatientIds = new Set(trash.map(p => p.id));
 
     // Update label
     const label = document.getElementById('monthlyReportLabel');
@@ -4037,10 +4075,10 @@ function loadMonthlyReport() {
         label.textContent = monthNames[monthStart.getMonth()] + ' ' + monthStart.getFullYear();
     }
 
-    // Filter appointments
+    // Filter appointments (exclude trashed patients)
     const monthAppts = appointments.filter(a => {
         const aptDate = new Date(a.date);
-        return aptDate >= monthStart && aptDate <= monthEnd;
+        return aptDate >= monthStart && aptDate <= monthEnd && !trashedPatientIds.has(a.patientId);
     });
 
     const completed = monthAppts.filter(a => a.status === 'Completed');
