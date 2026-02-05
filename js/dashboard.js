@@ -1876,7 +1876,7 @@ function savePrescription(event) {
     if (matchingApt) {
         matchingApt.status = 'Completed';
         matchingApt.updatedAt = new Date().toISOString();
-        if (paymentAmount) matchingApt.paymentAmount = paymentAmount;
+        if (paymentAmount) matchingApt.amountPaid = paymentAmount;
         if (paymentMode) matchingApt.paymentMode = paymentMode;
         matchingApt.paymentStatus = paymentAmount && paymentMode ? 'Paid' : 'Pending';
         setData('appointments', appointments);
@@ -2772,27 +2772,8 @@ function loadTrash() {
     }).join('');
 }
 
-function deletePatient(id) {
-    if (!confirm('Move this patient to trash? You can restore them within 30 days.')) return;
-
-    let patients = getData('patients');
-    const patient = patients.find(p => p.id === id);
-    if (!patient) return;
-
-    // Move to trash
-    let trash = getData('trash') || [];
-    patient.deletedAt = new Date().toISOString();
-    trash.unshift(patient);
-    setData('trash', trash);
-
-    // Remove from patients
-    patients = patients.filter(p => p.id !== id);
-    setData('patients', patients);
-
-    loadPatients();
-    refreshDashboard();
-    showToast('Patient moved to trash. Will be permanently deleted after 30 days.', 'info');
-}
+// Note: deletePatient is defined earlier (around line 1015) with complete functionality
+// including deletion of related appointments, prescriptions, and followups, plus all sync functions
 
 function restorePatient(id) {
     let trash = getData('trash') || [];
@@ -2813,7 +2794,10 @@ function restorePatient(id) {
 
     loadTrash();
     loadPatients();
+    loadAppointments();
     refreshDashboard();
+    renderCalendarView();
+    loadAccountsBook();
     showToast('Patient restored successfully!', 'success');
 }
 
@@ -3760,10 +3744,21 @@ function loadAccountsBook() {
         if (a.paymentMode === 'Card') cardTotal += amt;
     });
 
-    // Include prescription payments
+    // Include prescription payments ONLY if no matching completed appointment has the payment
+    // This avoids double-counting when prescription payment is copied to appointment
     prescriptions.filter(rx => {
         const rxDate = new Date(rx.date || rx.createdAt);
-        return rxDate >= monthStart && rxDate <= monthEnd && rx.paymentAmount;
+        if (!(rxDate >= monthStart && rxDate <= monthEnd && rx.paymentAmount)) return false;
+
+        // Check if there's a matching completed appointment with this payment already
+        const rxDateStr = rxDate.toISOString().split('T')[0];
+        const hasMatchingApt = appointments.some(a =>
+            a.patientId === rx.patientId &&
+            a.date === rxDateStr &&
+            a.status === 'Completed' &&
+            parseFloat(a.amountPaid) > 0
+        );
+        return !hasMatchingApt; // Only count if no matching appointment with payment
     }).forEach(rx => {
         const amt = parseFloat(rx.paymentAmount) || 0;
         totalRevenue += amt;
@@ -3855,8 +3850,18 @@ function loadDailyReport() {
         if (a.paymentMode === 'Card') card += amt;
     });
 
-    // Include prescriptions
-    prescriptions.filter(rx => (rx.date || rx.createdAt || '').startsWith(selectedDate) && rx.paymentAmount).forEach(rx => {
+    // Include prescriptions ONLY if no matching completed appointment has the payment
+    prescriptions.filter(rx => {
+        if (!((rx.date || rx.createdAt || '').startsWith(selectedDate) && rx.paymentAmount)) return false;
+        // Check if there's a matching completed appointment with this payment already
+        const hasMatchingApt = appointments.some(a =>
+            a.patientId === rx.patientId &&
+            (a.date || '').startsWith(selectedDate) &&
+            a.status === 'Completed' &&
+            parseFloat(a.amountPaid) > 0
+        );
+        return !hasMatchingApt;
+    }).forEach(rx => {
         const amt = parseFloat(rx.paymentAmount) || 0;
         revenue += amt;
         if (rx.paymentMode === 'Cash') cash += amt;
