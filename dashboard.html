@@ -75,9 +75,12 @@
           </div>
         </a>
         <div class="nav-right">
-          <button onclick="switchTab('calendar')" class="btn-book-appt" title="Book Appointment">
-            <i class="fas fa-calendar-plus"></i> Book Appointment
+          <button onclick="switchTab('calendar')" class="btn-book-appt" title="Schedule Appointment">
+            <i class="fas fa-calendar-plus"></i> Schedule Appointment
           </button>
+          <a href="index.html" class="btn-view-site" title="View Public Site" style="background:rgba(255,255,255,0.12);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+            <i class="fas fa-external-link-alt"></i> View Site
+          </a>
           <button onclick="logoutDashboard()" class="btn-logout" title="Logout">
             <i class="fas fa-sign-out-alt"></i> Logout
           </button>
@@ -106,8 +109,7 @@
           <a href="#" onclick="switchTab('accounts'); return false;">
             <span class="nav-icon"><i class="fas fa-book"></i></span> Accounts
           </a>
-          <!-- Cloud Sync hidden - works silently in background -->
-          <a href="#" onclick="switchTab('settings'); return false;" style="display:none;">
+          <a href="#" onclick="switchTab('settings'); return false;">
             <span class="nav-icon"><i class="fas fa-cloud"></i></span> Cloud Sync
             <span id="syncStatusIndicator" style="margin-left:auto;font-size:0.75rem;"></span>
           </a>

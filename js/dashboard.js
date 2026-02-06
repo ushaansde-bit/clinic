@@ -165,6 +165,10 @@ function logoutDashboard() {
 }
 
 function initDashboardData() {
+    // Auto-seed test data on first login if no patients exist
+    if (getData('patients').length === 0 && !localStorage.getItem('dataSeeded')) {
+        seedTestData();
+    }
     currentWeekStart = getWeekStart(new Date());
     selectedCalendarDate = new Date();
     cleanupOldTrash();
@@ -4802,206 +4806,431 @@ document.addEventListener('keydown', function(e) {
 });
 
 /* ============================================
-   TEST DATA SEEDER - Dec 2025 to Feb 2026
+   TEST DATA SEEDER - 70+ Patients, Full Workflow
+   Jan 6 - Feb 6, 2026 (one month of clinic data)
    Run via browser console: seedTestData()
    ============================================ */
 function seedTestData() {
-    if (!confirm('This will add sample patient data from Dec 2025 to Feb 2026. Existing data will NOT be deleted. Continue?')) return;
+    // Deterministic random using seed for reproducible data
+    var seed = 12345;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    function randInt(min, max) { return min + Math.floor(seededRandom() * (max - min + 1)); }
+    function pick(arr) { return arr[Math.floor(seededRandom() * arr.length)]; }
 
-    const services = ['General Consultation', 'Fascial Manipulation', 'Orthopedic Rehabilitation', 'Neuro Rehabilitation', "Women's Health Physio", 'Elderly Home Care', 'Pediatric Physiotherapy'];
-    const payModes = ['Cash', 'GPay', 'Card'];
-    const timeSlots = ['10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM'];
+    // Unique ID generator with offset to avoid collisions
+    var idCounter = 0;
+    function seedId() {
+        idCounter++;
+        return 'id_' + (1738800000000 + idCounter) + '_' + Math.random().toString(36).substr(2, 9);
+    }
 
-    // Sample patients with realistic Indian names and physio conditions
-    const samplePatients = [
-        { name: 'Rajesh Kumar', age: 45, gender: 'Male', phone: '9876543201', condition: 'Chronic lower back pain' },
-        { name: 'Priya Sharma', age: 32, gender: 'Female', phone: '9876543202', condition: 'Frozen shoulder (left)' },
-        { name: 'Venkatesh Iyer', age: 58, gender: 'Male', phone: '9876543203', condition: 'Knee osteoarthritis (bilateral)' },
-        { name: 'Lakshmi Devi', age: 67, gender: 'Female', phone: '9876543204', condition: 'Post-stroke rehabilitation' },
-        { name: 'Arjun Nair', age: 28, gender: 'Male', phone: '9876543205', condition: 'ACL reconstruction recovery' },
-        { name: 'Meena Sundaram', age: 40, gender: 'Female', phone: '9876543206', condition: 'Cervical spondylosis' },
-        { name: 'Suresh Babu', age: 52, gender: 'Male', phone: '9876543207', condition: 'Sciatica (right leg)' },
-        { name: 'Anitha Rajan', age: 35, gender: 'Female', phone: '9876543208', condition: 'Postpartum pelvic floor weakness' },
-        { name: 'Karthik Murugan', age: 22, gender: 'Male', phone: '9876543209', condition: 'Sports injury - hamstring strain' },
-        { name: 'Saroja Ammal', age: 72, gender: 'Female', phone: '9876543210', condition: 'Parkinson disease mobility' },
-        { name: 'Dinesh Pandian', age: 48, gender: 'Male', phone: '9876543211', condition: 'Tennis elbow (right)' },
-        { name: 'Kavitha Krishnan', age: 55, gender: 'Female', phone: '9876543212', condition: 'Lumbar disc herniation' },
-        { name: 'Baby Arun', age: 5, gender: 'Male', phone: '9876543213', condition: 'Cerebral palsy - motor development' },
-        { name: 'Revathi Mohan', age: 38, gender: 'Female', phone: '9876543214', condition: 'Plantar fasciitis (bilateral)' },
-        { name: 'Gopalakrishnan S', age: 63, gender: 'Male', phone: '9876543215', condition: 'Total knee replacement rehab' }
+    // ---- Constants ----
+    var timeSlots = ['10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM'];
+    var payModes = ['Cash', 'Cash', 'Cash', 'Cash', 'GPay', 'GPay', 'GPay', 'Card', 'Card', 'Card']; // ~40/35/25 distribution
+    var amounts = [300, 400, 400, 500, 500, 500, 500, 600, 600, 700, 800, 1000];
+
+    var coimbatoreAreas = [
+        'RS Puram', 'Gandhipuram', 'Peelamedu', 'Saibaba Colony', 'Race Course',
+        'Singanallur', 'Ukkadam', 'Vadavalli', 'Thudiyalur', 'Kuniyamuthur',
+        'Ganapathy', 'Ramanathapuram', 'Ondipudur', 'Sulur', 'Kalapatti',
+        'Town Hall', 'Podanur', 'Kovaipudur', 'Saravanampatti', 'Avinashi Road'
     ];
 
-    // Service mapping by condition
-    const conditionService = {
-        'Chronic lower back pain': 'Orthopedic Rehabilitation',
-        'Frozen shoulder (left)': 'Fascial Manipulation',
-        'Knee osteoarthritis (bilateral)': 'Orthopedic Rehabilitation',
-        'Post-stroke rehabilitation': 'Neuro Rehabilitation',
-        'ACL reconstruction recovery': 'Orthopedic Rehabilitation',
-        'Cervical spondylosis': 'Fascial Manipulation',
-        'Sciatica (right leg)': 'Orthopedic Rehabilitation',
-        'Postpartum pelvic floor weakness': "Women's Health Physio",
-        'Sports injury - hamstring strain': 'Orthopedic Rehabilitation',
-        'Parkinson disease mobility': 'Neuro Rehabilitation',
-        'Tennis elbow (right)': 'Fascial Manipulation',
-        'Lumbar disc herniation': 'Orthopedic Rehabilitation',
-        'Cerebral palsy - motor development': 'Pediatric Physiotherapy',
-        'Plantar fasciitis (bilateral)': 'Orthopedic Rehabilitation',
-        'Total knee replacement rehab': 'Orthopedic Rehabilitation'
+    // 75 patients with realistic Indian names and physio conditions
+    var samplePatients = [
+        // Orthopedic (30)
+        { name: 'Rajesh Kumar', age: 45, gender: 'Male', condition: 'Chronic lower back pain', service: 'Orthopedic Rehabilitation' },
+        { name: 'Venkatesh Iyer', age: 58, gender: 'Male', condition: 'Knee osteoarthritis (bilateral)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Arjun Nair', age: 28, gender: 'Male', condition: 'ACL reconstruction recovery', service: 'Orthopedic Rehabilitation' },
+        { name: 'Suresh Babu', age: 52, gender: 'Male', condition: 'Sciatica (right leg)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Kavitha Krishnan', age: 55, gender: 'Female', condition: 'Lumbar disc herniation', service: 'Orthopedic Rehabilitation' },
+        { name: 'Gopalakrishnan S', age: 63, gender: 'Male', condition: 'Total knee replacement rehab', service: 'Orthopedic Rehabilitation' },
+        { name: 'Revathi Mohan', age: 38, gender: 'Female', condition: 'Plantar fasciitis (bilateral)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Mohan Raj', age: 50, gender: 'Male', condition: 'Cervical spondylosis with radiculopathy', service: 'Orthopedic Rehabilitation' },
+        { name: 'Deepa Venkatesh', age: 44, gender: 'Female', condition: 'Rotator cuff tear (right)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Senthil Murugan', age: 35, gender: 'Male', condition: 'Ankle sprain grade 2', service: 'Orthopedic Rehabilitation' },
+        { name: 'Vasanthi Devi', age: 60, gender: 'Female', condition: 'Hip replacement rehab (left)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Ramesh Chandran', age: 47, gender: 'Male', condition: 'Scoliosis - postural correction', service: 'Orthopedic Rehabilitation' },
+        { name: 'Nirmala Sundari', age: 53, gender: 'Female', condition: 'Knee osteoarthritis (right)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Arun Prasad', age: 30, gender: 'Male', condition: 'Lumbar muscle strain', service: 'Orthopedic Rehabilitation' },
+        { name: 'Jeyalakshmi R', age: 62, gender: 'Female', condition: 'Cervical spondylosis', service: 'Orthopedic Rehabilitation' },
+        { name: 'Balasubramanian K', age: 57, gender: 'Male', condition: 'Frozen shoulder (right)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Padmini Rangan', age: 49, gender: 'Female', condition: 'Carpal tunnel syndrome (bilateral)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Vijayakumar S', age: 42, gender: 'Male', condition: 'Disc herniation L4-L5', service: 'Orthopedic Rehabilitation' },
+        { name: 'Chitra Devi', age: 56, gender: 'Female', condition: 'Total knee replacement rehab (left)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Manikandan P', age: 33, gender: 'Male', condition: 'ACL reconstruction (left knee)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Lalitha Bai', age: 65, gender: 'Female', condition: 'Knee osteoarthritis with valgus', service: 'Orthopedic Rehabilitation' },
+        { name: 'Prashanth Kumar', age: 27, gender: 'Male', condition: 'Wrist fracture rehab', service: 'Orthopedic Rehabilitation' },
+        { name: 'Sumathi N', age: 48, gender: 'Female', condition: 'Plantar fasciitis (right)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Ravi Shankar', age: 54, gender: 'Male', condition: 'Cervical disc bulge C5-C6', service: 'Orthopedic Rehabilitation' },
+        { name: 'Geetha Rani', age: 46, gender: 'Female', condition: 'Adhesive capsulitis (left shoulder)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Anandh Kumar', age: 39, gender: 'Male', condition: 'Meniscus tear (right knee)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Kamala Devi', age: 61, gender: 'Female', condition: 'Lumbar canal stenosis', service: 'Orthopedic Rehabilitation' },
+        { name: 'Saravanan M', age: 36, gender: 'Male', condition: 'Shoulder impingement syndrome', service: 'Orthopedic Rehabilitation' },
+        { name: 'Bharathi S', age: 51, gender: 'Female', condition: 'Lateral epicondylitis (right)', service: 'Orthopedic Rehabilitation' },
+        { name: 'Kathiresan V', age: 43, gender: 'Male', condition: 'Post-operative spine rehab', service: 'Orthopedic Rehabilitation' },
+        // Fascial / Manual therapy (8)
+        { name: 'Priya Sharma', age: 32, gender: 'Female', condition: 'Frozen shoulder (left)', service: 'Fascial Manipulation' },
+        { name: 'Meena Sundaram', age: 40, gender: 'Female', condition: 'Cervical spondylosis with trigger points', service: 'Fascial Manipulation' },
+        { name: 'Dinesh Pandian', age: 48, gender: 'Male', condition: 'Tennis elbow (right)', service: 'Fascial Manipulation' },
+        { name: 'Sangeetha M', age: 34, gender: 'Female', condition: 'Myofascial pain syndrome - neck', service: 'Fascial Manipulation' },
+        { name: 'Balaji Krishnamoorthy', age: 41, gender: 'Male', condition: 'Thoracic outlet syndrome', service: 'Fascial Manipulation' },
+        { name: 'Mythili Raman', age: 37, gender: 'Female', condition: 'TMJ dysfunction', service: 'Fascial Manipulation' },
+        { name: 'Ganesh Babu', age: 29, gender: 'Male', condition: 'Myofascial trigger points - upper back', service: 'Fascial Manipulation' },
+        { name: 'Vimala Devi', age: 59, gender: 'Female', condition: 'Fibromyalgia management', service: 'Fascial Manipulation' },
+        // Neuro (8)
+        { name: 'Lakshmi Devi', age: 67, gender: 'Female', condition: 'Post-stroke rehabilitation (right hemiplegia)', service: 'Neuro Rehabilitation' },
+        { name: 'Saroja Ammal', age: 72, gender: 'Female', condition: 'Parkinson disease - mobility and balance', service: 'Neuro Rehabilitation' },
+        { name: 'Krishnamoorthy R', age: 64, gender: 'Male', condition: 'Bell\'s palsy (left side)', service: 'Neuro Rehabilitation' },
+        { name: 'Tamilselvi P', age: 58, gender: 'Female', condition: 'Peripheral neuropathy (diabetic)', service: 'Neuro Rehabilitation' },
+        { name: 'Nagappan S', age: 70, gender: 'Male', condition: 'Post-stroke rehabilitation (left hemiparesis)', service: 'Neuro Rehabilitation' },
+        { name: 'Parvathi Ammal', age: 66, gender: 'Female', condition: 'Guillain-Barre syndrome recovery', service: 'Neuro Rehabilitation' },
+        { name: 'Sundaram K', age: 61, gender: 'Male', condition: 'Cervical myelopathy - gait training', service: 'Neuro Rehabilitation' },
+        { name: 'Dhanam S', age: 55, gender: 'Female', condition: 'Multiple sclerosis - balance rehab', service: 'Neuro Rehabilitation' },
+        // Pediatric (5)
+        { name: 'Baby Arun', age: 5, gender: 'Male', condition: 'Cerebral palsy - motor development', service: 'Pediatric Physiotherapy' },
+        { name: 'Baby Meera', age: 3, gender: 'Female', condition: 'Developmental delay - gross motor', service: 'Pediatric Physiotherapy' },
+        { name: 'Baby Karthik', age: 7, gender: 'Male', condition: 'Torticollis correction', service: 'Pediatric Physiotherapy' },
+        { name: 'Baby Ananya', age: 4, gender: 'Female', condition: 'Down syndrome - physical therapy', service: 'Pediatric Physiotherapy' },
+        { name: 'Baby Rohit', age: 6, gender: 'Male', condition: 'Flat foot correction', service: 'Pediatric Physiotherapy' },
+        // Women's Health (5)
+        { name: 'Anitha Rajan', age: 35, gender: 'Female', condition: 'Postpartum pelvic floor weakness', service: "Women's Health Physio" },
+        { name: 'Divya Prakash', age: 30, gender: 'Female', condition: 'Prenatal back pain - third trimester', service: "Women's Health Physio" },
+        { name: 'Rani Bala', age: 33, gender: 'Female', condition: 'Diastasis recti rehabilitation', service: "Women's Health Physio" },
+        { name: 'Sowmya Narayanan', age: 29, gender: 'Female', condition: 'Postpartum SI joint dysfunction', service: "Women's Health Physio" },
+        { name: 'Indira K', age: 36, gender: 'Female', condition: 'Pelvic girdle pain - pregnancy', service: "Women's Health Physio" },
+        // Geriatric / Elderly Home Care (5)
+        { name: 'Ramaswamy T', age: 75, gender: 'Male', condition: 'Osteoporosis - fall prevention', service: 'Elderly Home Care' },
+        { name: 'Meenakshi Ammal', age: 73, gender: 'Female', condition: 'Balance training - fall risk', service: 'Elderly Home Care' },
+        { name: 'Natarajan V', age: 71, gender: 'Male', condition: 'Post-hip fracture mobility', service: 'Elderly Home Care' },
+        { name: 'Kanagavalli S', age: 68, gender: 'Female', condition: 'Arthritis - joint mobility program', service: 'Elderly Home Care' },
+        { name: 'Palani Murugan', age: 74, gender: 'Male', condition: 'Geriatric deconditioning rehab', service: 'Elderly Home Care' },
+        // Sports (9)
+        { name: 'Karthik Murugan', age: 22, gender: 'Male', condition: 'Hamstring strain grade 2', service: 'Orthopedic Rehabilitation' },
+        { name: 'Vignesh R', age: 24, gender: 'Male', condition: 'ACL tear - pre-surgery conditioning', service: 'Orthopedic Rehabilitation' },
+        { name: 'Surya Prakash', age: 20, gender: 'Male', condition: 'Shoulder impingement - cricket', service: 'Orthopedic Rehabilitation' },
+        { name: 'Nandhini K', age: 23, gender: 'Female', condition: 'Patellofemoral pain syndrome', service: 'Orthopedic Rehabilitation' },
+        { name: 'Aravind S', age: 26, gender: 'Male', condition: 'Achilles tendinopathy', service: 'Orthopedic Rehabilitation' },
+        { name: 'Darshan M', age: 21, gender: 'Male', condition: 'Groin strain - football', service: 'Orthopedic Rehabilitation' },
+        { name: 'Keerthi V', age: 25, gender: 'Female', condition: 'IT band syndrome - runner', service: 'Orthopedic Rehabilitation' },
+        { name: 'Harish Kumar', age: 19, gender: 'Male', condition: 'Shin splints - bilateral', service: 'Orthopedic Rehabilitation' },
+        { name: 'Madhan R', age: 31, gender: 'Male', condition: 'Rotator cuff strain - gym injury', service: 'Orthopedic Rehabilitation' }
+    ];
+
+    // Treatment notes templates per condition category
+    var treatmentTemplates = {
+        'back': ['IFT + Ultrasound therapy applied to lumbar region. Manual mobilization performed.', 'Spinal traction 10 min + TENS. Core strengthening exercises introduced.', 'McKenzie protocol extension exercises. Pain reducing, ROM improving.', 'Lumbar stabilization exercises progressed. Hot pack + manual therapy.'],
+        'shoulder': ['Codman pendulum exercises. Ultrasound to supraspinatus. Gentle ROM.', 'Progressive shoulder mobilization - Maitland grade 3. Wall climbing exercise.', 'Active assisted ROM exercises. Theraband strengthening initiated.', 'Full ROM restored. Strengthening with resistance bands continued.'],
+        'knee': ['Quad sets + SLR initiated. Cryotherapy post-session. CPM if post-surgical.', 'Knee ROM exercises progressed. Stationary cycling 10 min. Quad strengthening.', 'Balance training on wobble board. Step-ups introduced. Good progress.', 'Functional training - stairs, squats. Sport-specific rehab for younger patients.'],
+        'neck': ['Cervical traction 10 min. Isometric neck strengthening. Posture correction.', 'Manual therapy to cervical spine. TENS + heat. Chin tucks prescribed.', 'Cervical ROM exercises progressed. Ergonomic advice reinforced.', 'Neck strengthening with resistance. Postural re-education. Near discharge.'],
+        'neuro': ['Bobath approach - facilitation of normal movement patterns. Weight bearing exercises.', 'PNF diagonal patterns. Balance training on stable surface. Gait re-education.', 'Task-specific training. Fine motor exercises for hand function.', 'Community mobility training. Stair climbing practice. Home program updated.'],
+        'pediatric': ['NDT approach - facilitation of developmental milestones. Parent education given.', 'Play-based therapy - reaching, grasping, weight bearing activities.', 'Gross motor activities - rolling, sitting balance, supported standing.', 'Milestone-oriented therapy. Parent demonstrated home exercises.'],
+        'pelvic': ['Pelvic floor assessment. Kegel exercises taught - 10 reps x 3 sets.', 'Core and pelvic floor co-activation exercises. Breathing coordination.', 'Progressive pelvic floor strengthening. Functional movement integration.', 'Advanced core stability. Return-to-activity planning discussed.'],
+        'general': ['Assessment completed. Treatment plan discussed with patient.', 'Therapeutic exercises prescribed. Electrotherapy modalities applied.', 'Good progress noted. Treatment plan adjusted per reassessment.', 'Exercises progressed. Patient compliant with home program.']
     };
 
-    let patients = getData('patients');
-    let appointments = getData('appointments');
-    let prescriptions = getData('prescriptions');
-    let followups = getData('followups');
+    function getTreatmentCategory(condition) {
+        var c = condition.toLowerCase();
+        if (c.includes('back') || c.includes('lumbar') || c.includes('disc') || c.includes('spine') || c.includes('sciatica') || c.includes('stenosis') || c.includes('scoliosis')) return 'back';
+        if (c.includes('shoulder') || c.includes('rotator') || c.includes('capsulitis') || c.includes('impingement') || c.includes('frozen')) return 'shoulder';
+        if (c.includes('knee') || c.includes('acl') || c.includes('meniscus') || c.includes('patello') || c.includes('hip') || c.includes('ankle') || c.includes('achilles') || c.includes('plantar') || c.includes('shin') || c.includes('groin') || c.includes('hamstring') || c.includes('it band') || c.includes('flat foot') || c.includes('wrist') || c.includes('fracture')) return 'knee';
+        if (c.includes('cervical') || c.includes('neck') || c.includes('tmj') || c.includes('thoracic') || c.includes('tennis') || c.includes('carpal') || c.includes('epicondyl') || c.includes('trigger') || c.includes('myofascial') || c.includes('fibromyalgia')) return 'neck';
+        if (c.includes('stroke') || c.includes('parkinson') || c.includes('bell') || c.includes('neuropathy') || c.includes('guillain') || c.includes('myelopathy') || c.includes('sclerosis')) return 'neuro';
+        if (c.includes('cerebral') || c.includes('developmental') || c.includes('torticollis') || c.includes('down syndrome')) return 'pediatric';
+        if (c.includes('pelvic') || c.includes('postpartum') || c.includes('prenatal') || c.includes('diastasis') || c.includes('pregnancy') || c.includes('si joint')) return 'pelvic';
+        return 'general';
+    }
 
-    // Create patients with staggered registration dates
-    const createdPatientIds = [];
-    const regDates = [
-        '2025-12-01', '2025-12-03', '2025-12-05', '2025-12-08', '2025-12-10',
-        '2025-12-15', '2025-12-18', '2025-12-22', '2025-12-26', '2025-12-30',
-        '2026-01-03', '2026-01-07', '2026-01-13', '2026-01-20', '2026-01-27'
-    ];
+    function getTreatmentNote(condition, sessionNum) {
+        var cat = getTreatmentCategory(condition);
+        var templates = treatmentTemplates[cat];
+        var idx = (sessionNum - 1) % templates.length;
+        return 'Session ' + sessionNum + ': ' + templates[idx] + ' Patient tolerating well.';
+    }
 
-    samplePatients.forEach(function(sp, i) {
-        // Skip if phone already exists
-        if (patients.find(function(p) { return p.phone === sp.phone; })) {
-            var existingPt = patients.find(function(p) { return p.phone === sp.phone; });
-            createdPatientIds.push(existingPt.id);
-            return;
+    function getPrescription(condition, age) {
+        var cat = getTreatmentCategory(condition);
+        var treatment, meds, instructions;
+
+        switch (cat) {
+            case 'back':
+                treatment = 'Physiotherapy protocol: IFT + Ultrasound + Manual mobilization. Lumbar stabilization program. ' + (age > 60 ? '3 sessions/week x 4 weeks.' : '2-3 sessions/week x 3 weeks.');
+                meds = age > 45 ? 'Tab. Aceclofenac 100mg BD x 5 days, Tab. Thiocolchicoside 4mg BD x 5 days, Cap. Methylcobalamin 1500mcg OD x 15 days' : '';
+                instructions = 'Home exercises: Cat-cow stretches, pelvic tilts, bird-dog exercise 10 reps x 3 sets daily. Avoid prolonged sitting >30 min. Use lumbar support.';
+                break;
+            case 'shoulder':
+                treatment = 'Physiotherapy protocol: Ultrasound to shoulder + Manual mobilization (Maitland) + Progressive ROM exercises. ' + (age > 55 ? '3 sessions/week x 6 weeks.' : '2-3 sessions/week x 4 weeks.');
+                meds = age > 40 ? 'Tab. Etoricoxib 60mg OD x 7 days, Gel Diclofenac topical application BD' : 'Gel Diclofenac topical application BD';
+                instructions = 'Home exercises: Pendulum exercises, wall climbing, towel stretch 10 reps x 3 sets daily. Avoid overhead activities. Use cold pack after exercises.';
+                break;
+            case 'knee':
+                treatment = 'Physiotherapy protocol: Quadriceps strengthening + ROM exercises + Balance training. Cryotherapy post-session. ' + (age > 55 ? '3 sessions/week x 6 weeks.' : '2 sessions/week x 4 weeks.');
+                meds = age > 50 ? 'Tab. Diacerein 50mg BD x 30 days, Tab. Aceclofenac 100mg SOS, Cap. Glucosamine 500mg + Chondroitin 400mg BD' : '';
+                instructions = 'Home exercises: Quad sets, straight leg raises, heel slides 15 reps x 3 sets daily. Avoid squatting and cross-legged sitting. Use knee cap during walking.';
+                break;
+            case 'neck':
+                treatment = 'Physiotherapy protocol: Cervical traction + TENS + Manual therapy + Postural correction. ' + (age > 50 ? '3 sessions/week x 4 weeks.' : '2 sessions/week x 3 weeks.');
+                meds = age > 40 ? 'Tab. Aceclofenac 100mg + Thiocolchicoside 4mg BD x 5 days, Cap. Pregabalin 75mg HS x 10 days' : '';
+                instructions = 'Home exercises: Chin tucks, isometric neck exercises, shoulder rolls 10 reps x 3 sets daily. Proper ergonomic workstation setup. Avoid prolonged phone use.';
+                break;
+            case 'neuro':
+                treatment = 'Neurological rehabilitation: Bobath/NDT approach + PNF patterns + Balance and gait training + Task-specific exercises. 3-5 sessions/week x 8-12 weeks.';
+                meds = age > 60 ? 'Tab. Citicoline 500mg BD, Tab. Methylcobalamin 1500mcg OD' : '';
+                instructions = 'Home program: Weight bearing exercises, standing balance practice with support, walking with assistive device as needed. Caregiver assistance recommended.';
+                break;
+            case 'pediatric':
+                treatment = 'Pediatric physiotherapy: NDT/Bobath approach + Sensory integration + Developmental stimulation + Parent-guided home exercises. 3 sessions/week ongoing.';
+                meds = '';
+                instructions = 'Parent instructions: Daily tummy time, supported sitting practice, reaching activities during play. Follow developmental milestone checklist. Regular follow-up every 4 weeks.';
+                break;
+            case 'pelvic':
+                treatment = "Women's health physiotherapy: Pelvic floor assessment + Kegel training + Core stability program + Postural re-education. 2 sessions/week x 6 weeks.";
+                meds = '';
+                instructions = 'Home exercises: Pelvic floor contractions (Kegels) 10 reps x 5 sec hold x 3 sets daily. Diaphragmatic breathing. Avoid heavy lifting. Gradual return to activity.';
+                break;
+            default:
+                treatment = 'Physiotherapy assessment and treatment plan. Electrotherapy + Manual therapy + Exercise prescription. 2-3 sessions/week x 4 weeks.';
+                meds = age > 50 ? 'Tab. Aceclofenac 100mg BD x 5 days' : '';
+                instructions = 'Follow prescribed exercise program. Apply ice/heat as directed. Maintain activity log. Return if symptoms worsen.';
         }
+        return { treatment: treatment, medications: meds, instructions: instructions };
+    }
 
+    // Helper: format Date as YYYY-MM-DD without timezone shift
+    function toDateStr(dt) {
+        var y = dt.getFullYear();
+        var m = String(dt.getMonth() + 1).padStart(2, '0');
+        var dd = String(dt.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + dd;
+    }
+
+    // ---- Generate working days from Jan 6 to Feb 6, 2026 (skip Sundays) ----
+    var workingDays = [];
+    var d = new Date(2026, 0, 6); // Jan 6, 2026
+    var endDate = new Date(2026, 1, 6); // Feb 6, 2026
+    while (d <= endDate) {
+        if (d.getDay() !== 0) { // Skip Sundays
+            workingDays.push(toDateStr(d));
+        }
+        d.setDate(d.getDate() + 1);
+    }
+
+    var today = toDateStr(new Date());
+
+    // ---- Distribute patients across working days: ~3 new patients per day ----
+    var patientAssignments = []; // { patientIndex, registrationDay }
+    // Spread 70 patients across working days, leaving last 5 days for future appointments
+    var usableDays = workingDays.length - 3; // Reserve last 3 days for scheduled-only patients
+    var patientsPerDay = Math.ceil(samplePatients.length / usableDays);
+    var dayIdx = 0;
+    var countOnDay = 0;
+    for (var i = 0; i < samplePatients.length; i++) {
+        patientAssignments.push({ idx: i, regDayIdx: dayIdx });
+        countOnDay++;
+        if (countOnDay >= patientsPerDay && dayIdx < usableDays - 1) {
+            countOnDay = 0;
+            dayIdx++;
+        }
+    }
+
+    // ---- Build data arrays ----
+    var patients = [];
+    var appointments = [];
+    var prescriptions = [];
+    var followups = [];
+
+    // Phone number generator (unique 10-digit Indian numbers)
+    var phoneBase = 9876540000;
+
+    for (var pi = 0; pi < patientAssignments.length; pi++) {
+        var pa = patientAssignments[pi];
+        var sp = samplePatients[pa.idx];
+        var regDate = workingDays[pa.regDayIdx];
+        var phone = String(phoneBase + pi + 1);
+        var area = coimbatoreAreas[pi % coimbatoreAreas.length];
+        var baseAmount = amounts[pi % amounts.length];
+
+        // Create patient
         var pt = {
-            id: generateId(),
+            id: seedId(),
             name: sp.name,
             age: sp.age,
             gender: sp.gender,
-            phone: sp.phone,
+            phone: phone,
             email: '',
-            address: 'Coimbatore, Tamil Nadu',
-            createdAt: regDates[i] + 'T10:00:00.000Z'
+            address: area + ', Coimbatore, Tamil Nadu',
+            createdAt: regDate + 'T09:' + String(30 + (pi % 30)).padStart(2, '0') + ':00.000Z'
         };
         patients.push(pt);
-        createdPatientIds.push(pt.id);
-    });
 
-    setData('patients', patients);
+        // ---- Generate appointments for this patient ----
+        // First appointment = registration day, service = General Consultation
+        var aptDates = [regDate];
+        // Subsequent appointments every 3-4 days
+        var regParts = regDate.split('-');
+        var nextDate = new Date(parseInt(regParts[0]), parseInt(regParts[1]) - 1, parseInt(regParts[2]));
+        var numFollowVisits = 2 + Math.floor(seededRandom() * 3); // 2-4 more visits
+        for (var v = 0; v < numFollowVisits; v++) {
+            nextDate.setDate(nextDate.getDate() + 3 + Math.floor(seededRandom() * 2)); // 3-4 days gap
+            if (nextDate.getDay() === 0) nextDate.setDate(nextDate.getDate() + 1); // skip Sunday
+            var nd = toDateStr(nextDate);
+            if (nd <= '2026-02-06') aptDates.push(nd);
+        }
 
-    // Generate appointments from Dec 2025 to Feb 6, 2026
-    // Each patient gets 2-4 appointments per month (realistic for physio)
-    var startDate = new Date(2025, 11, 1); // Dec 1, 2025
-    var endDate = new Date(2026, 1, 6);   // Feb 6, 2026
+        // Assign time slots (spread across slots, avoiding too many at same time)
+        var patientTimeIdx = pi % timeSlots.length;
 
-    var amounts = [300, 400, 500, 500, 500, 600, 700, 800, 500, 1000, 400, 500, 600, 500, 800];
-
-    for (var pi = 0; pi < createdPatientIds.length; pi++) {
-        var patientId = createdPatientIds[pi];
-        var patient = patients.find(function(p) { return p.id === patientId; });
-        if (!patient) continue;
-
-        var regDate = new Date(patient.createdAt);
-        var sp = samplePatients[pi];
-        var service = conditionService[sp.condition] || 'General Consultation';
-        var baseAmount = amounts[pi];
-
-        // Generate appointments: 2-3 per week after registration
-        var aptDate = new Date(regDate);
-        aptDate.setDate(aptDate.getDate() + 1); // First appointment day after registration
-
-        var aptCount = 0;
-        while (aptDate <= endDate && aptCount < 20) {
-            // Skip Sundays
-            if (aptDate.getDay() === 0) {
-                aptDate.setDate(aptDate.getDate() + 1);
-                continue;
-            }
-
-            var dateStr = aptDate.toISOString().split('T')[0];
-            var timeIdx = (pi + aptCount) % timeSlots.length;
+        for (var ai = 0; ai < aptDates.length; ai++) {
+            var aptDate = aptDates[ai];
+            var isPast = aptDate < today;
+            var isToday = aptDate === today;
+            var timeIdx = (patientTimeIdx + ai) % timeSlots.length;
             var time = timeSlots[timeIdx];
             var duration = sp.age < 10 ? 45 : 30;
             var endTime = calculateEndTime(time, duration);
-            var payMode = payModes[(pi + aptCount) % payModes.length];
-            var isPast = aptDate < new Date();
+            var payMode = pick(payModes);
+            var amount = baseAmount + (ai > 0 ? randInt(-100, 100) : 0);
+            if (amount < 300) amount = 300;
+            if (amount > 1000) amount = 1000;
+            amount = Math.round(amount / 50) * 50; // Round to nearest 50
+
+            var service;
+            if (ai === 0) {
+                service = 'General Consultation';
+            } else if (ai % 4 === 0) {
+                service = 'Follow-up Visit';
+            } else {
+                service = sp.service;
+            }
+
+            var aptStatus, payStatus, amountPaid, payModeVal;
+            if (isPast) {
+                aptStatus = 'Completed';
+                payStatus = 'Paid';
+                amountPaid = String(amount);
+                payModeVal = payMode;
+            } else if (isToday) {
+                // Some today appointments completed (morning), some scheduled (evening)
+                var timeMins = timeStringToMinutes(time);
+                var nowMins = getIndiaCurrentMinutes();
+                if (timeMins < nowMins) {
+                    aptStatus = 'Completed';
+                    payStatus = 'Paid';
+                    amountPaid = String(amount);
+                    payModeVal = payMode;
+                } else {
+                    aptStatus = 'Scheduled';
+                    payStatus = 'Pending';
+                    amountPaid = '';
+                    payModeVal = null;
+                }
+            } else {
+                aptStatus = 'Scheduled';
+                payStatus = 'Pending';
+                amountPaid = '';
+                payModeVal = null;
+            }
 
             var apt = {
-                id: generateId(),
-                patientId: patientId,
-                patientName: patient.name,
-                name: patient.name,
-                phone: patient.phone,
-                date: dateStr,
+                id: seedId(),
+                patientId: pt.id,
+                patientName: pt.name,
+                name: pt.name,
+                phone: pt.phone,
+                date: aptDate,
                 time: time,
                 startTime: time,
                 endTime: endTime,
                 duration: duration,
-                service: aptCount === 0 ? 'General Consultation' : (aptCount % 4 === 0 ? 'Follow-up Visit' : service),
-                status: isPast ? 'Completed' : 'Scheduled',
-                paymentStatus: isPast ? 'Paid' : 'Pending',
-                amountPaid: isPast ? String(baseAmount) : '',
-                paymentMode: isPast ? payMode : null,
-                createdAt: regDate.toISOString()
+                service: service,
+                status: aptStatus,
+                paymentStatus: payStatus,
+                amountPaid: amountPaid,
+                paymentMode: payModeVal,
+                createdAt: pt.createdAt
             };
 
-            if (isPast) {
-                apt.completedAt = dateStr + 'T' + (parseInt(time) + 1) + ':00:00.000Z';
-                apt.treatmentNotes = 'Session ' + (aptCount + 1) + ': ' + sp.condition + ' treatment. Patient responding well.';
+            if (aptStatus === 'Completed') {
+                apt.actualStartTime = time;
+                apt.actualEndTime = endTime;
+                apt.treatmentNotes = getTreatmentNote(sp.condition, ai + 1);
+                apt.completedAt = aptDate + 'T' + String(10 + Math.floor(timeIdx / 2)).padStart(2, '0') + ':' + String(30 + (timeIdx % 2) * 30).padStart(2, '0') + ':00.000Z';
             }
 
             appointments.push(apt);
 
-            // Create prescription for first visit
-            if (aptCount === 0 && isPast) {
+            // ---- Prescription for first completed visit ----
+            if (ai === 0 && aptStatus === 'Completed') {
+                var rxData = getPrescription(sp.condition, sp.age);
                 var rx = {
-                    id: generateId(),
-                    patientId: patientId,
-                    patientName: patient.name,
-                    date: dateStr,
+                    id: seedId(),
+                    patientId: pt.id,
+                    patientName: pt.name,
+                    date: aptDate,
                     diagnosis: sp.condition,
-                    treatment: 'Physiotherapy protocol: IFT + Ultrasound therapy + Manual mobilization. ' + (sp.age > 60 ? '3 sessions/week for 4 weeks.' : '2-3 sessions/week for 3 weeks.'),
-                    medications: sp.age > 50 ? 'Tab. Aceclofenac 100mg BD x 5 days, Thiocolchicoside 4mg BD x 5 days' : '',
-                    instructions: 'Home exercises: ' + (sp.condition.includes('back') || sp.condition.includes('disc') ? 'Cat-cow stretches, pelvic tilts, bird-dog exercise 10 reps x 3 sets daily.' : sp.condition.includes('shoulder') ? 'Pendulum exercises, wall climbing, towel stretch 10 reps x 3 sets daily.' : sp.condition.includes('knee') ? 'Quad sets, straight leg raises, heel slides 15 reps x 3 sets daily.' : 'Prescribed exercises 10 reps x 3 sets daily. Avoid heavy lifting.'),
-                    paymentAmount: String(baseAmount),
+                    treatment: rxData.treatment,
+                    medications: rxData.medications,
+                    instructions: rxData.instructions,
+                    paymentAmount: String(amount),
                     paymentMode: payMode,
                     paymentStatus: 'Paid',
-                    createdAt: dateStr + 'T10:30:00.000Z'
+                    createdAt: aptDate + 'T10:30:00.000Z'
                 };
                 prescriptions.push(rx);
 
-                // Create follow-up for 2 weeks later
-                var fuDate = new Date(aptDate);
-                fuDate.setDate(fuDate.getDate() + 14);
+                // ---- Follow-up scheduled 7-14 days after first visit ----
+                var fuOffset = 7 + Math.floor(seededRandom() * 8); // 7-14 days
+                var aptParts = aptDate.split('-');
+                var fuDate = new Date(parseInt(aptParts[0]), parseInt(aptParts[1]) - 1, parseInt(aptParts[2]));
+                fuDate.setDate(fuDate.getDate() + fuOffset);
                 if (fuDate.getDay() === 0) fuDate.setDate(fuDate.getDate() + 1);
+                var fuDateStr = toDateStr(fuDate);
+                var fuIsPast = fuDateStr < today;
+
+                // Find if there's a matching appointment around that date
+                var matchingAptId = null;
+                for (var mi = 0; mi < appointments.length; mi++) {
+                    if (appointments[mi].patientId === pt.id && appointments[mi].date === fuDateStr) {
+                        matchingAptId = appointments[mi].id;
+                        break;
+                    }
+                }
 
                 var fu = {
-                    id: generateId(),
-                    patientId: patientId,
-                    patientName: patient.name,
-                    date: fuDate.toISOString().split('T')[0],
+                    id: seedId(),
+                    patientId: pt.id,
+                    patientName: pt.name,
+                    date: fuDateStr,
                     reason: 'Review after initial treatment - ' + sp.condition,
-                    notes: 'Check progress, adjust treatment plan if needed',
-                    status: fuDate < new Date() ? 'Completed' : 'Pending',
-                    createdAt: dateStr + 'T10:30:00.000Z'
+                    notes: 'Check progress, reassess ROM and pain levels, adjust treatment plan if needed',
+                    status: fuIsPast ? 'Completed' : 'Pending',
+                    createdAt: aptDate + 'T10:30:00.000Z'
                 };
+                if (matchingAptId) fu.appointmentId = matchingAptId;
                 followups.push(fu);
             }
-
-            aptCount++;
-            // Next appointment: 2-4 days later
-            aptDate.setDate(aptDate.getDate() + 2 + Math.floor(Math.random() * 3));
         }
     }
 
+    // ---- Save all data ----
+    setData('patients', patients);
     setData('appointments', appointments);
     setData('prescriptions', prescriptions);
     setData('followups', followups);
+    localStorage.setItem('dataSeeded', 'true');
 
     // Refresh everything
     refreshDashboard();
     loadPatients();
     loadAppointments();
+    loadPrescriptions();
+    loadFollowups();
     renderCalendarView();
     loadAccountsBook();
 
-    showToast('Test data seeded! ' + createdPatientIds.length + ' patients, check Dec 2025 - Feb 2026.', 'success');
+    console.log('Seed complete: ' + patients.length + ' patients, ' + appointments.length + ' appointments, ' + prescriptions.length + ' prescriptions, ' + followups.length + ' follow-ups');
+    showToast('Test data seeded! ' + patients.length + ' patients across Jan 6 - Feb 6, 2026.', 'success');
 }
