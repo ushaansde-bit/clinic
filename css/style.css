@@ -4038,11 +4038,11 @@ button.read-more-link {
 }
 
 .chart-bar.completed {
-  background: linear-gradient(180deg, #22C55E 0%, #16A34A 100%);
+  background: linear-gradient(180deg, var(--primary) 0%, #143D30 100%);
 }
 
 .chart-bar.scheduled {
-  background: linear-gradient(180deg, var(--primary) 0%, #143D30 100%);
+  background: linear-gradient(180deg, var(--accent) 0%, #B8906C 100%);
 }
 
 .chart-bar:hover {
@@ -4080,11 +4080,11 @@ button.read-more-link {
 }
 
 .legend-color.completed {
-  background: #22C55E;
+  background: var(--primary);
 }
 
 .legend-color.scheduled {
-  background: var(--primary);
+  background: var(--accent);
 }
 
 /* Revenue Chart */
@@ -4097,27 +4097,13 @@ button.read-more-link {
 }
 
 .revenue-bar {
-  flex: 1;
-  background: linear-gradient(180deg, var(--accent) 0%, #B8906C 100%);
   border-radius: 4px 4px 0 0;
   min-height: 8px;
-  position: relative;
   transition: all 0.3s ease;
 }
 
 .revenue-bar:hover {
   opacity: 0.85;
-}
-
-.revenue-bar::after {
-  content: attr(data-label);
-  position: absolute;
-  bottom: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  white-space: nowrap;
 }
 
 .revenue-badge {

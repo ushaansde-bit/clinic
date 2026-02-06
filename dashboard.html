@@ -67,19 +67,17 @@
 
     <nav class="navbar dashboard-nav" id="navbar">
       <div class="container nav-container">
-        <a href="index.html" class="nav-brand">
-          <span class="brand-logo"></span>
+        <a href="javascript:void(0)" class="nav-brand" onclick="switchTab('overview')">
+          <span class="brand-logo"><i class="fas fa-heartbeat" style="color:#fff;font-size:1.1rem;"></i></span>
           <div class="brand-text">
             <span class="brand-name">Dr. Aarthi Ganesh</span>
             <span class="brand-subtitle">Shree Physiotherapy Clinic</span>
           </div>
         </a>
         <div class="nav-right">
-          <ul class="nav-menu" id="navMenu">
-            <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
-            <li class="nav-item"><a href="index.html#services" class="nav-link">Services</a></li>
-            <li class="nav-item"><a href="index.html#contact" class="nav-link">Contact</a></li>
-          </ul>
+          <button onclick="switchTab('calendar')" class="btn-book-appt" title="Book Appointment">
+            <i class="fas fa-calendar-plus"></i> Book Appointment
+          </button>
           <button onclick="logoutDashboard()" class="btn-logout" title="Logout">
             <i class="fas fa-sign-out-alt"></i> Logout
           </button>
@@ -134,9 +132,6 @@
 
         <!-- TAB: Overview -->
         <div id="tab-overview" class="tab-content">
-          <!-- Overdue Alert -->
-          <div id="overdueAlert" style="display:none;margin-bottom:16px;"></div>
-
           <!-- Welcome Header -->
           <div class="overview-welcome">
             <div class="welcome-text">
@@ -153,7 +148,7 @@
             </div>
           </div>
 
-          <!-- Stats Cards (5 items) -->
+          <!-- Stats Cards (4 items) -->
           <div class="overview-stats-grid">
             <div class="stat-card-modern patients" onclick="switchTab('patients')" style="cursor:pointer;" title="View Patients">
               <div class="stat-card-icon"><i class="fas fa-users"></i></div>
@@ -176,19 +171,23 @@
                 <span class="stat-label">This Week</span>
               </div>
             </div>
-            <div class="stat-card-modern" style="--stat-accent:#8B5CF6;">
-              <div class="stat-card-icon" style="background:rgba(139,92,246,0.1);color:#8B5CF6;"><i class="fas fa-file-prescription"></i></div>
+            <div class="stat-card-modern revenue" onclick="switchTab('accounts')" style="cursor:pointer;" title="View Accounts">
+              <div class="stat-card-icon"><i class="fas fa-indian-rupee-sign"></i></div>
               <div class="stat-card-content">
-                <span class="stat-number" id="statPrescriptions">0</span>
-                <span class="stat-label">Prescriptions</span>
+                <span class="stat-number">₹<span id="statRevenue">0</span></span>
+                <span class="stat-label">Today's Revenue</span>
               </div>
             </div>
-            <div class="stat-card-modern" style="--stat-accent:#F59E0B;">
-              <div class="stat-card-icon" style="background:rgba(245,158,11,0.1);color:#F59E0B;"><i class="fas fa-bell"></i></div>
-              <div class="stat-card-content">
-                <span class="stat-number" id="statFollowups">0</span>
-                <span class="stat-label">Pending Follow-ups</span>
-              </div>
+          </div>
+
+          <!-- Today's Appointments Quick List -->
+          <div class="overview-card" id="todaysAppointmentsCard" style="margin-bottom:20px;">
+            <div class="overview-card-header">
+              <h3><i class="fas fa-clock"></i> Today's Appointments</h3>
+              <a href="javascript:void(0)" onclick="switchTab('appointments')" style="font-size:0.82rem;color:var(--primary);font-weight:600;">View All</a>
+            </div>
+            <div class="overview-card-body" id="todaysAppointmentsList" style="padding:0;max-height:none;">
+              <p class="no-data" style="padding:20px;">No appointments today.</p>
             </div>
           </div>
 
@@ -203,8 +202,8 @@
               <div class="overview-card-body">
                 <div class="weekly-chart-container" id="weeklyChartContainer"></div>
                 <div class="chart-legend">
-                  <span class="legend-item"><span class="legend-color completed"></span> Completed</span>
-                  <span class="legend-item"><span class="legend-color scheduled"></span> Scheduled</span>
+                  <span class="legend-item"><span class="legend-color completed"></span> Appointments</span>
+                  <span class="legend-item"><span class="legend-color scheduled"></span> Unique Patients</span>
                 </div>
               </div>
             </div>
@@ -300,7 +299,6 @@
                 <i class="fas fa-search" style="color:var(--text-muted);"></i>
                 <input type="text" id="patientSearch" placeholder="Search patients...">
               </div>
-              <input type="date" id="patientDateFilter" onchange="filterPatients()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
               <select id="patientStatusFilter" onchange="filterPatients()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
                 <option value="all">All Patients</option>
                 <option value="today">Visited Today</option>
@@ -323,6 +321,7 @@
                 <tbody></tbody>
               </table>
             </div>
+            <div class="pagination-controls" id="patientsPagination" style="display:none;"></div>
           </div>
         </div>
 
@@ -361,22 +360,7 @@
         <!-- TAB: Calendar View - Calendly Style -->
         <div id="tab-calendar" class="tab-content" style="display:none;">
           <div class="calendly-container">
-            <!-- Left: Mini Calendar -->
-            <div class="calendly-sidebar">
-              <div class="mini-calendar-wrapper">
-                <div class="mini-calendar-header">
-                  <button onclick="changeMiniMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-                  <h4 id="miniCalendarMonth">January 2025</h4>
-                  <button onclick="changeMiniMonth(1)"><i class="fas fa-chevron-right"></i></button>
-                </div>
-                <div class="mini-calendar-days">
-                  <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-                </div>
-                <div class="mini-calendar-grid" id="miniCalendarGrid"></div>
-              </div>
-            </div>
-
-            <!-- Center: Schedule Display -->
+            <!-- Main: Schedule Display -->
             <div class="calendly-main">
               <div class="schedule-header">
                 <div class="schedule-nav">
@@ -394,7 +378,7 @@
               </div>
             </div>
 
-            <!-- Right: View Selector + Today's Summary -->
+            <!-- Right: View Selector + Today's Summary + Mini Calendar -->
             <div class="calendly-right">
               <div class="view-selector">
                 <button class="view-btn active" data-view="day" onclick="setCalendarView('day')">
@@ -423,6 +407,18 @@
                   <strong id="summaryRemaining">0</strong>
                 </div>
               </div>
+
+              <div class="mini-calendar-wrapper">
+                <div class="mini-calendar-header">
+                  <button onclick="changeMiniMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                  <h4 id="miniCalendarMonth">January 2025</h4>
+                  <button onclick="changeMiniMonth(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="mini-calendar-days">
+                  <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                </div>
+                <div class="mini-calendar-grid" id="miniCalendarGrid"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -435,7 +431,15 @@
               <h2><i class="fas fa-chart-line"></i> Accounts & Reports</h2>
               <p>Track revenue, payments, and generate reports</p>
             </div>
-            <div class="accounts-header-actions">
+            <div class="accounts-header-actions" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <div style="display:flex;gap:8px;align-items:center;">
+                <label style="font-size:0.82rem;font-weight:500;opacity:0.9;">From</label>
+                <input type="date" id="accountsFromDate" onchange="filterAccountsByDateRange()" style="padding:6px 10px;border:1.5px solid rgba(255,255,255,0.3);border-radius:8px;font-family:var(--font-body);font-size:0.82rem;background:rgba(255,255,255,0.15);color:#fff;">
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <label style="font-size:0.82rem;font-weight:500;opacity:0.9;">To</label>
+                <input type="date" id="accountsToDate" onchange="filterAccountsByDateRange()" style="padding:6px 10px;border:1.5px solid rgba(255,255,255,0.3);border-radius:8px;font-family:var(--font-body);font-size:0.82rem;background:rgba(255,255,255,0.15);color:#fff;">
+              </div>
               <button class="btn-icon-text" onclick="exportAccountsCSV()">
                 <i class="fas fa-download"></i> Export
               </button>
@@ -614,9 +618,6 @@
               <h2 style="font-size:1.8rem;"><i class="fas fa-trash-alt" style="margin-right:10px;opacity:0.7;"></i>Trash</h2>
               <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px;">Deleted patients are kept here for 30 days before permanent deletion.</p>
             </div>
-            <button class="btn btn-outline" onclick="emptyTrash()" style="padding:8px 16px;font-size:0.85rem;color:#DC2626;border-color:#DC2626;">
-              <i class="fas fa-trash"></i> Empty Trash
-            </button>
           </div>
           <div class="dashboard-card">
             <div style="overflow-x:auto;">
@@ -799,6 +800,9 @@
       <h3 id="viewModalSubtitle" style="font-size:1.1rem;margin-bottom:12px;">Treatment History</h3>
       <div id="visitHistory" style="margin-bottom:24px;max-height:300px;overflow-y:auto;"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btnCompleteAppt" style="padding:10px 20px;font-size:0.85rem;display:none;background:#22C55E;border-color:#22C55E;">
+          <i class="fas fa-check-circle"></i> Complete
+        </button>
         <button class="btn btn-primary" id="btnWriteRx" style="padding:10px 20px;font-size:0.85rem;">
           <i class="fas fa-file-prescription"></i> Write Prescription
         </button>

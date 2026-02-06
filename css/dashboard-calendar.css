@@ -24,22 +24,7 @@
     box-shadow: 0 2px 8px rgba(27, 77, 62, 0.25);
 }
 
-/* Medical cross made with CSS for a clean, professional look */
-.brand-logo::before,
-.brand-logo::after {
-    content: '';
-    position: absolute;
-    background: #fff;
-    border-radius: 2px;
-}
-.brand-logo::before {
-    width: 16px;
-    height: 4px;
-}
-.brand-logo::after {
-    width: 4px;
-    height: 16px;
-}
+/* Brand logo icon - using FA icon via JS instead of CSS cross */
 
 .brand-text {
     display: flex;
@@ -66,7 +51,7 @@
 .nav-right {
     display: flex;
     align-items: center;
-    gap: 0;
+    gap: 10px;
     margin-left: auto;
 }
 
@@ -101,6 +86,43 @@
 .nav-right .nav-link:hover {
     color: var(--primary);
     background: rgba(27, 77, 62, 0.06);
+}
+
+/* Book Appointment Button (Header) */
+.btn-book-appt {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    background: var(--primary);
+    color: #fff;
+    border: 1.5px solid var(--primary);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-book-appt:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+    box-shadow: 0 2px 8px rgba(27, 77, 62, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-book-appt i {
+    font-size: 0.82rem;
+}
+
+@media (max-width: 600px) {
+    .btn-book-appt span,
+    .btn-book-appt {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
 }
 
 /* Logout Button */
@@ -140,8 +162,6 @@
 
 @media (max-width: 768px) {
     .brand-logo { width: 36px; height: 36px; border-radius: 10px; }
-    .brand-logo::before { width: 13px; height: 3px; }
-    .brand-logo::after { width: 3px; height: 13px; }
     .dashboard-nav .brand-name { font-size: 1rem; }
     .dashboard-nav .brand-subtitle { font-size: 0.65rem; }
     .btn-logout {
@@ -217,9 +237,9 @@
 /* Stats Cards Grid */
 .overview-stats-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 }
 
 .stat-card-modern {
@@ -393,10 +413,21 @@
     overflow-y: auto;
 }
 
+/* Today's Appointments Quick List */
+#todaysAppointmentsCard .data-table.compact td,
+#todaysAppointmentsCard .data-table.compact th {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+}
+
+#todaysAppointmentsCard .data-table.compact tr:hover {
+    background: rgba(27, 77, 62, 0.03);
+}
+
 /* Responsive */
 @media (max-width: 1100px) {
     .overview-stats-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -534,40 +565,18 @@
     box-shadow: 0 0 0 3px rgba(27, 77, 62, 0.1);
 }
 
-/* Main Container - 3-Column Layout */
+/* Main Container - 2-Column Layout */
 .calendly-container {
     display: grid;
-    grid-template-columns: 260px 1fr 260px;
+    grid-template-columns: 1fr 280px;
     gap: 20px;
     min-height: 600px;
-}
-
-@media (max-width: 1100px) {
-    .calendly-container {
-        grid-template-columns: 240px 1fr;
-    }
-    .calendly-right {
-        grid-column: 1 / -1;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-    }
 }
 
 @media (max-width: 900px) {
     .calendly-container {
         grid-template-columns: 1fr;
     }
-    .calendly-right {
-        grid-column: auto;
-    }
-}
-
-/* Left Sidebar */
-.calendly-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
 }
 
 /* Right Sidebar */
@@ -967,6 +976,15 @@
     box-shadow: var(--shadow);
 }
 
+.schedule-appointment.view-only {
+    cursor: default;
+}
+
+.schedule-appointment.view-only:hover {
+    transform: none;
+    box-shadow: none;
+}
+
 .schedule-appointment .apt-time {
     font-size: 0.75rem;
     opacity: 0.9;
@@ -1097,6 +1115,15 @@
     box-shadow: var(--shadow-sm);
 }
 
+.week-appointment.view-only {
+    cursor: default;
+}
+
+.week-appointment.view-only:hover {
+    transform: none;
+    box-shadow: none;
+}
+
 .week-appointment .wa-time {
     font-weight: 600;
     margin-bottom: 2px;
@@ -1207,6 +1234,62 @@
 
 .break-indicator i {
     margin-right: 8px;
+}
+
+/* Pagination Controls */
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-light);
+}
+
+.pagination-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled):not(.active) {
+    background: rgba(27, 77, 62, 0.06);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.pagination-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pagination-dots {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 0 4px;
+}
+
+.pagination-info {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-left: 12px;
 }
 
 /* Trash Table Styles */
@@ -2484,6 +2567,11 @@
 .btn-icon-text:hover {
     background: rgba(255,255,255,0.2);
     border-color: rgba(255,255,255,0.5);
+}
+
+/* Accounts date range inputs */
+.accounts-header-section input[type="date"] {
+    color-scheme: dark;
 }
 
 /* Revenue Cards Grid */
