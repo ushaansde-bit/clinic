@@ -691,27 +691,61 @@ function renderTodaysAppointmentsList(todayAppointments) {
     });
 
     const patients = getData('patients');
-    const displayAppts = todayAppointments.slice(0, 5);
+    const allAppointments = getData('appointments');
 
-    let html = '<table class="data-table compact" style="margin:0;"><thead><tr><th>Time</th><th>Patient</th><th>Service</th><th>Status</th></tr></thead><tbody>';
-
-    displayAppts.forEach(apt => {
-        const patient = patients.find(p => p.id === apt.patientId);
-        const patientName = patient ? patient.name : apt.patientName || 'Unknown';
-        const statusClass = getStatusClass(apt.status);
-
-        html += `<tr style="cursor:pointer;" onclick="viewAppointmentDetails('${apt.id}')">
-            <td>${apt.time || apt.startTime || '-'}</td>
-            <td><strong>${escapeHtml(patientName)}</strong></td>
-            <td>${escapeHtml(apt.service || 'General')}</td>
-            <td><span class="status-badge ${statusClass}">${apt.status || 'Scheduled'}</span></td>
-        </tr>`;
+    // Build completed visit counts per patient (across all dates)
+    const completedCountByPatient = {};
+    allAppointments.forEach(a => {
+        if (a.status === 'Completed') {
+            completedCountByPatient[a.patientId] = (completedCountByPatient[a.patientId] || 0) + 1;
+        }
     });
 
-    html += '</tbody></table>';
+    // Split today's appointments into new vs returning
+    const newAppts = [];
+    const returningAppts = [];
+    todayAppointments.forEach(apt => {
+        if (completedCountByPatient[apt.patientId] > 0) {
+            returningAppts.push(apt);
+        } else {
+            newAppts.push(apt);
+        }
+    });
 
-    if (todayAppointments.length > 5) {
-        html += `<div style="text-align:center;padding:10px;"><a href="javascript:void(0)" onclick="switchTab('appointments')" style="font-size:0.82rem;color:var(--primary);font-weight:600;">+${todayAppointments.length - 5} more appointments</a></div>`;
+    function buildApptRows(appts) {
+        let rows = '';
+        appts.forEach(apt => {
+            const patient = patients.find(p => p.id === apt.patientId);
+            const patientName = patient ? patient.name : apt.patientName || 'Unknown';
+            const statusClass = getStatusClass(apt.status);
+            rows += `<tr style="cursor:pointer;" onclick="viewAppointmentDetails('${apt.id}')">
+                <td>${apt.time || apt.startTime || '-'}</td>
+                <td><strong>${escapeHtml(patientName)}</strong></td>
+                <td>${escapeHtml(apt.service || 'General')}</td>
+                <td><span class="status-badge ${statusClass}">${apt.status || 'Scheduled'}</span></td>
+            </tr>`;
+        });
+        return rows;
+    }
+
+    let html = '';
+
+    if (newAppts.length > 0) {
+        html += `<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;font-weight:600;font-size:0.85rem;color:#0D9488;"><i class="fas fa-user-plus"></i> New Patients (${newAppts.length})</div>`;
+        html += '<table class="data-table compact" style="margin:0;"><thead><tr><th>Time</th><th>Patient</th><th>Service</th><th>Status</th></tr></thead><tbody>';
+        html += buildApptRows(newAppts);
+        html += '</tbody></table>';
+    }
+
+    if (returningAppts.length > 0) {
+        html += `<div style="display:flex;align-items:center;gap:8px;padding:10px 14px;font-weight:600;font-size:0.85rem;color:#2563EB;${newAppts.length > 0 ? 'margin-top:12px;border-top:1px solid var(--border);' : ''}"><i class="fas fa-user-check"></i> Returning Patients (${returningAppts.length})</div>`;
+        html += '<table class="data-table compact" style="margin:0;"><thead><tr><th>Time</th><th>Patient</th><th>Service</th><th>Status</th></tr></thead><tbody>';
+        html += buildApptRows(returningAppts);
+        html += '</tbody></table>';
+    }
+
+    if (todayAppointments.length > 10) {
+        html += `<div style="text-align:center;padding:10px;"><a href="javascript:void(0)" onclick="switchTab('appointments')" style="font-size:0.82rem;color:var(--primary);font-weight:600;">View all ${todayAppointments.length} appointments</a></div>`;
     }
 
     container.innerHTML = html;
@@ -784,6 +818,25 @@ function loadPatients() {
                 });
                 filteredPatients = filteredPatients.filter(p => pendingFollowupIds.has(p.id));
                 break;
+            case 'new':
+                const newPatientIds = new Set();
+                const completedByPatientNew = {};
+                appointments.forEach(a => {
+                    if (a.status === 'Completed') {
+                        completedByPatientNew[a.patientId] = (completedByPatientNew[a.patientId] || 0) + 1;
+                    }
+                });
+                filteredPatients = filteredPatients.filter(p => !completedByPatientNew[p.id]);
+                break;
+            case 'returning':
+                const completedByPatientRet = {};
+                appointments.forEach(a => {
+                    if (a.status === 'Completed') {
+                        completedByPatientRet[a.patientId] = (completedByPatientRet[a.patientId] || 0) + 1;
+                    }
+                });
+                filteredPatients = filteredPatients.filter(p => completedByPatientRet[p.id] > 0);
+                break;
         }
     }
 
@@ -808,8 +861,12 @@ function loadPatients() {
         const completedVisits = patientAppointments.filter(a => a.status === 'Completed').length;
         const lastVisit = getLastVisit(patientAppointments);
 
+        const patientTypeBadge = completedVisits === 0
+            ? '<span class="status-badge new">New</span>'
+            : '<span class="status-badge returning">Returning</span>';
+
         return `<tr>
-            <td><strong><a href="javascript:void(0)" class="clickable-name" onclick="viewPatient('${p.id}')">${escapeHtml(p.name)}</a></strong></td>
+            <td><strong><a href="javascript:void(0)" class="clickable-name" onclick="viewPatient('${p.id}')">${escapeHtml(p.name)}</a></strong> ${patientTypeBadge}</td>
             <td>${p.age || '-'}</td>
             <td>${p.gender || '-'}</td>
             <td>${escapeHtml(p.phone)}</td>
