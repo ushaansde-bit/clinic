@@ -727,7 +727,7 @@ function loadPatients() {
     const statusFilter = document.getElementById('patientStatusFilter')?.value || 'all';
     const searchQuery = document.getElementById('patientSearch')?.value?.toLowerCase() || '';
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = getIndiaTodayDate();
 
     // Filter patients
     let filteredPatients = patients;
@@ -1042,6 +1042,9 @@ function viewPatient(id) {
     const btnWa = document.getElementById('btnPatientWa');
     const btnBook = document.getElementById('btnBookAppt');
     const btnComplete = document.getElementById('btnCompleteAppt');
+    const btnCancel = document.getElementById('btnCancelAppt');
+    const btnReschedule = document.getElementById('btnRescheduleAppt');
+    const btnEdit = document.getElementById('btnEditPatient');
 
     // Complete button: find latest completable appointment for this patient
     if (btnComplete) {
@@ -1072,9 +1075,10 @@ function viewPatient(id) {
         btnRx.style.cursor = '';
     }
     if (btnFu) {
+        const patientId = id;
         btnFu.onclick = function () {
             closeModal('viewPatientModal');
-            scheduleFollowup(id);
+            setTimeout(function () { scheduleFollowup(patientId); }, 150);
         };
         btnFu.style.display = '';
     }
@@ -1088,12 +1092,23 @@ function viewPatient(id) {
         btnBook.style.opacity = '';
         btnBook.style.cursor = '';
     }
+    if (btnEdit) {
+        const patientId = id;
+        btnEdit.onclick = function () {
+            closeModal('viewPatientModal');
+            setTimeout(function () { openEditPatient(patientId); }, 150);
+        };
+        btnEdit.style.display = '';
+    }
     if (btnWa) {
         btnWa.onclick = function () {
             openWhatsApp(patient.phone, `Hello ${patient.name}, this is Shree Physiotherapy Clinic. We hope you are doing well. Please reach us at 822004084 or 9092294466 for any queries.`);
         };
         btnWa.style.display = '';
     }
+    // Hide cancel/reschedule in patient view (only shown in appointment view)
+    if (btnCancel) btnCancel.style.display = 'none';
+    if (btnReschedule) btnReschedule.style.display = 'none';
 
     // Reset modal title and subtitle
     const modalTitle = document.querySelector('#viewPatientModal .modal h2');
@@ -1102,6 +1117,101 @@ function viewPatient(id) {
     if (modalSubtitle) modalSubtitle.textContent = 'Treatment History';
 
     openModal('viewPatientModal');
+}
+
+/* Edit Patient */
+function openEditPatient(patientId) {
+    const patients = getData('patients');
+    const patient = patients.find(p => p.id === patientId);
+    if (!patient) {
+        showToast('Patient not found.', 'error');
+        return;
+    }
+
+    document.getElementById('editPtId').value = patientId;
+    document.getElementById('editPtName').value = patient.name || '';
+    document.getElementById('editPtAge').value = patient.age || '';
+    document.getElementById('editPtGender').value = patient.gender || '';
+    document.getElementById('editPtPhone').value = patient.phone || '';
+    document.getElementById('editPtEmail').value = patient.email || '';
+    document.getElementById('editPtAddress').value = patient.address || '';
+
+    openModal('editPatientModal');
+}
+
+function saveEditPatient(event) {
+    event.preventDefault();
+
+    const patientId = document.getElementById('editPtId').value;
+    const name = document.getElementById('editPtName').value.trim();
+    const age = document.getElementById('editPtAge').value.trim();
+    const gender = document.getElementById('editPtGender').value;
+    const phone = document.getElementById('editPtPhone').value.trim();
+    const email = document.getElementById('editPtEmail').value.trim();
+    const address = document.getElementById('editPtAddress').value.trim();
+
+    if (!name || !age || !gender || !phone) {
+        showToast('Please fill in all required fields.', 'error');
+        return;
+    }
+
+    const patients = getData('patients');
+    const index = patients.findIndex(p => p.id === patientId);
+    if (index === -1) {
+        showToast('Patient not found.', 'error');
+        return;
+    }
+
+    // Check for duplicate phone (excluding current patient)
+    if (patients.find(p => p.phone === phone && p.id !== patientId)) {
+        showToast('Another patient with this phone number already exists.', 'error');
+        return;
+    }
+
+    patients[index].name = name;
+    patients[index].age = parseInt(age);
+    patients[index].gender = gender;
+    patients[index].phone = phone;
+    patients[index].email = email;
+    patients[index].address = address;
+    patients[index].updatedAt = new Date().toISOString();
+
+    setData('patients', patients);
+
+    // Propagate name/phone changes to linked appointments
+    const appointments = getData('appointments');
+    appointments.forEach(function(apt) {
+        if (apt.patientId === patientId) {
+            apt.patientName = name;
+            apt.name = name;
+            apt.phone = phone;
+        }
+    });
+    setData('appointments', appointments);
+
+    // Propagate name to prescriptions
+    const prescriptions = getData('prescriptions');
+    prescriptions.forEach(function(rx) {
+        if (rx.patientId === patientId) {
+            rx.patientName = name;
+        }
+    });
+    setData('prescriptions', prescriptions);
+
+    // Propagate name to follow-ups
+    const followups = getData('followups');
+    followups.forEach(function(fu) {
+        if (fu.patientId === patientId) {
+            fu.patientName = name;
+        }
+    });
+    setData('followups', followups);
+
+    closeModal('editPatientModal');
+    loadPatients();
+    loadAppointments();
+    refreshDashboard();
+    showToast('Patient updated successfully!', 'success');
 }
 
 function deletePatient(id) {
@@ -1675,14 +1785,20 @@ function viewAppointmentDetails(id) {
 
     // Wire up action buttons
     const btnRx = document.getElementById('btnWriteRx');
+    const btnFu = document.getElementById('btnScheduleFu');
     const btnWa = document.getElementById('btnPatientWa');
     const btnBook = document.getElementById('btnBookAppt');
     const btnComplete = document.getElementById('btnCompleteAppt');
+    const btnCancel = document.getElementById('btnCancelAppt');
+    const btnReschedule = document.getElementById('btnRescheduleAppt');
+    const btnEdit = document.getElementById('btnEditPatient');
+
+    const isActionable = apt.status !== 'Completed' && apt.status !== 'Cancelled';
 
     // Complete button: show if appointment time has passed and status is not Completed/Cancelled
     if (btnComplete) {
         const timePassed = hasAppointmentTimePassed(apt.date, apt.time || apt.startTime);
-        const canComplete = apt.status !== 'Completed' && apt.status !== 'Cancelled' && timePassed;
+        const canComplete = isActionable && timePassed;
         btnComplete.style.display = canComplete ? '' : 'none';
         btnComplete.onclick = function () {
             closeModal('viewPatientModal');
@@ -1700,6 +1816,14 @@ function viewAppointmentDetails(id) {
             setTimeout(function () { writePrescription(pid); }, 150);
         };
     }
+    if (btnFu) {
+        btnFu.style.display = apt.patientId ? '' : 'none';
+        btnFu.onclick = function () {
+            const pid = apt.patientId;
+            closeModal('viewPatientModal');
+            setTimeout(function () { scheduleFollowup(pid); }, 150);
+        };
+    }
     if (btnBook) {
         btnBook.style.display = apt.patientId ? '' : 'none';
         btnBook.style.opacity = '';
@@ -1708,6 +1832,33 @@ function viewAppointmentDetails(id) {
             const pid = apt.patientId;
             closeModal('viewPatientModal');
             setTimeout(function () { openQuickBooking(pid); }, 150);
+        };
+    }
+    // Cancel button - only for active appointments
+    if (btnCancel) {
+        btnCancel.style.display = isActionable ? '' : 'none';
+        btnCancel.onclick = function () {
+            if (confirm('Cancel this appointment?')) {
+                closeModal('viewPatientModal');
+                updateAppointmentStatus(apt.id, 'Cancelled');
+            }
+        };
+    }
+    // Reschedule button - only for active appointments
+    if (btnReschedule) {
+        btnReschedule.style.display = isActionable ? '' : 'none';
+        btnReschedule.onclick = function () {
+            closeModal('viewPatientModal');
+            setTimeout(function () { rescheduleAppointment(apt.id); }, 150);
+        };
+    }
+    // Edit patient button
+    if (btnEdit) {
+        btnEdit.style.display = apt.patientId ? '' : 'none';
+        btnEdit.onclick = function () {
+            const pid = apt.patientId;
+            closeModal('viewPatientModal');
+            setTimeout(function () { openEditPatient(pid); }, 150);
         };
     }
     if (btnWa) {
@@ -2106,35 +2257,17 @@ function viewPrescription(id) {
     if (detailsEl) detailsEl.innerHTML = content;
     if (visitEl) visitEl.innerHTML = '';
 
-    // Hide patient-specific buttons
-    const btnRx = document.getElementById('btnWriteRx');
-    const btnFu = document.getElementById('btnScheduleFu');
-    const btnWa = document.getElementById('btnPatientWa');
-    const btnBook = document.getElementById('btnBookAppt');
-
-    if (btnRx) btnRx.style.display = 'none';
-    if (btnFu) btnFu.style.display = 'none';
-    if (btnWa) btnWa.style.display = 'none';
-    if (btnBook) btnBook.style.display = 'none';
+    // Hide all action buttons for prescription view
+    const allBtnIds = ['btnWriteRx', 'btnScheduleFu', 'btnPatientWa', 'btnBookAppt', 'btnCompleteAppt', 'btnCancelAppt', 'btnRescheduleAppt', 'btnEditPatient'];
+    allBtnIds.forEach(function(btnId) {
+        var btn = document.getElementById(btnId);
+        if (btn) btn.style.display = 'none';
+    });
 
     const modalTitle = document.querySelector('#viewPatientModal .modal h2');
     if (modalTitle) modalTitle.textContent = 'Prescription Details';
 
     openModal('viewPatientModal');
-
-    // Restore on close
-    const observer = new MutationObserver(() => {
-        const modal = document.getElementById('viewPatientModal');
-        if (modal && !modal.classList.contains('active')) {
-            if (btnRx) btnRx.style.display = '';
-            if (btnFu) btnFu.style.display = '';
-            if (btnWa) btnWa.style.display = '';
-            if (btnBook) btnBook.style.display = '';
-            if (modalTitle) modalTitle.textContent = 'Patient Details';
-            observer.disconnect();
-        }
-    });
-    observer.observe(document.getElementById('viewPatientModal'), { attributes: true, attributeFilter: ['class'] });
 }
 
 function printPrescription(id) {
@@ -3301,11 +3434,13 @@ function updateTodaySummary() {
     const elCompleted = document.getElementById('summaryCompleted');
     const elRemaining = document.getElementById('summaryRemaining');
     const elRevenue = document.getElementById('statRevenue');
+    const elRevenueToday2 = document.getElementById('statRevenueToday2');
 
     if (elTotal) elTotal.textContent = todayAppts.length;
     if (elCompleted) elCompleted.textContent = completed;
     if (elRemaining) elRemaining.textContent = remaining;
-    if (elRevenue) elRevenue.textContent = '₹' + todayRevenue.toLocaleString('en-IN');
+    if (elRevenue) elRevenue.textContent = todayRevenue.toLocaleString('en-IN');
+    if (elRevenueToday2) elRevenueToday2.textContent = '₹' + todayRevenue.toLocaleString('en-IN');
 }
 
 /* ============================================
@@ -4665,3 +4800,208 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
+/* ============================================
+   TEST DATA SEEDER - Dec 2025 to Feb 2026
+   Run via browser console: seedTestData()
+   ============================================ */
+function seedTestData() {
+    if (!confirm('This will add sample patient data from Dec 2025 to Feb 2026. Existing data will NOT be deleted. Continue?')) return;
+
+    const services = ['General Consultation', 'Fascial Manipulation', 'Orthopedic Rehabilitation', 'Neuro Rehabilitation', "Women's Health Physio", 'Elderly Home Care', 'Pediatric Physiotherapy'];
+    const payModes = ['Cash', 'GPay', 'Card'];
+    const timeSlots = ['10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM'];
+
+    // Sample patients with realistic Indian names and physio conditions
+    const samplePatients = [
+        { name: 'Rajesh Kumar', age: 45, gender: 'Male', phone: '9876543201', condition: 'Chronic lower back pain' },
+        { name: 'Priya Sharma', age: 32, gender: 'Female', phone: '9876543202', condition: 'Frozen shoulder (left)' },
+        { name: 'Venkatesh Iyer', age: 58, gender: 'Male', phone: '9876543203', condition: 'Knee osteoarthritis (bilateral)' },
+        { name: 'Lakshmi Devi', age: 67, gender: 'Female', phone: '9876543204', condition: 'Post-stroke rehabilitation' },
+        { name: 'Arjun Nair', age: 28, gender: 'Male', phone: '9876543205', condition: 'ACL reconstruction recovery' },
+        { name: 'Meena Sundaram', age: 40, gender: 'Female', phone: '9876543206', condition: 'Cervical spondylosis' },
+        { name: 'Suresh Babu', age: 52, gender: 'Male', phone: '9876543207', condition: 'Sciatica (right leg)' },
+        { name: 'Anitha Rajan', age: 35, gender: 'Female', phone: '9876543208', condition: 'Postpartum pelvic floor weakness' },
+        { name: 'Karthik Murugan', age: 22, gender: 'Male', phone: '9876543209', condition: 'Sports injury - hamstring strain' },
+        { name: 'Saroja Ammal', age: 72, gender: 'Female', phone: '9876543210', condition: 'Parkinson disease mobility' },
+        { name: 'Dinesh Pandian', age: 48, gender: 'Male', phone: '9876543211', condition: 'Tennis elbow (right)' },
+        { name: 'Kavitha Krishnan', age: 55, gender: 'Female', phone: '9876543212', condition: 'Lumbar disc herniation' },
+        { name: 'Baby Arun', age: 5, gender: 'Male', phone: '9876543213', condition: 'Cerebral palsy - motor development' },
+        { name: 'Revathi Mohan', age: 38, gender: 'Female', phone: '9876543214', condition: 'Plantar fasciitis (bilateral)' },
+        { name: 'Gopalakrishnan S', age: 63, gender: 'Male', phone: '9876543215', condition: 'Total knee replacement rehab' }
+    ];
+
+    // Service mapping by condition
+    const conditionService = {
+        'Chronic lower back pain': 'Orthopedic Rehabilitation',
+        'Frozen shoulder (left)': 'Fascial Manipulation',
+        'Knee osteoarthritis (bilateral)': 'Orthopedic Rehabilitation',
+        'Post-stroke rehabilitation': 'Neuro Rehabilitation',
+        'ACL reconstruction recovery': 'Orthopedic Rehabilitation',
+        'Cervical spondylosis': 'Fascial Manipulation',
+        'Sciatica (right leg)': 'Orthopedic Rehabilitation',
+        'Postpartum pelvic floor weakness': "Women's Health Physio",
+        'Sports injury - hamstring strain': 'Orthopedic Rehabilitation',
+        'Parkinson disease mobility': 'Neuro Rehabilitation',
+        'Tennis elbow (right)': 'Fascial Manipulation',
+        'Lumbar disc herniation': 'Orthopedic Rehabilitation',
+        'Cerebral palsy - motor development': 'Pediatric Physiotherapy',
+        'Plantar fasciitis (bilateral)': 'Orthopedic Rehabilitation',
+        'Total knee replacement rehab': 'Orthopedic Rehabilitation'
+    };
+
+    let patients = getData('patients');
+    let appointments = getData('appointments');
+    let prescriptions = getData('prescriptions');
+    let followups = getData('followups');
+
+    // Create patients with staggered registration dates
+    const createdPatientIds = [];
+    const regDates = [
+        '2025-12-01', '2025-12-03', '2025-12-05', '2025-12-08', '2025-12-10',
+        '2025-12-15', '2025-12-18', '2025-12-22', '2025-12-26', '2025-12-30',
+        '2026-01-03', '2026-01-07', '2026-01-13', '2026-01-20', '2026-01-27'
+    ];
+
+    samplePatients.forEach(function(sp, i) {
+        // Skip if phone already exists
+        if (patients.find(function(p) { return p.phone === sp.phone; })) {
+            var existingPt = patients.find(function(p) { return p.phone === sp.phone; });
+            createdPatientIds.push(existingPt.id);
+            return;
+        }
+
+        var pt = {
+            id: generateId(),
+            name: sp.name,
+            age: sp.age,
+            gender: sp.gender,
+            phone: sp.phone,
+            email: '',
+            address: 'Coimbatore, Tamil Nadu',
+            createdAt: regDates[i] + 'T10:00:00.000Z'
+        };
+        patients.push(pt);
+        createdPatientIds.push(pt.id);
+    });
+
+    setData('patients', patients);
+
+    // Generate appointments from Dec 2025 to Feb 6, 2026
+    // Each patient gets 2-4 appointments per month (realistic for physio)
+    var startDate = new Date(2025, 11, 1); // Dec 1, 2025
+    var endDate = new Date(2026, 1, 6);   // Feb 6, 2026
+
+    var amounts = [300, 400, 500, 500, 500, 600, 700, 800, 500, 1000, 400, 500, 600, 500, 800];
+
+    for (var pi = 0; pi < createdPatientIds.length; pi++) {
+        var patientId = createdPatientIds[pi];
+        var patient = patients.find(function(p) { return p.id === patientId; });
+        if (!patient) continue;
+
+        var regDate = new Date(patient.createdAt);
+        var sp = samplePatients[pi];
+        var service = conditionService[sp.condition] || 'General Consultation';
+        var baseAmount = amounts[pi];
+
+        // Generate appointments: 2-3 per week after registration
+        var aptDate = new Date(regDate);
+        aptDate.setDate(aptDate.getDate() + 1); // First appointment day after registration
+
+        var aptCount = 0;
+        while (aptDate <= endDate && aptCount < 20) {
+            // Skip Sundays
+            if (aptDate.getDay() === 0) {
+                aptDate.setDate(aptDate.getDate() + 1);
+                continue;
+            }
+
+            var dateStr = aptDate.toISOString().split('T')[0];
+            var timeIdx = (pi + aptCount) % timeSlots.length;
+            var time = timeSlots[timeIdx];
+            var duration = sp.age < 10 ? 45 : 30;
+            var endTime = calculateEndTime(time, duration);
+            var payMode = payModes[(pi + aptCount) % payModes.length];
+            var isPast = aptDate < new Date();
+
+            var apt = {
+                id: generateId(),
+                patientId: patientId,
+                patientName: patient.name,
+                name: patient.name,
+                phone: patient.phone,
+                date: dateStr,
+                time: time,
+                startTime: time,
+                endTime: endTime,
+                duration: duration,
+                service: aptCount === 0 ? 'General Consultation' : (aptCount % 4 === 0 ? 'Follow-up Visit' : service),
+                status: isPast ? 'Completed' : 'Scheduled',
+                paymentStatus: isPast ? 'Paid' : 'Pending',
+                amountPaid: isPast ? String(baseAmount) : '',
+                paymentMode: isPast ? payMode : null,
+                createdAt: regDate.toISOString()
+            };
+
+            if (isPast) {
+                apt.completedAt = dateStr + 'T' + (parseInt(time) + 1) + ':00:00.000Z';
+                apt.treatmentNotes = 'Session ' + (aptCount + 1) + ': ' + sp.condition + ' treatment. Patient responding well.';
+            }
+
+            appointments.push(apt);
+
+            // Create prescription for first visit
+            if (aptCount === 0 && isPast) {
+                var rx = {
+                    id: generateId(),
+                    patientId: patientId,
+                    patientName: patient.name,
+                    date: dateStr,
+                    diagnosis: sp.condition,
+                    treatment: 'Physiotherapy protocol: IFT + Ultrasound therapy + Manual mobilization. ' + (sp.age > 60 ? '3 sessions/week for 4 weeks.' : '2-3 sessions/week for 3 weeks.'),
+                    medications: sp.age > 50 ? 'Tab. Aceclofenac 100mg BD x 5 days, Thiocolchicoside 4mg BD x 5 days' : '',
+                    instructions: 'Home exercises: ' + (sp.condition.includes('back') || sp.condition.includes('disc') ? 'Cat-cow stretches, pelvic tilts, bird-dog exercise 10 reps x 3 sets daily.' : sp.condition.includes('shoulder') ? 'Pendulum exercises, wall climbing, towel stretch 10 reps x 3 sets daily.' : sp.condition.includes('knee') ? 'Quad sets, straight leg raises, heel slides 15 reps x 3 sets daily.' : 'Prescribed exercises 10 reps x 3 sets daily. Avoid heavy lifting.'),
+                    paymentAmount: String(baseAmount),
+                    paymentMode: payMode,
+                    paymentStatus: 'Paid',
+                    createdAt: dateStr + 'T10:30:00.000Z'
+                };
+                prescriptions.push(rx);
+
+                // Create follow-up for 2 weeks later
+                var fuDate = new Date(aptDate);
+                fuDate.setDate(fuDate.getDate() + 14);
+                if (fuDate.getDay() === 0) fuDate.setDate(fuDate.getDate() + 1);
+
+                var fu = {
+                    id: generateId(),
+                    patientId: patientId,
+                    patientName: patient.name,
+                    date: fuDate.toISOString().split('T')[0],
+                    reason: 'Review after initial treatment - ' + sp.condition,
+                    notes: 'Check progress, adjust treatment plan if needed',
+                    status: fuDate < new Date() ? 'Completed' : 'Pending',
+                    createdAt: dateStr + 'T10:30:00.000Z'
+                };
+                followups.push(fu);
+            }
+
+            aptCount++;
+            // Next appointment: 2-4 days later
+            aptDate.setDate(aptDate.getDate() + 2 + Math.floor(Math.random() * 3));
+        }
+    }
+
+    setData('appointments', appointments);
+    setData('prescriptions', prescriptions);
+    setData('followups', followups);
+
+    // Refresh everything
+    refreshDashboard();
+    loadPatients();
+    loadAppointments();
+    renderCalendarView();
+    loadAccountsBook();
+
+    showToast('Test data seeded! ' + createdPatientIds.length + ' patients, check Dec 2025 - Feb 2026.', 'success');
+}
