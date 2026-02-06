@@ -76,51 +76,60 @@ function getSavedCredentials() {
 
 function handleAdminLogin(event) {
     event.preventDefault();
-    var usernameInput = document.getElementById('loginUsername');
-    var passwordInput = document.getElementById('loginPassword');
-    var errorEl = document.getElementById('loginError');
-    var infoEl = document.getElementById('loginInfo');
-    var username = usernameInput ? usernameInput.value.trim() : '';
-    var password = passwordInput ? passwordInput.value : '';
-    var creds = getSavedCredentials();
 
-    // Validate input
-    if (username.length < 3) {
-        if (errorEl) { errorEl.textContent = 'Username must be at least 3 characters.'; errorEl.style.display = 'block'; }
-        return;
-    }
-    if (password.length < 4) {
-        if (errorEl) { errorEl.textContent = 'Password must be at least 4 characters.'; errorEl.style.display = 'block'; }
-        return;
-    }
+    try {
+        var usernameInput = document.getElementById('loginUsername');
+        var passwordInput = document.getElementById('loginPassword');
+        var errorEl = document.getElementById('loginError');
+        var infoEl = document.getElementById('loginInfo');
+        var username = usernameInput ? usernameInput.value.trim() : '';
+        var password = passwordInput ? passwordInput.value : '';
+        var creds = getSavedCredentials();
 
-    if (!creds) {
-        // First login - save credentials
-        localStorage.setItem('_dashCredentials', JSON.stringify({ u: username, p: password }));
-        if (window.CloudSync && CloudSync.isReady()) {
-            CloudSync.save('_credentials', { u: username, p: password });
-        }
-        sessionStorage.setItem('dashLoggedIn', 'true');
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboardApp').style.display = 'block';
-        switchTab('overview');
-        initDashboardData();
-    } else if (username === creds.u && password === creds.p) {
-        // Correct credentials
-        sessionStorage.setItem('dashLoggedIn', 'true');
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('dashboardApp').style.display = 'block';
+        // Hide previous messages
         if (errorEl) errorEl.style.display = 'none';
-        switchTab('overview');
-        initDashboardData();
-    } else {
-        // Wrong credentials
-        if (errorEl) { errorEl.textContent = 'Invalid username or password.'; errorEl.style.display = 'block'; }
-        if (passwordInput) {
-            passwordInput.value = '';
-            passwordInput.focus();
+        if (infoEl) infoEl.style.display = 'none';
+
+        // Validate input
+        if (username.length < 3) {
+            if (errorEl) { errorEl.textContent = 'Username must be at least 3 characters.'; errorEl.style.display = 'block'; }
+            return;
         }
+        if (password.length < 4) {
+            if (errorEl) { errorEl.textContent = 'Password must be at least 4 characters.'; errorEl.style.display = 'block'; }
+            return;
+        }
+
+        if (!creds) {
+            // First login - save credentials
+            localStorage.setItem('_dashCredentials', JSON.stringify({ u: username, p: password }));
+            if (window.CloudSync && CloudSync.isReady()) {
+                CloudSync.save('_credentials', { u: username, p: password });
+            }
+            loginSuccess();
+        } else if (username === creds.u && password === creds.p) {
+            // Correct credentials
+            loginSuccess();
+        } else {
+            // Wrong credentials
+            if (errorEl) { errorEl.textContent = 'Invalid username or password.'; errorEl.style.display = 'block'; }
+            if (passwordInput) {
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+    } catch (err) {
+        console.error('Login error:', err);
+        alert('Login error: ' + err.message);
     }
+}
+
+function loginSuccess() {
+    sessionStorage.setItem('dashLoggedIn', 'true');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboardApp').style.display = 'block';
+    switchTab('overview');
+    initDashboardData();
 }
 
 function showLoginScreen() {
