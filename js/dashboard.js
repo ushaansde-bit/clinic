@@ -65,7 +65,7 @@ function hasAppointmentTimePassed(appointmentDate, appointmentTime) {
 }
 
 /* ============================================
-   0. LOGIN
+   0. ADMIN LOGIN (Single User)
    ============================================ */
 function getSavedCredentials() {
     try {
@@ -74,17 +74,17 @@ function getSavedCredentials() {
     } catch (e) { return null; }
 }
 
-function handleSetup(event) {
+function handleAdminLogin(event) {
     event.preventDefault();
-    var username = document.getElementById('setupUsername').value.trim();
-    var password = document.getElementById('setupPassword').value;
-    var confirm = document.getElementById('setupConfirm').value;
-    var errorEl = document.getElementById('setupError');
+    var usernameInput = document.getElementById('loginUsername');
+    var passwordInput = document.getElementById('loginPassword');
+    var errorEl = document.getElementById('loginError');
+    var infoEl = document.getElementById('loginInfo');
+    var username = usernameInput ? usernameInput.value.trim() : '';
+    var password = passwordInput ? passwordInput.value : '';
+    var creds = getSavedCredentials();
 
-    if (password !== confirm) {
-        if (errorEl) { errorEl.textContent = 'Passwords do not match.'; errorEl.style.display = 'block'; }
-        return;
-    }
+    // Validate input
     if (username.length < 3) {
         if (errorEl) { errorEl.textContent = 'Username must be at least 3 characters.'; errorEl.style.display = 'block'; }
         return;
@@ -94,29 +94,19 @@ function handleSetup(event) {
         return;
     }
 
-    localStorage.setItem('_dashCredentials', JSON.stringify({ u: username, p: password }));
-    // Also sync credentials to cloud
-    if (window.CloudSync && CloudSync.isReady()) {
-        CloudSync.save('_credentials', { u: username, p: password });
-    }
-
-    sessionStorage.setItem('dashLoggedIn', 'true');
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('dashboardApp').style.display = 'block';
-    switchTab('overview');
-    initDashboardData();
-}
-
-function handleLogin(event) {
-    event.preventDefault();
-    var usernameInput = document.getElementById('loginUsername');
-    var passwordInput = document.getElementById('loginPassword');
-    var errorEl = document.getElementById('loginError');
-    var username = usernameInput ? usernameInput.value.trim() : '';
-    var password = passwordInput ? passwordInput.value : '';
-    var creds = getSavedCredentials();
-
-    if (creds && username === creds.u && password === creds.p) {
+    if (!creds) {
+        // First login - save credentials
+        localStorage.setItem('_dashCredentials', JSON.stringify({ u: username, p: password }));
+        if (window.CloudSync && CloudSync.isReady()) {
+            CloudSync.save('_credentials', { u: username, p: password });
+        }
+        sessionStorage.setItem('dashLoggedIn', 'true');
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboardApp').style.display = 'block';
+        switchTab('overview');
+        initDashboardData();
+    } else if (username === creds.u && password === creds.p) {
+        // Correct credentials
         sessionStorage.setItem('dashLoggedIn', 'true');
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardApp').style.display = 'block';
@@ -124,7 +114,8 @@ function handleLogin(event) {
         switchTab('overview');
         initDashboardData();
     } else {
-        if (errorEl) errorEl.style.display = 'block';
+        // Wrong credentials
+        if (errorEl) { errorEl.textContent = 'Invalid username or password.'; errorEl.style.display = 'block'; }
         if (passwordInput) {
             passwordInput.value = '';
             passwordInput.focus();
@@ -133,20 +124,16 @@ function handleLogin(event) {
 }
 
 function showLoginScreen() {
-    var creds = getSavedCredentials();
     var loginScreen = document.getElementById('loginScreen');
-    var setupCard = document.getElementById('setupCard');
     var loginCard = document.getElementById('loginCard');
+    var infoEl = document.getElementById('loginInfo');
+    var creds = getSavedCredentials();
 
-    if (creds) {
-        // Has credentials - show login form
-        if (setupCard) setupCard.style.display = 'none';
-        if (loginCard) loginCard.style.display = '';
-    } else {
-        // No credentials - show setup form
-        if (setupCard) setupCard.style.display = '';
-        if (loginCard) loginCard.style.display = 'none';
+    if (!creds && infoEl) {
+        infoEl.textContent = 'First login will set your admin credentials.';
+        infoEl.style.display = 'block';
     }
+    if (loginCard) loginCard.style.display = '';
     if (loginScreen) loginScreen.style.display = '';
 }
 
