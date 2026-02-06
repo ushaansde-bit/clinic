@@ -1857,7 +1857,7 @@ function savePrescription(event) {
         instructions,
         paymentAmount: paymentAmount || null,
         paymentMode: paymentMode || null,
-        paymentStatus: paymentAmount && paymentMode ? 'Paid' : 'Pending',
+        paymentStatus: (paymentAmount && parseFloat(paymentAmount) > 0) ? 'Paid' : 'Pending',
         createdAt: new Date().toISOString()
     };
 
@@ -1879,7 +1879,7 @@ function savePrescription(event) {
         matchingApt.updatedAt = new Date().toISOString();
         if (paymentAmount) matchingApt.amountPaid = paymentAmount;
         if (paymentMode) matchingApt.paymentMode = paymentMode;
-        matchingApt.paymentStatus = paymentAmount && paymentMode ? 'Paid' : 'Pending';
+        matchingApt.paymentStatus = (paymentAmount && parseFloat(paymentAmount) > 0) ? 'Paid' : 'Pending';
         setData('appointments', appointments);
 
         // Also complete any linked follow-up
