@@ -1279,11 +1279,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .service-modal-footer {
   padding: 14px 20px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  background: linear-gradient(135deg, #f8f9f7 0%, #f0f2ef 100%);
   border-top: 1px solid var(--border-light);
-  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
   flex-shrink: 0;
 }
 
@@ -1291,11 +1288,11 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 12px;
   padding: 10px 14px;
-  background: #fff;
+  background: white;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--border-light);
 }
 
 .service-author-image {
@@ -1328,46 +1325,27 @@ h1, h2, h3, h4, h5, h6 {
 .service-modal-buttons {
   display: flex;
   gap: 12px;
-  justify-content: center;
   flex-wrap: wrap;
 }
 
-.service-modal-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 28px;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-  color: #fff;
-  border-radius: 30px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
+.service-modal-buttons .btn {
+  flex: 1;
+  min-width: 130px;
+  text-align: center;
+  justify-content: center;
+  padding: 10px 16px;
+  font-size: 0.85rem;
 }
 
-.service-modal-cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(29, 78, 137, 0.3);
-  color: #fff;
-}
-
-.service-modal-phone {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 28px;
-  background: #fff;
-  color: var(--primary);
+.service-modal-buttons .btn-outline {
+  background: white;
   border: 2px solid var(--primary);
-  border-radius: 30px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
+  color: var(--primary);
 }
 
-.service-modal-phone:hover {
+.service-modal-buttons .btn-outline:hover {
   background: var(--primary);
-  color: #fff;
+  color: white;
 }
 
 /* Service Modal Responsive */
@@ -1434,9 +1412,9 @@ h1, h2, h3, h4, h5, h6 {
     gap: 10px;
   }
 
-  .service-modal-cta,
-  .service-modal-phone {
+  .service-modal-buttons .btn {
     flex: 1;
+    min-width: auto;
     justify-content: center;
     padding: 10px 14px;
     font-size: 0.85rem;
@@ -2693,10 +2671,7 @@ button.read-more-link {
 
 .article-popup-footer {
   padding: 14px 20px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+  background: linear-gradient(135deg, #f8f9f7 0%, #f0f2ef 100%);
   border-top: 1px solid var(--border-light);
   flex-shrink: 0;
 }
@@ -2705,11 +2680,11 @@ button.read-more-link {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 12px;
   padding: 10px 14px;
-  background: #fff;
+  background: white;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--border-light);
 }
 
 .popup-author-image {
@@ -2740,16 +2715,27 @@ button.read-more-link {
 .article-popup-buttons {
   display: flex;
   gap: 12px;
-  justify-content: center;
   flex-wrap: wrap;
 }
 
 .article-popup-buttons .btn {
   flex: 1;
   min-width: 130px;
+  text-align: center;
   justify-content: center;
   padding: 10px 16px;
   font-size: 0.85rem;
+}
+
+.article-popup-buttons .btn-outline {
+  background: white;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+.article-popup-buttons .btn-outline:hover {
+  background: var(--primary);
+  color: white;
 }
 
 /* Article Popup Responsive */
