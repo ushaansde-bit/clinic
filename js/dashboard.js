@@ -11,6 +11,8 @@ let currentDashYear = new Date().getFullYear();
 let currentWeekStart = getWeekStart(new Date());
 let calendarView = 'week'; // 'day', 'week', or 'month'
 let currentViewingPatientId = null;
+let currentViewingAppointmentId = null;
+let patientDetailReturnTab = 'patients';
 let selectedCalendarDate = new Date();
 let miniCalendarMonth = new Date().getMonth();
 let miniCalendarYear = new Date().getFullYear();
@@ -180,6 +182,17 @@ function initDashboardData() {
     renderCalendarView();
 }
 
+/* ---- Helper: detect currently visible tab ---- */
+function getCurrentVisibleTabName() {
+    const tabs = document.querySelectorAll('.tab-content');
+    for (const tab of tabs) {
+        if (tab.style.display !== 'none' && tab.id.startsWith('tab-')) {
+            return tab.id.replace('tab-', '');
+        }
+    }
+    return 'overview';
+}
+
 /* ============================================
    1. TAB NAVIGATION
    ============================================ */
@@ -237,6 +250,9 @@ function switchTab(tabName) {
             break;
         case 'trash':
             loadTrash();
+            break;
+        case 'patientdetail':
+            window.scrollTo(0, 0);
             break;
     }
 }
@@ -1001,28 +1017,38 @@ function viewPatient(id) {
     }
 
     currentViewingPatientId = id;
+    currentViewingAppointmentId = null;
 
-    // Render patient details
-    const detailsEl = document.getElementById('patientDetails');
+    // Detect current tab for back button
+    const currentTab = getCurrentVisibleTabName();
+    if (currentTab !== 'patientdetail') {
+        patientDetailReturnTab = currentTab;
+    }
+
+    // Set page title
+    const titleEl = document.getElementById('patientDetailTitle');
+    if (titleEl) titleEl.textContent = 'Patient Details';
+
+    // Render patient info card
+    const detailsEl = document.getElementById('pdPatientDetails');
     if (detailsEl) {
         detailsEl.innerHTML = `
-            <div class="patient-profile">
-                <div class="patient-avatar">${patient.name.charAt(0).toUpperCase()}</div>
-                <div class="patient-info-grid">
-                    <div><strong>Name:</strong> ${escapeHtml(patient.name)}</div>
-                    <div><strong>Age:</strong> ${patient.age || '-'}</div>
-                    <div><strong>Gender:</strong> ${patient.gender || '-'}</div>
-                    <div><strong>Phone:</strong> ${escapeHtml(patient.phone)}</div>
-                    ${patient.email ? `<div><strong>Email:</strong> ${escapeHtml(patient.email)}</div>` : ''}
-                    ${patient.address ? `<div class="full-width"><strong>Address:</strong> ${escapeHtml(patient.address)}</div>` : ''}
-                    <div><strong>Registered:</strong> ${formatDate(patient.createdAt)}</div>
+            <div class="pd-info-card">
+                <div class="pd-avatar">${patient.name.charAt(0).toUpperCase()}</div>
+                <h3 class="pd-name">${escapeHtml(patient.name)}</h3>
+                <div class="pd-info-grid">
+                    <div class="pd-info-row"><i class="fas fa-birthday-cake"></i><span>${patient.age || '-'} yrs, ${patient.gender || '-'}</span></div>
+                    <div class="pd-info-row"><i class="fas fa-phone"></i><span>${escapeHtml(patient.phone)}</span></div>
+                    ${patient.email ? `<div class="pd-info-row"><i class="fas fa-envelope"></i><span>${escapeHtml(patient.email)}</span></div>` : ''}
+                    ${patient.address ? `<div class="pd-info-row"><i class="fas fa-map-marker-alt"></i><span>${escapeHtml(patient.address)}</span></div>` : ''}
+                    <div class="pd-info-row"><i class="fas fa-calendar-alt"></i><span>Registered ${formatDate(patient.createdAt)}</span></div>
                 </div>
             </div>
         `;
     }
 
-    // Render treatment history (appointments + prescriptions)
-    const visitEl = document.getElementById('visitHistory');
+    // Render treatment history
+    const visitEl = document.getElementById('pdVisitHistory');
     if (visitEl) {
         const appointments = getData('appointments').filter(a => a.patientId === id);
         const prescriptions = getData('prescriptions').filter(rx => rx.patientId === id);
@@ -1030,11 +1056,10 @@ function viewPatient(id) {
 
         let html = '';
 
-        // Appointments section
         if (appointments.length > 0) {
             html += '<div class="history-section">';
-            html += '<h4><i class="fas fa-calendar-check"></i> Appointments</h4>';
-            html += '<div class="history-list">';
+            html += '<h4><i class="fas fa-calendar-check"></i> Appointments (' + appointments.length + ')</h4>';
+            html += '<div class="pd-history-list">';
             appointments.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(a => {
                 const statusClass = getStatusClass(a.status);
                 const duration = a.duration || 30;
@@ -1052,17 +1077,16 @@ function viewPatient(id) {
             html += '</div></div>';
         }
 
-        // Prescriptions section
         if (prescriptions.length > 0) {
             html += '<div class="history-section">';
-            html += '<h4><i class="fas fa-file-prescription"></i> Prescriptions</h4>';
-            html += '<div class="history-list">';
+            html += '<h4><i class="fas fa-file-prescription"></i> Prescriptions (' + prescriptions.length + ')</h4>';
+            html += '<div class="pd-history-list">';
             prescriptions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(rx => {
                 html += `
                     <div class="history-item">
                         <div class="history-date">${formatDate(rx.date)}</div>
                         <div class="history-content">
-                            <span class="history-diagnosis">${escapeHtml(rx.diagnosis ? rx.diagnosis.substring(0, 60) : 'N/A')}${rx.diagnosis && rx.diagnosis.length > 60 ? '...' : ''}</span>
+                            <span class="history-diagnosis">${escapeHtml(rx.diagnosis ? rx.diagnosis.substring(0, 80) : 'N/A')}${rx.diagnosis && rx.diagnosis.length > 80 ? '...' : ''}</span>
                         </div>
                     </div>
                 `;
@@ -1070,11 +1094,10 @@ function viewPatient(id) {
             html += '</div></div>';
         }
 
-        // Follow-ups section
         if (followups.length > 0) {
             html += '<div class="history-section">';
-            html += '<h4><i class="fas fa-bell"></i> Follow-ups</h4>';
-            html += '<div class="history-list">';
+            html += '<h4><i class="fas fa-bell"></i> Follow-ups (' + followups.length + ')</h4>';
+            html += '<div class="pd-history-list">';
             followups.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(f => {
                 const statusClass = f.status === 'Completed' ? 'completed' : 'pending';
                 html += `
@@ -1097,87 +1120,14 @@ function viewPatient(id) {
         visitEl.innerHTML = html;
     }
 
-    // Wire up action buttons
-    const btnRx = document.getElementById('btnWriteRx');
-    const btnFu = document.getElementById('btnScheduleFu');
-    const btnWa = document.getElementById('btnPatientWa');
-    const btnBook = document.getElementById('btnBookAppt');
-    const btnComplete = document.getElementById('btnCompleteAppt');
-    const btnCancel = document.getElementById('btnCancelAppt');
-    const btnReschedule = document.getElementById('btnRescheduleAppt');
-    const btnEdit = document.getElementById('btnEditPatient');
+    // Set subtitle
+    const subtitleEl = document.getElementById('pdHistorySubtitle');
+    if (subtitleEl) subtitleEl.innerHTML = '<i class="fas fa-history" style="margin-right:8px;opacity:0.7;"></i>Treatment History';
 
-    // Complete button: find latest completable appointment for this patient
-    if (btnComplete) {
-        const allAppts = getData('appointments').filter(a => a.patientId === id);
-        const completableAppt = allAppts
-            .filter(a => a.status !== 'Completed' && a.status !== 'Cancelled' && hasAppointmentTimePassed(a.date, a.time || a.startTime))
-            .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    // Render action buttons
+    renderPatientDetailActions(id, 'patient');
 
-        if (completableAppt) {
-            btnComplete.style.display = '';
-            btnComplete.onclick = function () {
-                closeModal('viewPatientModal');
-                setTimeout(function () { openTreatmentModal(completableAppt.id); }, 150);
-            };
-        } else {
-            btnComplete.style.display = 'none';
-        }
-    }
-
-    if (btnRx) {
-        const patientId = id;
-        btnRx.onclick = function () {
-            closeModal('viewPatientModal');
-            setTimeout(function () { writePrescription(patientId); }, 150);
-        };
-        btnRx.style.display = '';
-        btnRx.style.opacity = '';
-        btnRx.style.cursor = '';
-    }
-    if (btnFu) {
-        const patientId = id;
-        btnFu.onclick = function () {
-            closeModal('viewPatientModal');
-            setTimeout(function () { scheduleFollowup(patientId); }, 150);
-        };
-        btnFu.style.display = '';
-    }
-    if (btnBook) {
-        const patientId = id;
-        btnBook.onclick = function () {
-            closeModal('viewPatientModal');
-            setTimeout(function () { openQuickBooking(patientId); }, 150);
-        };
-        btnBook.style.display = '';
-        btnBook.style.opacity = '';
-        btnBook.style.cursor = '';
-    }
-    if (btnEdit) {
-        const patientId = id;
-        btnEdit.onclick = function () {
-            closeModal('viewPatientModal');
-            setTimeout(function () { openEditPatient(patientId); }, 150);
-        };
-        btnEdit.style.display = '';
-    }
-    if (btnWa) {
-        btnWa.onclick = function () {
-            openWhatsApp(patient.phone, `Hello ${patient.name}, this is Shree Physiotherapy Clinic. We hope you are doing well. Please reach us at 822004084 or 9092294466 for any queries.`);
-        };
-        btnWa.style.display = '';
-    }
-    // Hide cancel/reschedule in patient view (only shown in appointment view)
-    if (btnCancel) btnCancel.style.display = 'none';
-    if (btnReschedule) btnReschedule.style.display = 'none';
-
-    // Reset modal title and subtitle
-    const modalTitle = document.querySelector('#viewPatientModal .modal h2');
-    if (modalTitle) modalTitle.textContent = 'Patient Details';
-    const modalSubtitle = document.getElementById('viewModalSubtitle');
-    if (modalSubtitle) modalSubtitle.textContent = 'Treatment History';
-
-    openModal('viewPatientModal');
+    switchTab('patientdetail');
 }
 
 /* Edit Patient */
@@ -1437,6 +1387,16 @@ function updateAppointmentStatus(id, status) {
     refreshDashboard();
     renderCalendarView();
     loadAccountsBook();
+
+    // Refresh patient detail page if visible
+    if (getCurrentVisibleTabName() === 'patientdetail') {
+        if (currentViewingAppointmentId) {
+            viewAppointmentDetails(currentViewingAppointmentId);
+        } else if (currentViewingPatientId) {
+            viewPatient(currentViewingPatientId);
+        }
+    }
+
     showToast(`Appointment ${status.toLowerCase()}.`, status === 'Completed' ? 'success' : 'info');
 }
 
@@ -1771,37 +1731,50 @@ function viewAppointmentDetails(id) {
     const duration = apt.duration || 30;
     const endTime = apt.endTime || calculateEndTime(apt.time, duration);
 
-    // Use the same modal style as patient popup
-    const detailsEl = document.getElementById('patientDetails');
+    currentViewingAppointmentId = id;
+    currentViewingPatientId = apt.patientId || null;
+
+    // Detect current tab for back button
+    const currentTab = getCurrentVisibleTabName();
+    if (currentTab !== 'patientdetail') {
+        patientDetailReturnTab = currentTab;
+    }
+
+    // Set page title
+    const titleEl = document.getElementById('patientDetailTitle');
+    if (titleEl) titleEl.textContent = 'Appointment Details';
+
+    // Render appointment info card
+    const detailsEl = document.getElementById('pdPatientDetails');
     if (detailsEl) {
         detailsEl.innerHTML = `
-            <div class="patient-profile">
-                <div class="patient-avatar">${patientName.charAt(0).toUpperCase()}</div>
-                <div class="patient-info-grid">
-                    <div><strong>Patient:</strong> ${escapeHtml(patientName)}</div>
-                    <div><strong>Phone:</strong> ${escapeHtml(patientPhone)}</div>
-                    <div><strong>Date:</strong> ${formatDate(apt.date)}</div>
-                    <div><strong>Time:</strong> ${(apt.time || apt.startTime)} - ${endTime}</div>
-                    <div><strong>Service:</strong> ${escapeHtml(apt.service || 'General')}</div>
-                    <div><strong>Duration:</strong> ${duration} minutes</div>
-                    <div><strong>Status:</strong> <span class="status-badge ${getStatusClass(apt.status)}">${apt.status || 'Scheduled'}</span></div>
-                    <div><strong>Payment:</strong> ${apt.paymentStatus || 'Pending'}${apt.amountPaid ? ' (₹' + apt.amountPaid + ')' : ''}</div>
-                    ${apt.notes ? `<div class="full-width"><strong>Notes:</strong> ${escapeHtml(apt.notes)}</div>` : ''}
+            <div class="pd-info-card">
+                <div class="pd-avatar">${patientName.charAt(0).toUpperCase()}</div>
+                <h3 class="pd-name">${escapeHtml(patientName)}</h3>
+                <div class="pd-info-grid">
+                    <div class="pd-info-row"><i class="fas fa-phone"></i><span>${escapeHtml(patientPhone)}</span></div>
+                    <div class="pd-info-row"><i class="fas fa-calendar-day"></i><span>${formatDate(apt.date)}</span></div>
+                    <div class="pd-info-row"><i class="fas fa-clock"></i><span>${(apt.time || apt.startTime)} - ${endTime} (${duration} min)</span></div>
+                    <div class="pd-info-row"><i class="fas fa-stethoscope"></i><span>${escapeHtml(apt.service || 'General')}</span></div>
+                    <div class="pd-info-row"><i class="fas fa-info-circle"></i><span>Status: <span class="status-badge ${getStatusClass(apt.status)}">${apt.status || 'Scheduled'}</span></span></div>
+                    <div class="pd-info-row"><i class="fas fa-indian-rupee-sign"></i><span>${apt.paymentStatus || 'Pending'}${apt.amountPaid ? ' (\u20B9' + apt.amountPaid + ')' : ''}${apt.paymentMode ? ' - ' + apt.paymentMode : ''}</span></div>
+                    ${apt.notes ? `<div class="pd-info-row"><i class="fas fa-sticky-note"></i><span>${escapeHtml(apt.notes)}</span></div>` : ''}
+                    ${apt.treatmentNotes ? `<div class="pd-info-row"><i class="fas fa-notes-medical"></i><span>${escapeHtml(apt.treatmentNotes)}</span></div>` : ''}
                 </div>
             </div>
         `;
     }
 
-    // Show appointment history for this patient
-    const visitEl = document.getElementById('visitHistory');
+    // Show patient history
+    const visitEl = document.getElementById('pdVisitHistory');
     if (visitEl) {
         let html = '';
         if (apt.patientId) {
             const patientAppointments = appointments.filter(a => a.patientId === apt.patientId && a.id !== id);
             if (patientAppointments.length > 0) {
                 html += '<div class="history-section">';
-                html += '<h4><i class="fas fa-calendar-check"></i> Other Appointments</h4>';
-                html += '<div class="history-list">';
+                html += '<h4><i class="fas fa-calendar-check"></i> Other Appointments (' + patientAppointments.length + ')</h4>';
+                html += '<div class="pd-history-list">';
                 patientAppointments.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(a => {
                     const statusClass = getStatusClass(a.status);
                     const dur = a.duration || 30;
@@ -1822,14 +1795,14 @@ function viewAppointmentDetails(id) {
             const prescriptions = getData('prescriptions').filter(rx => rx.patientId === apt.patientId);
             if (prescriptions.length > 0) {
                 html += '<div class="history-section">';
-                html += '<h4><i class="fas fa-file-prescription"></i> Prescriptions</h4>';
-                html += '<div class="history-list">';
+                html += '<h4><i class="fas fa-file-prescription"></i> Prescriptions (' + prescriptions.length + ')</h4>';
+                html += '<div class="pd-history-list">';
                 prescriptions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(rx => {
                     html += `
                         <div class="history-item">
                             <div class="history-date">${formatDate(rx.date)}</div>
                             <div class="history-content">
-                                <span class="history-diagnosis">${escapeHtml(rx.diagnosis ? rx.diagnosis.substring(0, 60) : 'N/A')}${rx.diagnosis && rx.diagnosis.length > 60 ? '...' : ''}</span>
+                                <span class="history-diagnosis">${escapeHtml(rx.diagnosis ? rx.diagnosis.substring(0, 80) : 'N/A')}${rx.diagnosis && rx.diagnosis.length > 80 ? '...' : ''}</span>
                             </div>
                         </div>
                     `;
@@ -1844,98 +1817,73 @@ function viewAppointmentDetails(id) {
         visitEl.innerHTML = html;
     }
 
-    // Wire up action buttons
-    const btnRx = document.getElementById('btnWriteRx');
-    const btnFu = document.getElementById('btnScheduleFu');
-    const btnWa = document.getElementById('btnPatientWa');
-    const btnBook = document.getElementById('btnBookAppt');
-    const btnComplete = document.getElementById('btnCompleteAppt');
-    const btnCancel = document.getElementById('btnCancelAppt');
-    const btnReschedule = document.getElementById('btnRescheduleAppt');
-    const btnEdit = document.getElementById('btnEditPatient');
+    // Set subtitle
+    const subtitleEl = document.getElementById('pdHistorySubtitle');
+    if (subtitleEl) subtitleEl.innerHTML = '<i class="fas fa-history" style="margin-right:8px;opacity:0.7;"></i>Patient History';
 
-    const isActionable = apt.status !== 'Completed' && apt.status !== 'Cancelled';
+    // Render action buttons
+    renderPatientDetailActions(id, 'appointment', apt);
 
-    // Complete button: show if appointment time has passed and status is not Completed/Cancelled
-    if (btnComplete) {
+    switchTab('patientdetail');
+}
+
+function renderPatientDetailActions(id, mode, apt) {
+    const actionsEl = document.getElementById('pdActionButtons');
+    if (!actionsEl) return;
+
+    let html = '';
+    const patientId = mode === 'appointment' ? (apt && apt.patientId ? apt.patientId : null) : id;
+
+    if (mode === 'appointment' && apt) {
+        const isActionable = apt.status !== 'Completed' && apt.status !== 'Cancelled';
         const timePassed = hasAppointmentTimePassed(apt.date, apt.time || apt.startTime);
         const canComplete = isActionable && timePassed;
-        btnComplete.style.display = canComplete ? '' : 'none';
-        btnComplete.onclick = function () {
-            closeModal('viewPatientModal');
-            setTimeout(function () { openTreatmentModal(apt.id); }, 150);
-        };
+
+        if (canComplete) {
+            html += `<button class="btn btn-primary pd-action-btn" style="background:#22C55E;border-color:#22C55E;" onclick="openTreatmentModal('${apt.id}')"><i class="fas fa-check-circle"></i> Complete</button>`;
+        }
+        if (patientId) {
+            html += `<button class="btn btn-primary pd-action-btn" onclick="writePrescription('${patientId}')"><i class="fas fa-file-prescription"></i> Write Rx</button>`;
+            html += `<button class="btn btn-accent pd-action-btn" onclick="openQuickBooking('${patientId}')"><i class="fas fa-calendar-plus"></i> Book Appointment</button>`;
+            html += `<button class="btn btn-outline pd-action-btn" style="color:var(--primary);border-color:var(--primary);" onclick="scheduleFollowup('${patientId}')"><i class="fas fa-bell"></i> Follow-up</button>`;
+        }
+        if (isActionable) {
+            html += `<button class="btn btn-outline pd-action-btn" style="color:#DC2626;border-color:#DC2626;" onclick="if(confirm('Cancel this appointment?')) updateAppointmentStatus('${apt.id}', 'Cancelled')"><i class="fas fa-times-circle"></i> Cancel</button>`;
+            html += `<button class="btn btn-outline pd-action-btn" onclick="rescheduleAppointment('${apt.id}')"><i class="fas fa-calendar-alt"></i> Reschedule</button>`;
+        }
+        if (patientId) {
+            html += `<button class="btn btn-outline pd-action-btn" onclick="openEditPatient('${patientId}')"><i class="fas fa-edit"></i> Edit Patient</button>`;
+        }
+        const patients = getData('patients');
+        const patient = patients.find(p => p.id === patientId);
+        const phone = patient ? patient.phone : (apt.phone || '');
+        const name = patient ? patient.name : (apt.patientName || 'Patient');
+        if (phone) {
+            html += `<button class="btn btn-whatsapp pd-action-btn" onclick="openWhatsApp('${escapeHtml(phone)}', 'Hello ${escapeHtml(name)}, this is a reminder about your appointment at Shree Physiotherapy Clinic.')"><i class="fab fa-whatsapp"></i> WhatsApp</button>`;
+        }
+    } else {
+        // Patient mode
+        const allAppts = getData('appointments').filter(a => a.patientId === id);
+        const completableAppt = allAppts
+            .filter(a => a.status !== 'Completed' && a.status !== 'Cancelled' && hasAppointmentTimePassed(a.date, a.time || a.startTime))
+            .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+        if (completableAppt) {
+            html += `<button class="btn btn-primary pd-action-btn" style="background:#22C55E;border-color:#22C55E;" onclick="openTreatmentModal('${completableAppt.id}')"><i class="fas fa-check-circle"></i> Complete</button>`;
+        }
+        html += `<button class="btn btn-primary pd-action-btn" onclick="writePrescription('${id}')"><i class="fas fa-file-prescription"></i> Write Rx</button>`;
+        html += `<button class="btn btn-accent pd-action-btn" onclick="openQuickBooking('${id}')"><i class="fas fa-calendar-plus"></i> Book Appointment</button>`;
+        html += `<button class="btn btn-outline pd-action-btn" style="color:var(--primary);border-color:var(--primary);" onclick="scheduleFollowup('${id}')"><i class="fas fa-bell"></i> Follow-up</button>`;
+        html += `<button class="btn btn-outline pd-action-btn" onclick="openEditPatient('${id}')"><i class="fas fa-edit"></i> Edit Patient</button>`;
+
+        const patients = getData('patients');
+        const patient = patients.find(p => p.id === id);
+        if (patient && patient.phone) {
+            html += `<button class="btn btn-whatsapp pd-action-btn" onclick="openWhatsApp('${escapeHtml(patient.phone)}', 'Hello ${escapeHtml(patient.name)}, this is Shree Physiotherapy Clinic. We hope you are doing well. Please reach us at 822004084 or 9092294466 for any queries.')"><i class="fab fa-whatsapp"></i> WhatsApp</button>`;
+        }
     }
 
-    if (btnRx) {
-        btnRx.style.display = apt.patientId ? '' : 'none';
-        btnRx.style.opacity = '';
-        btnRx.style.cursor = '';
-        btnRx.onclick = function () {
-            const pid = apt.patientId;
-            closeModal('viewPatientModal');
-            setTimeout(function () { writePrescription(pid); }, 150);
-        };
-    }
-    if (btnFu) {
-        btnFu.style.display = apt.patientId ? '' : 'none';
-        btnFu.onclick = function () {
-            const pid = apt.patientId;
-            closeModal('viewPatientModal');
-            setTimeout(function () { scheduleFollowup(pid); }, 150);
-        };
-    }
-    if (btnBook) {
-        btnBook.style.display = apt.patientId ? '' : 'none';
-        btnBook.style.opacity = '';
-        btnBook.style.cursor = '';
-        btnBook.onclick = function () {
-            const pid = apt.patientId;
-            closeModal('viewPatientModal');
-            setTimeout(function () { openQuickBooking(pid); }, 150);
-        };
-    }
-    // Cancel button - only for active appointments
-    if (btnCancel) {
-        btnCancel.style.display = isActionable ? '' : 'none';
-        btnCancel.onclick = function () {
-            if (confirm('Cancel this appointment?')) {
-                closeModal('viewPatientModal');
-                updateAppointmentStatus(apt.id, 'Cancelled');
-            }
-        };
-    }
-    // Reschedule button - only for active appointments
-    if (btnReschedule) {
-        btnReschedule.style.display = isActionable ? '' : 'none';
-        btnReschedule.onclick = function () {
-            closeModal('viewPatientModal');
-            setTimeout(function () { rescheduleAppointment(apt.id); }, 150);
-        };
-    }
-    // Edit patient button
-    if (btnEdit) {
-        btnEdit.style.display = apt.patientId ? '' : 'none';
-        btnEdit.onclick = function () {
-            const pid = apt.patientId;
-            closeModal('viewPatientModal');
-            setTimeout(function () { openEditPatient(pid); }, 150);
-        };
-    }
-    if (btnWa) {
-        btnWa.onclick = function () {
-            openWhatsApp(patientPhone, `Hello ${patientName}, this is a reminder about your appointment at Shree Physiotherapy Clinic.`);
-        };
-        btnWa.style.display = '';
-    }
-
-    // Set modal title and subtitle
-    const modalTitle = document.querySelector('#viewPatientModal .modal h2');
-    if (modalTitle) modalTitle.textContent = 'Appointment Details';
-    const modalSubtitle = document.getElementById('viewModalSubtitle');
-    if (modalSubtitle) modalSubtitle.textContent = 'Patient History';
-
-    openModal('viewPatientModal');
+    actionsEl.innerHTML = html;
 }
 
 function rescheduleAppointment(id) {
@@ -2313,22 +2261,37 @@ function viewPrescription(id) {
         </div>
     `;
 
-    const detailsEl = document.getElementById('patientDetails');
-    const visitEl = document.getElementById('visitHistory');
+    currentViewingPatientId = rx.patientId || null;
+    currentViewingAppointmentId = null;
+
+    const currentTab = getCurrentVisibleTabName();
+    if (currentTab !== 'patientdetail') {
+        patientDetailReturnTab = currentTab;
+    }
+
+    const titleEl = document.getElementById('patientDetailTitle');
+    if (titleEl) titleEl.textContent = 'Prescription Details';
+
+    const detailsEl = document.getElementById('pdPatientDetails');
     if (detailsEl) detailsEl.innerHTML = content;
+
+    const visitEl = document.getElementById('pdVisitHistory');
     if (visitEl) visitEl.innerHTML = '';
 
-    // Hide all action buttons for prescription view
-    const allBtnIds = ['btnWriteRx', 'btnScheduleFu', 'btnPatientWa', 'btnBookAppt', 'btnCompleteAppt', 'btnCancelAppt', 'btnRescheduleAppt', 'btnEditPatient'];
-    allBtnIds.forEach(function(btnId) {
-        var btn = document.getElementById(btnId);
-        if (btn) btn.style.display = 'none';
-    });
+    const subtitleEl = document.getElementById('pdHistorySubtitle');
+    if (subtitleEl) subtitleEl.innerHTML = '';
 
-    const modalTitle = document.querySelector('#viewPatientModal .modal h2');
-    if (modalTitle) modalTitle.textContent = 'Prescription Details';
+    // Show print button only for prescription view
+    const actionsEl = document.getElementById('pdActionButtons');
+    if (actionsEl) {
+        let html = `<button class="btn btn-primary pd-action-btn" onclick="printPrescription('${id}')"><i class="fas fa-print"></i> Print</button>`;
+        if (rx.patientId) {
+            html += `<button class="btn btn-outline pd-action-btn" onclick="viewPatient('${rx.patientId}')"><i class="fas fa-user"></i> View Patient</button>`;
+        }
+        actionsEl.innerHTML = html;
+    }
 
-    openModal('viewPatientModal');
+    switchTab('patientdetail');
 }
 
 function printPrescription(id) {
@@ -3626,6 +3589,16 @@ function saveCompletedTreatment() {
     loadAppointments();
     refreshDashboard();
     loadAccountsBook();
+
+    // Refresh patient detail page if visible
+    if (getCurrentVisibleTabName() === 'patientdetail') {
+        if (currentViewingAppointmentId) {
+            viewAppointmentDetails(currentViewingAppointmentId);
+        } else if (currentViewingPatientId) {
+            viewPatient(currentViewingPatientId);
+        }
+    }
+
     showToast('Treatment completed successfully!', 'success');
 }
 
