@@ -1859,7 +1859,7 @@ function renderPatientDetailActions(id, mode, apt) {
         const phone = patient ? patient.phone : (apt.phone || '');
         const name = patient ? patient.name : (apt.patientName || 'Patient');
         if (phone) {
-            html += `<button class="btn btn-whatsapp pd-action-btn" onclick="openWhatsApp('${escapeHtml(phone)}', 'Hello ${escapeHtml(name)}, this is a reminder about your appointment at Shree Physiotherapy Clinic.')"><i class="fab fa-whatsapp"></i> WhatsApp</button>`;
+            html += `<button class="btn btn-whatsapp pd-action-btn" onclick="openWhatsApp('${escapeJsStr(phone)}', 'Hello ${escapeJsStr(name)}, this is a reminder about your appointment at Shree Physiotherapy Clinic.')"><i class="fab fa-whatsapp"></i> WhatsApp</button>`;
         }
     } else {
         // Patient mode
@@ -1879,7 +1879,7 @@ function renderPatientDetailActions(id, mode, apt) {
         const patients = getData('patients');
         const patient = patients.find(p => p.id === id);
         if (patient && patient.phone) {
-            html += `<button class="btn btn-whatsapp pd-action-btn" onclick="openWhatsApp('${escapeHtml(patient.phone)}', 'Hello ${escapeHtml(patient.name)}, this is Shree Physiotherapy Clinic. We hope you are doing well. Please reach us at 822004084 or 9092294466 for any queries.')"><i class="fab fa-whatsapp"></i> WhatsApp</button>`;
+            html += `<button class="btn btn-whatsapp pd-action-btn" onclick="openWhatsApp('${escapeJsStr(patient.phone)}', 'Hello ${escapeJsStr(patient.name)}, this is Shree Physiotherapy Clinic. We hope you are doing well. Please reach us at 822004084 or 9092294466 for any queries.')"><i class="fab fa-whatsapp"></i> WhatsApp</button>`;
         }
     }
 
@@ -2935,6 +2935,12 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Escape for use inside single-quoted inline JS strings (onclick handlers)
+function escapeJsStr(text) {
+    if (!text) return '';
+    return String(text).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
 function getStatusClass(status) {
