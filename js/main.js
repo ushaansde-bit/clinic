@@ -1390,8 +1390,8 @@
       service: "Pelvic Floor Therapy",
       rating: 5,
       text: "Finding a physiotherapist for pelvic floor issues was difficult until I found Dr. Aarthi. Her professional yet compassionate approach made me comfortable discussing sensitive issues. The treatment worked wonders.",
-      date: "2026-02-03",
-      week: 5
+      date: "2026-02-07",
+      week: 6
     },
     {
       id: "default_2",
@@ -1399,8 +1399,8 @@
       service: "Post-Surgery Rehab",
       rating: 5,
       text: "After my spinal surgery, I was scared about recovery. Dr. Aarthi's careful and systematic rehabilitation approach helped me regain my confidence and mobility. Her clinic is well-equipped and hygienic.",
-      date: "2026-01-28",
-      week: 4
+      date: "2026-02-05",
+      week: 6
     },
     {
       id: "default_3",
@@ -1408,8 +1408,8 @@
       service: "Back Pain Recovery",
       rating: 5,
       text: "Dr. Aarthi's fascial manipulation technique completely transformed my life. After months of chronic back pain, I found lasting relief in just a few sessions. Her expertise and gentle approach made all the difference.",
-      date: "2026-01-21",
-      week: 3
+      date: "2026-02-03",
+      week: 5
     },
     {
       id: "default_4",
@@ -1534,8 +1534,8 @@
       return new Date(b.date) - new Date(a.date);
     });
 
-    // Return max 6 testimonials
-    return combined.slice(0, 6);
+    // Return max 3 testimonials
+    return combined.slice(0, 3);
   }
 
   function loadTestimonials() {

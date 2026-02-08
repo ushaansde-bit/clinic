@@ -75,12 +75,9 @@
           </div>
         </a>
         <div class="nav-right">
-          <button onclick="switchTab('calendar')" class="btn-book-appt" title="Schedule Appointment">
-            <i class="fas fa-calendar-plus"></i> Schedule Appointment
+          <button onclick="switchTab('appointments')" class="btn-book-appt" title="Book Appointment">
+            <i class="fas fa-calendar-plus"></i> Book Appointment
           </button>
-          <a href="index.html" class="btn-view-site" title="View Public Site" style="background:rgba(255,255,255,0.12);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
-            <i class="fas fa-external-link-alt"></i> View Site
-          </a>
           <button onclick="logoutDashboard()" class="btn-logout" title="Logout">
             <i class="fas fa-sign-out-alt"></i> Logout
           </button>
@@ -103,11 +100,11 @@
           <a href="#" onclick="switchTab('appointments'); return false;">
             <span class="nav-icon"><i class="fas fa-calendar-check"></i></span> Appointments
           </a>
-          <a href="#" onclick="switchTab('calendar'); return false;">
-            <span class="nav-icon"><i class="fas fa-calendar"></i></span> Calendar View
-          </a>
           <a href="#" onclick="switchTab('accounts'); return false;">
             <span class="nav-icon"><i class="fas fa-book"></i></span> Accounts
+          </a>
+          <a href="#" onclick="switchTab('followups'); return false;">
+            <span class="nav-icon"><i class="fas fa-clipboard-list"></i></span> Follow-ups
           </a>
           <a href="#" onclick="switchTab('settings'); return false;">
             <span class="nav-icon"><i class="fas fa-cloud"></i></span> Cloud Sync
@@ -126,8 +123,8 @@
           <button class="active" onclick="switchTab('overview')">Overview</button>
           <button onclick="switchTab('patients')">Patients</button>
           <button onclick="switchTab('appointments')">Appointments</button>
-          <button onclick="switchTab('calendar')">Calendar</button>
           <button onclick="switchTab('accounts')">Accounts</button>
+          <button onclick="switchTab('followups')">Follow-ups</button>
           <button onclick="switchTab('settings')">Sync</button>
           <button onclick="switchTab('trash')">Trash</button>
         </div>
@@ -144,7 +141,7 @@
               <button class="quick-action-btn" onclick="switchTab('patients');openModal('addPatientModal');">
                 <i class="fas fa-user-plus"></i> New Patient
               </button>
-              <button class="quick-action-btn primary" onclick="switchTab('calendar');">
+              <button class="quick-action-btn primary" onclick="switchTab('appointments');">
                 <i class="fas fa-calendar-plus"></i> Book Appointment
               </button>
             </div>
@@ -166,7 +163,7 @@
                 <span class="stat-label">Today's Appointments</span>
               </div>
             </div>
-            <div class="stat-card-modern week" onclick="switchTab('calendar')" style="cursor:pointer;" title="View Calendar">
+            <div class="stat-card-modern week" onclick="switchTab('appointments')" style="cursor:pointer;" title="View Appointments">
               <div class="stat-card-icon"><i class="fas fa-calendar-week"></i></div>
               <div class="stat-card-content">
                 <span class="stat-number" id="statWeek">0</span>
@@ -327,6 +324,7 @@
             </div>
             <div class="pagination-controls" id="patientsPagination" style="display:none;"></div>
           </div>
+          <div id="patientsFormContainer" class="tab-inline-form-container" style="display:none;"></div>
         </div>
 
         <!-- TAB: Appointments -->
@@ -361,70 +359,39 @@
           </div>
         </div>
 
-        <!-- TAB: Calendar View - Calendly Style -->
-        <div id="tab-calendar" class="tab-content" style="display:none;">
-          <div class="calendly-container">
-            <!-- Main: Schedule Display -->
-            <div class="calendly-main">
-              <div class="schedule-header">
-                <div class="schedule-nav">
-                  <button onclick="navigateSchedule(-1)"><i class="fas fa-chevron-left"></i></button>
-                  <h3 id="scheduleTitle">Today's Schedule</h3>
-                  <button onclick="navigateSchedule(1)"><i class="fas fa-chevron-right"></i></button>
-                </div>
-                <button class="btn btn-primary" onclick="goToToday()" style="padding:8px 16px;font-size:0.85rem;">
-                  <i class="fas fa-calendar-day"></i> Today
-                </button>
+        <!-- TAB: Follow-ups -->
+        <div id="tab-followups" class="tab-content" style="display:none;">
+          <div class="dashboard-card-header" style="margin-bottom:24px;">
+            <h2 style="font-size:1.8rem;">Follow-ups</h2>
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+              <div class="search-input">
+                <i class="fas fa-search" style="color:var(--text-muted);"></i>
+                <input type="text" id="followupSearch" placeholder="Search patients...">
               </div>
-
-              <div class="schedule-content" id="scheduleContent">
-                <!-- Schedule rendered by JS -->
-              </div>
-            </div>
-
-            <!-- Right: View Selector + Today's Summary + Mini Calendar -->
-            <div class="calendly-right">
-              <div class="view-selector">
-                <button class="view-btn active" data-view="day" onclick="setCalendarView('day')">
-                  <i class="fas fa-calendar-day"></i> Day
-                </button>
-                <button class="view-btn" data-view="week" onclick="setCalendarView('week')">
-                  <i class="fas fa-calendar-week"></i> Week
-                </button>
-                <button class="view-btn" data-view="month" onclick="setCalendarView('month')">
-                  <i class="fas fa-calendar"></i> Month
-                </button>
-              </div>
-
-              <div class="today-summary">
-                <h4><i class="fas fa-info-circle"></i> Today's Summary</h4>
-                <div class="summary-item">
-                  <span>Total Appointments</span>
-                  <strong id="summaryTotal">0</strong>
-                </div>
-                <div class="summary-item">
-                  <span>Completed</span>
-                  <strong id="summaryCompleted">0</strong>
-                </div>
-                <div class="summary-item">
-                  <span>Remaining</span>
-                  <strong id="summaryRemaining">0</strong>
-                </div>
-              </div>
-
-              <div class="mini-calendar-wrapper">
-                <div class="mini-calendar-header">
-                  <button onclick="changeMiniMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-                  <h4 id="miniCalendarMonth">January 2025</h4>
-                  <button onclick="changeMiniMonth(1)"><i class="fas fa-chevron-right"></i></button>
-                </div>
-                <div class="mini-calendar-days">
-                  <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-                </div>
-                <div class="mini-calendar-grid" id="miniCalendarGrid"></div>
-              </div>
+              <input type="date" id="followupDateFilter" onchange="filterFollowups()" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+              <select id="followupStatusFilter" style="padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:0.88rem;background:var(--surface);">
+                <option value="all">All Follow-ups</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="overdue">Overdue</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+              </select>
+              <button class="btn btn-outline" onclick="clearFollowupFilters();" style="padding:8px 16px;font-size:0.85rem;">
+                <i class="fas fa-times"></i> Clear
+              </button>
             </div>
           </div>
+          <div class="dashboard-card">
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="followupsTable">
+                <thead><tr><th>Patient</th><th>Date</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="followupsFormContainer" class="tab-inline-form-container" style="display:none;"></div>
         </div>
 
         <!-- TAB: Accounts -->
@@ -649,6 +616,7 @@
             <div class="patient-detail-right">
               <h3 id="pdHistorySubtitle"><i class="fas fa-history" style="margin-right:8px;opacity:0.7;"></i>Treatment History</h3>
               <div id="pdVisitHistory"></div>
+              <div id="pdFormContainer" style="display:none;"></div>
             </div>
           </div>
         </div>
@@ -660,6 +628,17 @@
               <h2 style="font-size:1.8rem;"><i class="fas fa-cloud" style="margin-right:10px;opacity:0.7;"></i>Cloud Sync &amp; Data</h2>
               <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px;">Sync your data across all browsers and devices using Firebase. Your data will be available on any browser when you open the site.</p>
             </div>
+          </div>
+
+          <!-- Reset & Re-seed Test Data -->
+          <div class="dashboard-card" style="margin-bottom:20px;padding:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <h3 style="font-size:1.1rem;margin-bottom:4px;"><i class="fas fa-database" style="margin-right:8px;opacity:0.7;"></i>Test Data</h3>
+              <p style="font-size:0.85rem;color:var(--text-muted);margin:0;">Clear all data and re-seed with 75 test patients, appointments, prescriptions &amp; follow-ups.</p>
+            </div>
+            <button class="btn btn-primary" onclick="if(confirm('This will delete ALL data and reload with fresh test data. Continue?')){localStorage.clear();location.reload();}" style="white-space:nowrap;">
+              <i class="fas fa-redo"></i> Reset &amp; Re-seed
+            </button>
           </div>
 
           <!-- Sync Status Card -->

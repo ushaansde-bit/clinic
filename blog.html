@@ -196,12 +196,6 @@
                 <span class="brand-subtitle">Shree Physiotherapy Clinic</span>
             </a>
             <ul class="nav-menu" id="navMenu">
-                <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="index.html#about" class="nav-link">About Us</a></li>
-                <li class="nav-item"><a href="index.html#services" class="nav-link">Services</a></li>
-                <li class="nav-item"><a href="index.html#blog" class="nav-link">Health Resources</a></li>
-                <li class="nav-item"><a href="index.html#testimonials" class="nav-link">Testimonials</a></li>
-                <li class="nav-item"><a href="index.html#contact" class="nav-link">Contact Us</a></li>
                 <li class="nav-item nav-item-mobile"><a href="blog.html" class="nav-link"><i class="fas fa-blog"></i> Blog</a></li>
             </ul>
             <div class="nav-cta">
@@ -415,6 +409,50 @@
         </div>
     </section>
 
+    <!-- Health Insights / Blog Preview -->
+    <section class="blog section" id="blog">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-tag">Health Insights</span>
+                <h2 class="section-title">Expert Health Resources</h2>
+                <p class="section-subtitle">Trusted health insights and physiotherapy knowledge shared by Dr. Aarthi Ganesh to help you understand your body and recovery journey.</p>
+            </div>
+            <div class="blogPreviewGrid" id="blogPreviewGrid"></div>
+            <p class="blog-refresh-note fade-in"><i class="fas fa-user-md"></i> Curated by Dr. Aarthi Ganesh, Gold Medalist Physiotherapist</p>
+        </div>
+    </section>
+
+    <!-- Article Popup Modal -->
+    <div class="article-popup-modal" id="articlePopupModal">
+        <div class="article-popup-overlay" onclick="closeArticlePopup()"></div>
+        <div class="article-popup-container">
+            <button class="article-popup-close" onclick="closeArticlePopup()"><i class="fas fa-times"></i></button>
+            <div class="article-popup-content">
+                <div class="article-popup-header">
+                    <span class="article-popup-category"></span>
+                    <h2 class="article-popup-title"></h2>
+                    <div class="article-popup-meta">
+                        <span class="article-popup-readtime"></span>
+                    </div>
+                </div>
+                <div class="article-popup-body"></div>
+                <div class="article-popup-footer">
+                    <div class="article-popup-author">
+                        <img src="a1.jpg" alt="Dr. Aarthi Ganesh" class="popup-author-image">
+                        <div class="popup-author-info">
+                            <strong>Dr. Aarthi Ganesh</strong>
+                            <span>Gold Medalist Physiotherapist | Italy-certified Fascial Manipulation Specialist</span>
+                        </div>
+                    </div>
+                    <div class="article-popup-buttons">
+                        <a href="book.html" class="btn btn-primary"><i class="fas fa-calendar-check"></i> Book Appointment</a>
+                        <a href="tel:9092294466" class="btn btn-outline"><i class="fas fa-phone"></i> Call: 9092294466</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Women's Health Section -->
     <section class="womens-health-section section" id="womens-health">
         <div class="container">
@@ -579,9 +617,6 @@
                 <div class="footer-brand">
                     <h3 class="footer-logo">Dr. Aarthi Ganesh</h3>
                     <p class="footer-clinic-name">Shree Physiotherapy Clinic</p>
-                    <p class="footer-description">
-                        Gold medalist physiotherapist certified in Fascial Manipulation from Italy. Expert in back pain treatment, neck pain relief, sports injury rehabilitation, women's health, and elderly home care in Coimbatore.
-                    </p>
                     <div class="footer-social">
                         <a href="https://www.instagram.com/dr.aarti.physio" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
                         <a href="https://wa.me/919092294466" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
@@ -592,37 +627,25 @@
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="index.html">Home</a></li>
-                        <li><a href="index.html#about">About Dr. Aarthi</a></li>
+                        <li><a href="index.html#about">About</a></li>
                         <li><a href="index.html#services">Services</a></li>
-                        <li><a href="index.html#testimonials">Patient Reviews</a></li>
-                        <li><a href="blog.html">Health Blog</a></li>
-                        <li><a href="index.html#contact">Contact Us</a></li>
+                        <li><a href="index.html#testimonials">Testimonials</a></li>
+                        <li><a href="blog.html">Blog</a></li>
                         <li><a href="dashboard.html">Doctor Login</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Treatments</h4>
-                    <ul>
-                        <li><a href="#back-pain">Back Pain Treatment</a></li>
-                        <li><a href="#neck-pain">Neck Pain Relief</a></li>
-                        <li><a href="#knee-pain">Knee Pain Physiotherapy</a></li>
-                        <li><a href="#shoulder-pain">Frozen Shoulder Treatment</a></li>
-                        <li><a href="#womens-health">Women's Health Physio</a></li>
-                        <li><a href="#elderly-care">Home Physiotherapy</a></li>
                     </ul>
                 </div>
                 <div class="footer-contact">
                     <h4>Contact Info</h4>
                     <ul>
-                        <li><i class="fas fa-map-marker-alt"></i><span>No.454, LIC Siva Complex, Vannakoil, Bus Stop, Periyanaickenpalayam, Tamil Nadu 641047</span></li>
-                        <li><i class="fas fa-phone-alt"></i><span><a href="tel:8220040844">8220040844</a> | <a href="tel:9092294466">9092294466</a></span></li>
+                        <li><i class="fas fa-map-marker-alt"></i><span>No.454, LIC Siva Complex, Vannakoil, Periyanaickenpalayam, Tamil Nadu 641047</span></li>
+                        <li><i class="fas fa-phone-alt"></i><span><a href="tel:9092294466">9092294466</a> | <a href="tel:8220040844">8220040844</a></span></li>
                         <li><i class="fab fa-whatsapp"></i><span><a href="https://wa.me/919092294466" target="_blank" rel="noopener noreferrer">+91 9092294466</a></span></li>
                         <li><i class="fas fa-clock"></i><span>Mon-Sat: 9AM-7PM | Sun: By Appointment</span></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Shree Physiotherapy Clinic | Best Physiotherapist in Coimbatore | <a href="blog.html">Physiotherapy Blog</a></p>
+                <p>&copy; 2025 Shree Physiotherapy Clinic. All Rights Reserved.</p>
             </div>
         </div>
     </footer>

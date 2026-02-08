@@ -5,17 +5,15 @@
    WhatsApp: 919092294466
    ============================================ */
 
-/* ---- Dashboard Calendar State ---- */
-let currentDashMonth = new Date().getMonth();
-let currentDashYear = new Date().getFullYear();
+/* ---- Dashboard State ---- */
 let currentWeekStart = getWeekStart(new Date());
-let calendarView = 'week'; // 'day', 'week', or 'month'
 let currentViewingPatientId = null;
 let currentViewingAppointmentId = null;
 let patientDetailReturnTab = 'patients';
-let selectedCalendarDate = new Date();
-let miniCalendarMonth = new Date().getMonth();
-let miniCalendarYear = new Date().getFullYear();
+
+/* ---- Inline Form Teleport State ---- */
+let _pdTeleportedModalId = null;
+let _pdTeleportedConfig = null;
 
 /* ---- Patients Pagination State ---- */
 let patientCurrentPage = 1;
@@ -172,15 +170,197 @@ function initDashboardData() {
         seedTestData();
     }
     currentWeekStart = getWeekStart(new Date());
-    selectedCalendarDate = new Date();
     cleanupOldTrash();
     refreshDashboard();
     loadPatients();
     loadAppointments();
     loadPrescriptions();
     loadFollowups();
-    renderCalendarView();
+
 }
+
+/* ============================================
+   INLINE FORM TELEPORT (No Popups — All Inline)
+   ============================================ */
+const _originalOpenModal = window.openModal;
+const _originalCloseModal = window.closeModal;
+
+/*  TELEPORT_CONFIG: maps each modal to where it renders inline per tab.
+    tab → { container, hideEls[], onRestore() }  */
+const TELEPORT_CONFIG = {
+    // Patient Detail tab — modals render in right column
+    patientdetail: {
+        modals: ['editPatientModal', 'prescriptionModal', 'followupModal', 'quickBookingModal', 'treatmentModal'],
+        container: 'pdFormContainer',
+        hideEls: ['pdVisitHistory', 'pdHistorySubtitle'],
+        onRestore: function() {
+            if (currentViewingAppointmentId) {
+                viewAppointmentDetails(currentViewingAppointmentId);
+            } else if (currentViewingPatientId) {
+                viewPatient(currentViewingPatientId);
+            }
+        }
+    },
+    // Patients tab — add patient form renders inline, replaces whole page
+    patients: {
+        modals: ['addPatientModal'],
+        container: 'patientsFormContainer',
+        hideEls: [],
+        hideSiblings: true,
+        onRestore: function() {
+            loadPatients();
+        }
+    },
+    // Follow-ups tab — booking and view modals render inline
+    followups: {
+        modals: ['quickBookingModal', 'followupViewModal'],
+        container: 'followupsFormContainer',
+        hideEls: [],
+        hideSiblings: true,
+        onRestore: function() {
+            loadFollowups();
+        }
+    }
+};
+
+/* Resolve which config applies for a given modal on the current tab */
+function getTeleportTarget(modalId) {
+    const tab = getCurrentVisibleTabName();
+    const cfg = TELEPORT_CONFIG[tab];
+    if (cfg && cfg.modals.includes(modalId)) return cfg;
+    return null;
+}
+
+function showInlineForm(modalId) {
+    // If another form is already teleported, restore it first
+    if (_pdTeleportedModalId && _pdTeleportedModalId !== modalId) {
+        restoreTeleportedModal(_pdTeleportedModalId);
+    }
+
+    const cfg = getTeleportTarget(modalId);
+    if (!cfg) return false;
+
+    const overlay = document.getElementById(modalId);
+    if (!overlay) return false;
+    const modalDiv = overlay.querySelector('.modal');
+    if (!modalDiv) return false;
+
+    const container = document.getElementById(cfg.container);
+    if (!container) return false;
+
+    // Move modal content into the inline container
+    container.appendChild(modalDiv);
+    modalDiv.classList.add('pd-inline-form');
+
+    // Hide the modal-close X button
+    const closeBtn = modalDiv.querySelector('.modal-close');
+    if (closeBtn) closeBtn.style.display = 'none';
+
+    // Add Cancel button if not already present
+    if (!modalDiv.querySelector('.pd-inline-cancel-btn')) {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'pd-inline-cancel-btn';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.onclick = function() { closeModal(modalId); };
+        modalDiv.appendChild(cancelBtn);
+    }
+
+    // Hide elements that should be replaced by the form
+    cfg.hideEls.forEach(function(elId) {
+        const el = document.getElementById(elId);
+        if (el) el.style.display = 'none';
+    });
+
+    // Hide sibling content on the tab (for full-page replacement like patients)
+    if (cfg.hideSiblings) {
+        const tabEl = container.closest('.tab-content');
+        if (tabEl) {
+            Array.from(tabEl.children).forEach(function(child) {
+                if (child !== container) child.style.display = 'none';
+            });
+        }
+    }
+
+    container.style.display = 'block';
+
+    // Make sure the overlay is not shown as a popup
+    overlay.classList.remove('active');
+
+    _pdTeleportedModalId = modalId;
+    _pdTeleportedConfig = cfg;
+    return true;
+}
+
+function restoreTeleportedModal(modalId) {
+    const overlay = document.getElementById(modalId);
+    if (!overlay) return;
+
+    const cfg = _pdTeleportedConfig;
+    if (!cfg) return;
+
+    const container = document.getElementById(cfg.container);
+    if (!container) return;
+    const modalDiv = container.querySelector('.modal');
+    if (!modalDiv) return;
+
+    // Move modal content back to its overlay parent
+    overlay.appendChild(modalDiv);
+    modalDiv.classList.remove('pd-inline-form');
+
+    // Restore the modal-close X button
+    const closeBtn = modalDiv.querySelector('.modal-close');
+    if (closeBtn) closeBtn.style.display = '';
+
+    // Remove the Cancel button
+    const cancelBtn = modalDiv.querySelector('.pd-inline-cancel-btn');
+    if (cancelBtn) cancelBtn.remove();
+
+    // Hide form container
+    container.style.display = 'none';
+
+    // Restore hidden elements
+    cfg.hideEls.forEach(function(elId) {
+        const el = document.getElementById(elId);
+        if (el) el.style.display = '';
+    });
+
+    // Restore sibling content
+    if (cfg.hideSiblings) {
+        const tabEl = container.closest('.tab-content');
+        if (tabEl) {
+            Array.from(tabEl.children).forEach(function(child) {
+                if (child !== container) child.style.display = '';
+            });
+        }
+    }
+
+    _pdTeleportedModalId = null;
+    _pdTeleportedConfig = null;
+}
+
+function hideInlineForm(modalId) {
+    const cfg = _pdTeleportedConfig;
+    restoreTeleportedModal(modalId);
+    // Refresh the originating tab
+    if (cfg && cfg.onRestore) cfg.onRestore();
+}
+
+window.openModal = function(id) {
+    if (getTeleportTarget(id)) {
+        showInlineForm(id);
+    } else {
+        _originalOpenModal(id);
+    }
+};
+
+window.closeModal = function(id) {
+    if (_pdTeleportedModalId === id) {
+        hideInlineForm(id);
+    } else {
+        _originalCloseModal(id);
+    }
+};
 
 /* ---- Helper: detect currently visible tab ---- */
 function getCurrentVisibleTabName() {
@@ -197,6 +377,9 @@ function getCurrentVisibleTabName() {
    1. TAB NAVIGATION
    ============================================ */
 function switchTab(tabName) {
+    // Restore any teleported modal before leaving patient detail
+    if (_pdTeleportedModalId) restoreTeleportedModal(_pdTeleportedModalId);
+
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.style.display = 'none';
@@ -213,7 +396,7 @@ function switchTab(tabName) {
         link.classList.remove('active');
     });
     const links = document.querySelectorAll('.sidebar-nav a');
-    const tabMap = ['overview', 'patients', 'appointments', 'calendar', 'accounts', 'settings', 'trash'];
+    const tabMap = ['overview', 'patients', 'appointments', 'accounts', 'followups', 'settings', 'trash'];
     const index = tabMap.indexOf(tabName);
     if (index >= 0 && links[index]) {
         links[index].classList.add('active');
@@ -235,15 +418,14 @@ function switchTab(tabName) {
             break;
         case 'appointments':
             var aptDateFilter = document.getElementById('appointmentFilter');
-            if (aptDateFilter && !aptDateFilter.value) aptDateFilter.value = new Date().toISOString().split('T')[0];
+            if (aptDateFilter && !aptDateFilter.value) aptDateFilter.value = getIndiaTodayDate();
             loadAppointments();
-            break;
-        case 'calendar':
-            renderMiniCalendar();
-            renderCalendlyView();
             break;
         case 'accounts':
             loadAccountsBook();
+            break;
+        case 'followups':
+            loadFollowups();
             break;
         case 'settings':
             loadSettingsTab();
@@ -276,11 +458,11 @@ function refreshDashboard() {
     const activeFollowups = followups.filter(f => !trashedPatientIds.has(f.patientId));
 
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = getIndiaTodayDate();
 
     // Today's appointments
     const todayAppointments = activeAppointments.filter(a => {
-        const aptDate = new Date(a.date).toISOString().split('T')[0];
+        const aptDate = a.date ? a.date.split('T')[0] : '';
         return aptDate === todayStr && a.status !== 'Cancelled';
     });
 
@@ -353,7 +535,7 @@ function renderWeeklyActivityChart(appointments) {
         const dayStr = day.toISOString().split('T')[0];
 
         const dayAppts = appointments.filter(a => {
-            const aptDate = new Date(a.date).toISOString().split('T')[0];
+            const aptDate = a.date ? a.date.split('T')[0] : '';
             return aptDate === dayStr && a.status !== 'Cancelled';
         });
 
@@ -1003,12 +1185,14 @@ function addPatient(event) {
     closeModal('addPatientModal');
     loadPatients();
     refreshDashboard();
-    renderCalendarView();
+
     loadAccountsBook();
     showToast('Patient added successfully!', 'success');
 }
 
 function viewPatient(id) {
+    if (_pdTeleportedModalId) restoreTeleportedModal(_pdTeleportedModalId);
+
     const patients = getData('patients');
     const patient = patients.find(p => p.id === id);
     if (!patient) {
@@ -1245,7 +1429,7 @@ function deletePatient(id) {
     loadPatients();
     loadAppointments();
     refreshDashboard();
-    renderCalendarView();
+
     loadAccountsBook();
     showToast('Patient moved to trash.', 'info');
 }
@@ -1285,7 +1469,7 @@ function loadAppointments() {
 
     if (filterDate) {
         filtered = filtered.filter(a => {
-            const aptDate = new Date(a.date).toISOString().split('T')[0];
+            const aptDate = a.date ? a.date.split('T')[0] : '';
             return aptDate === filterDate;
         });
     }
@@ -1385,7 +1569,7 @@ function updateAppointmentStatus(id, status) {
     // Refresh all relevant views
     loadAppointments();
     refreshDashboard();
-    renderCalendarView();
+
     loadAccountsBook();
 
     // Refresh patient detail page if visible
@@ -1438,277 +1622,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ============================================
-   5. CALENDAR VIEW - WEEK VIEW (DEFAULT)
+   5. UTILITY & APPOINTMENT DETAIL FUNCTIONS
    ============================================ */
-function renderCalendarView() {
-    if (calendarView === 'week') {
-        renderWeekView();
-    } else {
-        renderMonthView();
-    }
-}
-
-function toggleCalendarView(view) {
-    calendarView = view;
-
-    // Update toggle buttons
-    document.querySelectorAll('.calendar-view-toggle button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    const activeBtn = document.querySelector(`.calendar-view-toggle button[data-view="${view}"]`);
-    if (activeBtn) activeBtn.classList.add('active');
-
-    renderCalendarView();
-}
 
 function getWeekStart(date) {
     const d = new Date(date);
     const day = d.getDay();
     const diff = d.getDate() - day;
     return new Date(d.setDate(diff));
-}
-
-function renderWeekView() {
-    const container = document.getElementById('calendarContainer');
-    if (!container) return;
-
-    const trash = getData('trash') || [];
-    const trashedPatientIds = new Set(trash.map(p => p.id));
-    const appointments = getData('appointments').filter(a => a.status !== 'Cancelled' && !trashedPatientIds.has(a.patientId));
-    const weekEnd = new Date(currentWeekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
-
-    // Header with week navigation
-    const monthLabel = document.getElementById('dashCalendarMonth');
-    if (monthLabel) {
-        const startMonth = currentWeekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const endMonth = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        monthLabel.textContent = `${startMonth} - ${endMonth}`;
-    }
-
-    // Build week grid
-    let html = '<div class="week-view">';
-
-    // Time column header
-    html += '<div class="week-header">';
-    html += '<div class="time-column-header">Time</div>';
-
-    // Day headers
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    for (let i = 0; i < 7; i++) {
-        const day = new Date(currentWeekStart);
-        day.setDate(day.getDate() + i);
-        const isToday = isSameDay(day, new Date());
-        const isSunday = day.getDay() === 0;
-        html += `
-            <div class="day-header ${isToday ? 'today' : ''} ${isSunday ? 'sunday' : ''}">
-                <span class="day-name">${dayNames[i]}</span>
-                <span class="day-number">${day.getDate()}</span>
-            </div>
-        `;
-    }
-    html += '</div>';
-
-    // Time grid
-    html += '<div class="week-grid">';
-
-    // Generate time slots (morning: 10 AM - 1:30 PM, evening: 6 PM - 8:30 PM)
-    const timeSlots = [];
-
-    // Morning slots (10:00 AM - 1:30 PM)
-    for (let h = 10; h <= 13; h++) {
-        if (h === 13) {
-            timeSlots.push({ hour: h, minute: 0, label: '1:00 PM' });
-        } else {
-            timeSlots.push({ hour: h, minute: 0, label: formatHour(h) });
-        }
-    }
-
-    // Break indicator
-    timeSlots.push({ hour: 0, minute: 0, label: 'BREAK', isBreak: true });
-
-    // Evening slots (6:00 PM - 8:30 PM)
-    for (let h = 18; h <= 20; h++) {
-        timeSlots.push({ hour: h, minute: 0, label: formatHour(h) });
-    }
-
-    timeSlots.forEach(slot => {
-        if (slot.isBreak) {
-            html += `
-                <div class="time-row break-row">
-                    <div class="time-label break-label">
-                        <i class="fas fa-coffee"></i> Break (1:30 PM - 6:00 PM)
-                    </div>
-                    <div class="day-cells break-cells" style="grid-column: span 7;"></div>
-                </div>
-            `;
-            return;
-        }
-
-        html += '<div class="time-row">';
-        html += `<div class="time-label">${slot.label}</div>`;
-
-        // Day cells
-        for (let d = 0; d < 7; d++) {
-            const cellDate = new Date(currentWeekStart);
-            cellDate.setDate(cellDate.getDate() + d);
-            const isSunday = cellDate.getDay() === 0;
-
-            // Find appointments in this cell (within this hour)
-            const cellAppointments = appointments.filter(a => {
-                const aptDate = new Date(a.date);
-                if (!isSameDay(aptDate, cellDate)) return false;
-
-                const aptMinutes = timeStringToMinutes(a.time || a.startTime || '');
-                const slotMinutes = slot.hour * 60;
-                return aptMinutes >= slotMinutes && aptMinutes < slotMinutes + 60;
-            });
-
-            html += `<div class="day-cell ${isSunday ? 'closed' : ''}" data-date="${cellDate.toISOString().split('T')[0]}" data-hour="${slot.hour}">`;
-
-            if (isSunday) {
-                html += '<span class="closed-label">Closed</span>';
-            } else {
-                cellAppointments.forEach(apt => {
-                    const patients = getData('patients');
-                    const patient = patients.find(p => p.id === apt.patientId);
-                    const patientName = patient ? patient.name : apt.patientName || 'Patient';
-                    const duration = apt.duration || 30;
-                    const heightPercent = (duration / 60) * 100;
-
-                    html += `
-                        <div class="appointment-block" style="height: ${Math.max(heightPercent, 30)}%;"
-                             onclick="viewAppointmentDetails('${apt.id}')" title="${escapeHtml(patientName)} - ${apt.time}">
-                            <span class="apt-time">${apt.time || apt.startTime}</span>
-                            <span class="apt-name">${escapeHtml(patientName.split(' ')[0])}</span>
-                        </div>
-                    `;
-                });
-            }
-
-            html += '</div>';
-        }
-
-        html += '</div>';
-    });
-
-    html += '</div></div>';
-
-    container.innerHTML = html;
-}
-
-function renderMonthView() {
-    const container = document.getElementById('calendarContainer');
-    if (!container) return;
-
-    const grid = document.createElement('div');
-    grid.className = 'calendar-grid month-grid';
-
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-    const monthLabel = document.getElementById('dashCalendarMonth');
-    if (monthLabel) {
-        monthLabel.textContent = months[currentDashMonth] + ' ' + currentDashYear;
-    }
-
-    const firstDay = new Date(currentDashYear, currentDashMonth, 1).getDay();
-    const daysInMonth = new Date(currentDashYear, currentDashMonth + 1, 0).getDate();
-    const today = new Date();
-    const todayDate = today.getDate();
-    const todayMonth = today.getMonth();
-    const todayYear = today.getFullYear();
-
-    // Get appointments for this month (exclude trashed patients)
-    const trash = getData('trash') || [];
-    const trashedPatientIds = new Set(trash.map(p => p.id));
-    const appointments = getData('appointments').filter(a => !trashedPatientIds.has(a.patientId));
-    const appointmentDates = {};
-    appointments.forEach(a => {
-        if (!a.date || a.status === 'Cancelled') return;
-        const d = new Date(a.date);
-        if (d.getMonth() === currentDashMonth && d.getFullYear() === currentDashYear) {
-            const day = d.getDate();
-            if (!appointmentDates[day]) appointmentDates[day] = [];
-            appointmentDates[day].push(a);
-        }
-    });
-
-    let html = '';
-
-    // Day headers
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    html += '<div class="calendar-days-header">';
-    dayNames.forEach(name => {
-        html += `<span>${name}</span>`;
-    });
-    html += '</div>';
-
-    html += '<div class="calendar-grid">';
-
-    // Empty cells before first day
-    for (let i = 0; i < firstDay; i++) {
-        html += '<div class="calendar-day empty"></div>';
-    }
-
-    // Day cells
-    for (let day = 1; day <= daysInMonth; day++) {
-        const isToday = (day === todayDate && currentDashMonth === todayMonth && currentDashYear === todayYear);
-        const isSunday = new Date(currentDashYear, currentDashMonth, day).getDay() === 0;
-        const dayAppts = appointmentDates[day] || [];
-        const hasAppts = dayAppts.length > 0;
-
-        let classes = 'calendar-day';
-        if (isToday) classes += ' today';
-        if (isSunday) classes += ' sunday';
-        if (hasAppts) classes += ' has-appointments';
-
-        const dateStr = `${currentDashYear}-${String(currentDashMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-        html += `
-            <div class="${classes}" onclick="filterAppointmentsByDate('${dateStr}')">
-                <span class="day-number">${day}</span>
-                ${hasAppts ? `<span class="apt-count">${dayAppts.length}</span>` : ''}
-            </div>
-        `;
-    }
-
-    html += '</div>';
-    container.innerHTML = html;
-}
-
-function changeWeek(delta) {
-    currentWeekStart.setDate(currentWeekStart.getDate() + (delta * 7));
-    renderWeekView();
-}
-
-function changeDashMonth(delta) {
-    if (calendarView === 'week') {
-        changeWeek(delta);
-        return;
-    }
-
-    currentDashMonth += delta;
-    if (currentDashMonth < 0) {
-        currentDashMonth = 11;
-        currentDashYear--;
-    } else if (currentDashMonth > 11) {
-        currentDashMonth = 0;
-        currentDashYear++;
-    }
-    renderMonthView();
-}
-
-function goToToday() {
-    const today = new Date();
-    selectedCalendarDate = new Date(today);
-    currentWeekStart = getWeekStart(today);
-    currentDashMonth = today.getMonth();
-    currentDashYear = today.getFullYear();
-    miniCalendarMonth = today.getMonth();
-    miniCalendarYear = today.getFullYear();
-
-    renderMiniCalendar();
-    renderCalendlyView();
 }
 
 function filterAppointmentsByDate(dateStr) {
@@ -1720,6 +1641,8 @@ function filterAppointmentsByDate(dateStr) {
 }
 
 function viewAppointmentDetails(id) {
+    if (_pdTeleportedModalId) restoreTeleportedModal(_pdTeleportedModalId);
+
     const appointments = getData('appointments');
     const apt = appointments.find(a => a.id === id);
     if (!apt) return;
@@ -1938,7 +1861,7 @@ function deleteAppointment(id) {
     // Refresh views
     loadAppointments();
     refreshDashboard();
-    renderCalendarView();
+
     loadAccountsBook();
     showToast('Appointment deleted successfully.', 'success');
 }
@@ -2117,7 +2040,7 @@ function savePrescription(event) {
         id: generateId(),
         patientId,
         patientName: patient ? patient.name : 'Unknown',
-        date: new Date().toISOString().split('T')[0],
+        date: getIndiaTodayDate(),
         diagnosis,
         treatment,
         medications,
@@ -2170,7 +2093,7 @@ function savePrescription(event) {
     closeModal('prescriptionModal');
     loadAppointments();
     refreshDashboard();
-    renderCalendarView();
+
     loadAccountsBook();
     showToast('Prescription saved' + (matchingApt ? ' & appointment completed' : '') + (paymentAmount ? ` with ₹${paymentAmount} payment` : '') + '!', 'success');
 
@@ -2654,7 +2577,7 @@ function scheduleFollowup(patientId) {
     // Set minimum date to today
     const fuDateInput = document.getElementById('fuDate');
     if (fuDateInput) {
-        fuDateInput.min = new Date().toISOString().split('T')[0];
+        fuDateInput.min = getIndiaTodayDate();
     }
 
     openModal('followupModal');
@@ -2682,7 +2605,7 @@ function saveFollowup(event) {
     closeModal('followupModal');
     loadFollowups();
     refreshDashboard();
-    renderCalendarView();
+
     showToast('Follow-up scheduled' + (createAppointment ? ' and appointment created!' : '!'), 'success');
 }
 
@@ -2832,7 +2755,7 @@ function openQuickBooking(patientId, prefillDate = '', prefillService = '') {
     document.getElementById('qbDate').value = prefillDate || '';
     document.getElementById('qbStartTime').value = '10:00 AM';
     document.getElementById('qbDuration').value = '30';
-    document.getElementById('qbService').value = prefillService ? 'Follow-up Visit' : '';
+    document.getElementById('qbService').value = prefillService ? 'Follow-up' : '';
     document.getElementById('qbPaymentAmount').value = '';
     document.getElementById('qbPaymentStatus').value = 'Pending';
     document.getElementById('qbPaymentMode').value = '';
@@ -2843,7 +2766,7 @@ function openQuickBooking(patientId, prefillDate = '', prefillService = '') {
     // Set minimum date to today
     const dateInput = document.getElementById('qbDate');
     if (dateInput) {
-        dateInput.min = new Date().toISOString().split('T')[0];
+        dateInput.min = getIndiaTodayDate();
     }
 
     openModal('quickBookingModal');
@@ -2922,7 +2845,7 @@ function saveQuickBooking(event) {
     closeModal('quickBookingModal');
     loadAppointments();
     refreshDashboard();
-    renderCalendarView();
+
     loadAccountsBook();
     showToast(rescheduleFrom ? 'Appointment rescheduled successfully!' : 'Appointment booked successfully!', 'success');
 }
@@ -2978,18 +2901,6 @@ function calculateEndTime(startTime, duration) {
     const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
 
     return `${displayHours}:${mins.toString().padStart(2, '0')} ${period}`;
-}
-
-function formatHour(hour) {
-    const period = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
-    return `${displayHour}:00 ${period}`;
-}
-
-function isSameDay(date1, date2) {
-    return date1.getDate() === date2.getDate() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getFullYear() === date2.getFullYear();
 }
 
 function getShortMonth(monthIndex) {
@@ -3066,7 +2977,7 @@ function restorePatient(id) {
     loadPatients();
     loadAppointments();
     refreshDashboard();
-    renderCalendarView();
+
     loadAccountsBook();
     showToast('Patient restored successfully!', 'success');
 }
@@ -3106,375 +3017,7 @@ function cleanupOldTrash() {
 }
 
 /* ============================================
-   10. CALENDLY-STYLE CALENDAR
-   ============================================ */
-
-// Mini Calendar in Sidebar
-function renderMiniCalendar() {
-    const grid = document.getElementById('miniCalendarGrid');
-    const monthLabel = document.getElementById('miniCalendarMonth');
-    if (!grid || !monthLabel) return;
-
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    monthLabel.textContent = months[miniCalendarMonth] + ' ' + miniCalendarYear;
-
-    const firstDay = new Date(miniCalendarYear, miniCalendarMonth, 1).getDay();
-    const daysInMonth = new Date(miniCalendarYear, miniCalendarMonth + 1, 0).getDate();
-    const today = new Date();
-
-    // Get appointments for highlighting
-    const appointments = getData('appointments');
-    const appointmentDates = {};
-    appointments.forEach(a => {
-        if (!a.date || a.status === 'Cancelled') return;
-        const d = new Date(a.date);
-        if (d.getMonth() === miniCalendarMonth && d.getFullYear() === miniCalendarYear) {
-            appointmentDates[d.getDate()] = true;
-        }
-    });
-
-    let html = '';
-
-    // Empty cells before first day
-    for (let i = 0; i < firstDay; i++) {
-        html += '<div class="mini-day disabled"></div>';
-    }
-
-    // Day cells
-    for (let day = 1; day <= daysInMonth; day++) {
-        const isToday = (day === today.getDate() && miniCalendarMonth === today.getMonth() && miniCalendarYear === today.getFullYear());
-        const isSelected = (day === selectedCalendarDate.getDate() && miniCalendarMonth === selectedCalendarDate.getMonth() && miniCalendarYear === selectedCalendarDate.getFullYear());
-        const hasAppts = appointmentDates[day];
-        const isSunday = new Date(miniCalendarYear, miniCalendarMonth, day).getDay() === 0;
-
-        let classes = 'mini-day';
-        if (isToday) classes += ' today';
-        if (isSelected) classes += ' selected';
-        if (hasAppts) classes += ' has-appointments';
-        if (isSunday) classes += ' disabled';
-
-        html += `<div class="${classes}" onclick="selectCalendarDate(${miniCalendarYear}, ${miniCalendarMonth}, ${day})">${day}</div>`;
-    }
-
-    grid.innerHTML = html;
-}
-
-function changeMiniMonth(delta) {
-    miniCalendarMonth += delta;
-    if (miniCalendarMonth < 0) {
-        miniCalendarMonth = 11;
-        miniCalendarYear--;
-    } else if (miniCalendarMonth > 11) {
-        miniCalendarMonth = 0;
-        miniCalendarYear++;
-    }
-    renderMiniCalendar();
-}
-
-function selectCalendarDate(year, month, day) {
-    selectedCalendarDate = new Date(year, month, day);
-    currentWeekStart = getWeekStart(selectedCalendarDate);
-    currentDashMonth = month;
-    currentDashYear = year;
-
-    renderMiniCalendar();
-    renderCalendlyView();
-}
-
-// View Selector (Day/Week/Month)
-function setCalendarView(view) {
-    calendarView = view;
-
-    // Update view buttons
-    document.querySelectorAll('.view-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    const activeBtn = document.querySelector(`.view-btn[onclick="setCalendarView('${view}')"]`);
-    if (activeBtn) activeBtn.classList.add('active');
-
-    renderCalendlyView();
-}
-
-// Navigate Schedule
-function navigateSchedule(delta) {
-    if (calendarView === 'day') {
-        selectedCalendarDate.setDate(selectedCalendarDate.getDate() + delta);
-    } else if (calendarView === 'week') {
-        currentWeekStart.setDate(currentWeekStart.getDate() + (delta * 7));
-        selectedCalendarDate = new Date(currentWeekStart);
-    } else {
-        currentDashMonth += delta;
-        if (currentDashMonth < 0) {
-            currentDashMonth = 11;
-            currentDashYear--;
-        } else if (currentDashMonth > 11) {
-            currentDashMonth = 0;
-            currentDashYear++;
-        }
-        selectedCalendarDate = new Date(currentDashYear, currentDashMonth, 1);
-    }
-
-    // Sync mini calendar
-    miniCalendarMonth = selectedCalendarDate.getMonth();
-    miniCalendarYear = selectedCalendarDate.getFullYear();
-
-    renderMiniCalendar();
-    renderCalendlyView();
-}
-
-// Main Calendly View Renderer
-function renderCalendlyView() {
-    const scheduleTitle = document.getElementById('scheduleTitle');
-    const scheduleContent = document.getElementById('scheduleContent');
-    if (!scheduleContent) return;
-
-    // Update today summary
-    updateTodaySummary();
-
-    switch (calendarView) {
-        case 'day':
-            renderDayView(scheduleTitle, scheduleContent);
-            break;
-        case 'week':
-            renderCalendlyWeekView(scheduleTitle, scheduleContent);
-            break;
-        case 'month':
-            renderCalendlyMonthView(scheduleTitle, scheduleContent);
-            break;
-    }
-}
-
-function renderDayView(titleEl, contentEl) {
-    const dateStr = selectedCalendarDate.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-    });
-    if (titleEl) titleEl.textContent = dateStr;
-
-    const isSunday = selectedCalendarDate.getDay() === 0;
-    const selectedDateStr = selectedCalendarDate.toISOString().split('T')[0];
-
-    if (isSunday) {
-        contentEl.innerHTML = `
-            <div class="schedule-empty">
-                <i class="fas fa-bed"></i>
-                <h4>Clinic Closed</h4>
-                <p>Sunday is a rest day</p>
-            </div>
-        `;
-        return;
-    }
-
-    const appointments = getData('appointments').filter(a => {
-        const aptDate = new Date(a.date).toISOString().split('T')[0];
-        return aptDate === selectedDateStr && a.status !== 'Cancelled';
-    });
-
-    if (appointments.length === 0) {
-        contentEl.innerHTML = `
-            <div class="schedule-empty">
-                <i class="fas fa-calendar-check"></i>
-                <h4>No Appointments</h4>
-                <p>No appointments scheduled for this day</p>
-            </div>
-        `;
-        return;
-    }
-
-    // Sort by time
-    appointments.sort((a, b) => {
-        return timeStringToMinutes(a.time || a.startTime || '') - timeStringToMinutes(b.time || b.startTime || '');
-    });
-
-    let html = '<div class="day-schedule">';
-    html += `<div class="day-header"><h4>${dateStr}</h4><span>${appointments.length} appointment${appointments.length > 1 ? 's' : ''}</span></div>`;
-    html += '<div class="time-grid">';
-
-    appointments.forEach(apt => {
-        const patients = getData('patients');
-        const patient = patients.find(p => p.id === apt.patientId);
-        const patientName = patient ? patient.name : apt.patientName || 'Unknown';
-        const duration = apt.duration || 30;
-        const endTime = apt.endTime || calculateEndTime(apt.time, duration);
-        const statusClass = getStatusClass(apt.status);
-        const paymentClass = apt.paymentStatus ? apt.paymentStatus.toLowerCase() : 'pending';
-
-        html += `
-            <div class="time-grid-row">
-                <div class="time-grid-label">${apt.time || apt.startTime}</div>
-                <div class="time-grid-cell">
-                    <div class="schedule-appointment ${statusClass} view-only">
-                        <div class="apt-time">${apt.time || apt.startTime} - ${endTime}</div>
-                        <div class="apt-patient">${escapeHtml(patientName)}</div>
-                        <div class="apt-service">${escapeHtml(apt.service || 'General')}</div>
-                        <span class="apt-duration">${duration} min</span>
-                        ${apt.paymentStatus ? `<span class="payment-badge ${paymentClass}">${apt.paymentStatus}</span>` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-
-    html += '</div></div>';
-    contentEl.innerHTML = html;
-}
-
-function renderCalendlyWeekView(titleEl, contentEl) {
-    const weekEnd = new Date(currentWeekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
-
-    const startLabel = currentWeekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const endLabel = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    if (titleEl) titleEl.textContent = `${startLabel} - ${endLabel}`;
-
-    const appointments = getData('appointments').filter(a => a.status !== 'Cancelled');
-    const patients = getData('patients');
-
-    let html = '<div class="week-schedule">';
-
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-    for (let i = 0; i < 7; i++) {
-        const day = new Date(currentWeekStart);
-        day.setDate(day.getDate() + i);
-        const isToday = isSameDay(day, new Date());
-        const isSunday = day.getDay() === 0;
-        const dayDateStr = day.toISOString().split('T')[0];
-
-        const dayAppts = appointments.filter(a => {
-            const aptDate = new Date(a.date).toISOString().split('T')[0];
-            return aptDate === dayDateStr;
-        }).sort((a, b) => timeStringToMinutes(a.time || '') - timeStringToMinutes(b.time || ''));
-
-        html += `
-            <div class="week-day-column ${isToday ? 'today' : ''} ${isSunday ? 'sunday' : ''}">
-                <div class="week-day-header">
-                    <span class="day-name">${dayNames[i]}</span>
-                    <span class="day-date">${day.getDate()}</span>
-                </div>
-        `;
-
-        if (!isSunday) {
-            dayAppts.forEach(apt => {
-                const patient = patients.find(p => p.id === apt.patientId);
-                const patientName = patient ? patient.name : apt.patientName || 'Patient';
-                const firstName = patientName.split(' ')[0];
-
-                html += `
-                    <div class="week-appointment view-only">
-                        <div class="wa-time">${apt.time || apt.startTime}</div>
-                        <div class="wa-name">${escapeHtml(firstName)}</div>
-                    </div>
-                `;
-            });
-        }
-
-        html += '</div>';
-    }
-
-    html += '</div>';
-    contentEl.innerHTML = html;
-}
-
-function renderCalendlyMonthView(titleEl, contentEl) {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    if (titleEl) titleEl.textContent = months[currentDashMonth] + ' ' + currentDashYear;
-
-    const firstDay = new Date(currentDashYear, currentDashMonth, 1).getDay();
-    const daysInMonth = new Date(currentDashYear, currentDashMonth + 1, 0).getDate();
-    const today = new Date();
-
-    const appointments = getData('appointments').filter(a => a.status !== 'Cancelled');
-    const appointmentsByDate = {};
-    appointments.forEach(a => {
-        if (!a.date) return;
-        const d = new Date(a.date);
-        if (d.getMonth() === currentDashMonth && d.getFullYear() === currentDashYear) {
-            const day = d.getDate();
-            if (!appointmentsByDate[day]) appointmentsByDate[day] = [];
-            appointmentsByDate[day].push(a);
-        }
-    });
-
-    let html = '<div class="month-schedule">';
-
-    // Day headers
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    dayNames.forEach(name => {
-        html += `<div class="month-day-header">${name}</div>`;
-    });
-
-    // Empty cells
-    for (let i = 0; i < firstDay; i++) {
-        html += '<div class="month-day-cell" style="opacity:0.3;"></div>';
-    }
-
-    // Day cells
-    for (let day = 1; day <= daysInMonth; day++) {
-        const isToday = (day === today.getDate() && currentDashMonth === today.getMonth() && currentDashYear === today.getFullYear());
-        const isSunday = new Date(currentDashYear, currentDashMonth, day).getDay() === 0;
-        const dayAppts = appointmentsByDate[day] || [];
-
-        let classes = 'month-day-cell';
-        if (isToday) classes += ' today';
-        if (isSunday) classes += ' sunday';
-
-        html += `<div class="${classes}" onclick="selectCalendarDate(${currentDashYear}, ${currentDashMonth}, ${day})">`;
-        html += `<div class="day-number">${day}</div>`;
-
-        if (dayAppts.length > 0) {
-            html += '<div class="month-appointment-dot">';
-            dayAppts.slice(0, 3).forEach(apt => {
-                html += `<div class="month-apt-item">${apt.time || apt.startTime}</div>`;
-            });
-            if (dayAppts.length > 3) {
-                html += `<div class="month-apt-more">+${dayAppts.length - 3} more</div>`;
-            }
-            html += '</div>';
-        }
-
-        html += '</div>';
-    }
-
-    html += '</div>';
-    contentEl.innerHTML = html;
-}
-
-function updateTodaySummary() {
-    const todayStr = new Date().toISOString().split('T')[0];
-    const appointments = getData('appointments');
-
-    const todayAppts = appointments.filter(a => {
-        const aptDate = new Date(a.date).toISOString().split('T')[0];
-        return aptDate === todayStr && a.status !== 'Cancelled';
-    });
-
-    const completed = todayAppts.filter(a => a.status === 'Completed').length;
-    const remaining = todayAppts.length - completed;
-
-    // Calculate today's revenue
-    let todayRevenue = 0;
-    todayAppts.filter(a => a.status === 'Completed' && a.amountPaid).forEach(a => {
-        todayRevenue += parseFloat(a.amountPaid) || 0;
-    });
-
-    const elTotal = document.getElementById('summaryTotal');
-    const elCompleted = document.getElementById('summaryCompleted');
-    const elRemaining = document.getElementById('summaryRemaining');
-    const elRevenue = document.getElementById('statRevenue');
-    const elRevenueToday2 = document.getElementById('statRevenueToday2');
-
-    if (elTotal) elTotal.textContent = todayAppts.length;
-    if (elCompleted) elCompleted.textContent = completed;
-    if (elRemaining) elRemaining.textContent = remaining;
-    if (elRevenue) elRevenue.textContent = todayRevenue.toLocaleString('en-IN');
-    if (elRevenueToday2) elRevenueToday2.textContent = '₹' + todayRevenue.toLocaleString('en-IN');
-}
-
-/* ============================================
-   11. TREATMENT COMPLETION & PAYMENT
+   10. TREATMENT COMPLETION & PAYMENT
    ============================================ */
 let currentTreatmentAptId = null;
 
@@ -3591,7 +3134,7 @@ function saveCompletedTreatment() {
     currentTreatmentAptId = null;
 
     // Refresh views
-    renderCalendarView();
+
     loadAppointments();
     refreshDashboard();
     loadAccountsBook();
@@ -4842,8 +4385,9 @@ document.addEventListener('keydown', function(e) {
 });
 
 /* ============================================
-   TEST DATA SEEDER - 70+ Patients, Full Workflow
-   Jan 6 - Feb 6, 2026 (one month of clinic data)
+   TEST DATA SEEDER - 75 Patients, Full Workflow
+   Jan 6 - Feb 14, 2026 (one month of clinic data)
+   Payments: 500-1000 range | ~15% rescheduled
    Run via browser console: seedTestData()
    ============================================ */
 function seedTestData() {
@@ -4866,7 +4410,7 @@ function seedTestData() {
     // ---- Constants ----
     var timeSlots = ['10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', '6:00 PM', '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM'];
     var payModes = ['Cash', 'Cash', 'Cash', 'Cash', 'GPay', 'GPay', 'GPay', 'Card', 'Card', 'Card']; // ~40/35/25 distribution
-    var amounts = [300, 400, 400, 500, 500, 500, 500, 600, 600, 700, 800, 1000];
+    var amounts = [500, 500, 500, 600, 600, 600, 700, 700, 800, 800, 900, 1000];
 
     var coimbatoreAreas = [
         'RS Puram', 'Gandhipuram', 'Peelamedu', 'Saibaba Colony', 'Race Course',
@@ -5043,10 +4587,10 @@ function seedTestData() {
         return y + '-' + m + '-' + dd;
     }
 
-    // ---- Generate working days from Jan 6 to Feb 6, 2026 (skip Sundays) ----
+    // ---- Generate working days from Jan 6 to Feb 14, 2026 (skip Sundays) ----
     var workingDays = [];
     var d = new Date(2026, 0, 6); // Jan 6, 2026
-    var endDate = new Date(2026, 1, 6); // Feb 6, 2026
+    var endDate = new Date(2026, 1, 14); // Feb 14, 2026
     while (d <= endDate) {
         if (d.getDay() !== 0) { // Skip Sundays
             workingDays.push(toDateStr(d));
@@ -5113,7 +4657,7 @@ function seedTestData() {
             nextDate.setDate(nextDate.getDate() + 3 + Math.floor(seededRandom() * 2)); // 3-4 days gap
             if (nextDate.getDay() === 0) nextDate.setDate(nextDate.getDate() + 1); // skip Sunday
             var nd = toDateStr(nextDate);
-            if (nd <= '2026-02-06') aptDates.push(nd);
+            if (nd <= '2026-02-14') aptDates.push(nd);
         }
 
         // Assign time slots (spread across slots, avoiding too many at same time)
@@ -5129,7 +4673,7 @@ function seedTestData() {
             var endTime = calculateEndTime(time, duration);
             var payMode = pick(payModes);
             var amount = baseAmount + (ai > 0 ? randInt(-100, 100) : 0);
-            if (amount < 300) amount = 300;
+            if (amount < 500) amount = 500;
             if (amount > 1000) amount = 1000;
             amount = Math.round(amount / 50) * 50; // Round to nearest 50
 
@@ -5235,6 +4779,14 @@ function seedTestData() {
                     }
                 }
 
+                // ~30% of past follow-ups remain Pending (overdue)
+                var fuStatus;
+                if (fuIsPast) {
+                    fuStatus = seededRandom() < 0.3 ? 'Pending' : 'Completed';
+                } else {
+                    fuStatus = 'Pending';
+                }
+
                 var fu = {
                     id: seedId(),
                     patientId: pt.id,
@@ -5242,12 +4794,59 @@ function seedTestData() {
                     date: fuDateStr,
                     reason: 'Review after initial treatment - ' + sp.condition,
                     notes: 'Check progress, reassess ROM and pain levels, adjust treatment plan if needed',
-                    status: fuIsPast ? 'Completed' : 'Pending',
+                    status: fuStatus,
                     createdAt: aptDate + 'T10:30:00.000Z'
                 };
                 if (matchingAptId) fu.appointmentId = matchingAptId;
                 followups.push(fu);
             }
+        }
+    }
+
+    // ---- Reschedule ~15% of future/scheduled appointments ----
+    var rescheduledCount = 0;
+    var originalAptCount = appointments.length;
+    for (var ri = 0; ri < originalAptCount; ri++) {
+        var rApt = appointments[ri];
+        if (rApt.status === 'Scheduled' && rApt.date > today && seededRandom() < 0.15) {
+            // Cancel the original
+            rApt.status = 'Cancelled';
+            rApt.cancelledAt = rApt.createdAt;
+            rApt.cancelReason = 'Rescheduled to a later date';
+
+            // Create new appointment 2-5 days later
+            var rParts = rApt.date.split('-');
+            var rNewDate = new Date(parseInt(rParts[0]), parseInt(rParts[1]) - 1, parseInt(rParts[2]));
+            rNewDate.setDate(rNewDate.getDate() + 2 + Math.floor(seededRandom() * 4));
+            if (rNewDate.getDay() === 0) rNewDate.setDate(rNewDate.getDate() + 1);
+            var rNewDateStr = toDateStr(rNewDate);
+            if (rNewDateStr > '2026-02-14') continue; // skip if out of range
+
+            var rNewTime = timeSlots[Math.floor(seededRandom() * timeSlots.length)];
+            var rNewDuration = rApt.duration;
+            var rNewEndTime = calculateEndTime(rNewTime, rNewDuration);
+
+            var rNewApt = {
+                id: seedId(),
+                patientId: rApt.patientId,
+                patientName: rApt.patientName,
+                name: rApt.name,
+                phone: rApt.phone,
+                date: rNewDateStr,
+                time: rNewTime,
+                startTime: rNewTime,
+                endTime: rNewEndTime,
+                duration: rNewDuration,
+                service: rApt.service,
+                status: 'Scheduled',
+                paymentStatus: 'Pending',
+                amountPaid: '',
+                paymentMode: null,
+                createdAt: new Date().toISOString(),
+                rescheduledFrom: rApt.id
+            };
+            appointments.push(rNewApt);
+            rescheduledCount++;
         }
     }
 
@@ -5264,9 +4863,9 @@ function seedTestData() {
     loadAppointments();
     loadPrescriptions();
     loadFollowups();
-    renderCalendarView();
+
     loadAccountsBook();
 
-    console.log('Seed complete: ' + patients.length + ' patients, ' + appointments.length + ' appointments, ' + prescriptions.length + ' prescriptions, ' + followups.length + ' follow-ups');
-    showToast('Test data seeded! ' + patients.length + ' patients across Jan 6 - Feb 6, 2026.', 'success');
+    console.log('Seed complete: ' + patients.length + ' patients, ' + appointments.length + ' appointments (' + rescheduledCount + ' rescheduled), ' + prescriptions.length + ' prescriptions, ' + followups.length + ' follow-ups');
+    showToast('Test data seeded! ' + patients.length + ' patients, ' + rescheduledCount + ' rescheduled appointments.', 'success');
 }
