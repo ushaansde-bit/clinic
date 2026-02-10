@@ -42,7 +42,7 @@
       <div style="width:72px;height:72px;background:rgba(27,77,62,0.08);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
         <i class="fas fa-user-md" style="font-size:1.8rem;color:var(--primary);"></i>
       </div>
-      <h2>Admin Login</h2>
+      <h2>Dashboard Login</h2>
       <p class="login-subtitle">Shree Physiotherapy Clinic</p>
       <p class="login-error" id="loginError" style="display:none;">Invalid username or password.</p>
       <p class="login-info" id="loginInfo" style="display:none;color:var(--primary);font-size:0.85rem;margin-bottom:12px;"></p>
@@ -107,7 +107,7 @@
             <span class="nav-icon"><i class="fas fa-clipboard-list"></i></span> Follow-ups
           </a>
           <a href="#" onclick="switchTab('settings'); return false;">
-            <span class="nav-icon"><i class="fas fa-cloud"></i></span> Cloud Sync
+            <span class="nav-icon"><i class="fas fa-cog"></i></span> Settings
             <span id="syncStatusIndicator" style="margin-left:auto;font-size:0.75rem;"></span>
           </a>
           <a href="#" onclick="switchTab('trash'); return false;" style="margin-top:auto;border-top:1px solid var(--border-light);padding-top:12px;">
@@ -125,7 +125,7 @@
           <button onclick="switchTab('appointments')">Appointments</button>
           <button onclick="switchTab('accounts')">Accounts</button>
           <button onclick="switchTab('followups')">Follow-ups</button>
-          <button onclick="switchTab('settings')">Sync</button>
+          <button onclick="switchTab('settings')">Settings</button>
           <button onclick="switchTab('trash')">Trash</button>
         </div>
 
@@ -621,8 +621,77 @@
           </div>
         </div>
 
-        <!-- TAB: Settings / Cloud Sync -->
+        <!-- TAB: Settings -->
         <div id="tab-settings" class="tab-content" style="display:none;">
+
+          <!-- Staff Management Section -->
+          <div class="dashboard-card-header" style="margin-bottom:24px;">
+            <div>
+              <h2 style="font-size:1.8rem;"><i class="fas fa-users-cog" style="margin-right:10px;opacity:0.7;"></i>Staff Management</h2>
+              <p style="color:var(--text-muted);font-size:0.9rem;margin-top:8px;">Add and manage staff members. Each staff member gets their own login with role-based access.</p>
+            </div>
+          </div>
+
+          <!-- Add/Edit Staff Form (hidden by default) -->
+          <div id="staffFormCard" class="dashboard-card" style="margin-bottom:20px;display:none;">
+            <h3 id="staffFormTitle" style="font-size:1.1rem;margin-bottom:16px;"><i class="fas fa-user-plus" style="margin-right:8px;opacity:0.7;"></i>Add Staff Member</h3>
+            <form onsubmit="saveStaff(event)">
+              <input type="hidden" id="staffEditId" value="">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="staffName">Full Name *</label>
+                  <input type="text" id="staffName" required placeholder="Staff member name">
+                </div>
+                <div class="form-group">
+                  <label for="staffPhone">Phone</label>
+                  <input type="tel" id="staffPhone" placeholder="Phone number">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="staffRole">Role *</label>
+                <select id="staffRole" required>
+                  <option value="">Select Role</option>
+                  <option value="physiotherapist">Physiotherapist</option>
+                  <option value="receptionist">Receptionist</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="staffUsername">Username *</label>
+                  <input type="text" id="staffUsername" required placeholder="Login username" minlength="3">
+                </div>
+                <div class="form-group">
+                  <label for="staffPassword">Password *</label>
+                  <input type="text" id="staffPassword" required placeholder="Login password" minlength="4">
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:8px;">
+                <button type="submit" class="btn btn-primary" style="padding:10px 24px;">
+                  <i class="fas fa-save"></i> Save Staff
+                </button>
+                <button type="button" class="btn btn-outline" onclick="hideStaffForm()" style="padding:10px 24px;">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Staff List -->
+          <div class="dashboard-card" style="margin-bottom:20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+              <h3 style="font-size:1.1rem;margin:0;"><i class="fas fa-id-badge" style="margin-right:8px;opacity:0.7;"></i>Staff Members</h3>
+              <button class="btn btn-primary" onclick="showAddStaffForm()" style="padding:8px 16px;font-size:0.85rem;">
+                <i class="fas fa-plus"></i> Add Staff
+              </button>
+            </div>
+            <div id="staffListContainer">
+              <p style="color:var(--text-muted);font-size:0.9rem;">No staff members added yet.</p>
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--border-light);margin:32px 0;">
+
+          <!-- Cloud Sync Section -->
           <div class="dashboard-card-header" style="margin-bottom:24px;">
             <div>
               <h2 style="font-size:1.8rem;"><i class="fas fa-cloud" style="margin-right:10px;opacity:0.7;"></i>Cloud Sync &amp; Data</h2>

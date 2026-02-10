@@ -69,8 +69,41 @@ function hasAppointmentTimePassed(appointmentDate, appointmentTime) {
 }
 
 /* ============================================
-   0. ADMIN LOGIN (Single User)
+   0. ROLE-BASED LOGIN & PERMISSIONS
    ============================================ */
+const ROLE_PERMISSIONS = {
+    admin: {
+        tabs: ['overview', 'patients', 'appointments', 'accounts', 'followups', 'settings', 'trash'],
+        actions: ['addPatient', 'editPatient', 'bookAppointment', 'cancelAppointment', 'rescheduleAppointment', 'completeTreatment', 'writePrescription', 'scheduleFollowup', 'manageAccounts', 'manageStaff']
+    },
+    physiotherapist: {
+        tabs: ['overview', 'patients', 'appointments', 'followups'],
+        actions: ['addPatient', 'editPatient', 'bookAppointment', 'cancelAppointment', 'rescheduleAppointment', 'completeTreatment', 'writePrescription', 'scheduleFollowup']
+    },
+    receptionist: {
+        tabs: ['overview', 'patients', 'appointments', 'accounts', 'followups'],
+        actions: ['addPatient', 'editPatient', 'bookAppointment', 'cancelAppointment', 'rescheduleAppointment', 'manageAccounts']
+    }
+};
+
+function getCurrentRole() {
+    return sessionStorage.getItem('dashRole') || 'admin';
+}
+
+function hasPermission(action) {
+    const role = getCurrentRole();
+    const perms = ROLE_PERMISSIONS[role];
+    return perms ? perms.actions.includes(action) : false;
+}
+
+function canAccessTab(tabName) {
+    if (tabName === 'patientdetail') return true;
+    const role = getCurrentRole();
+    const perms = ROLE_PERMISSIONS[role];
+    return perms ? perms.tabs.includes(tabName) : false;
+}
+
+/* ---- Admin Login ---- */
 function getSavedCredentials() {
     try {
         var saved = localStorage.getItem('_dashCredentials');
@@ -110,16 +143,24 @@ function handleAdminLogin(event) {
             if (window.CloudSync && CloudSync.isReady()) {
                 CloudSync.save('_credentials', { u: username, p: password });
             }
-            loginSuccess();
+            loginSuccess('admin', 'Admin', '');
         } else if (username === creds.u && password === creds.p) {
-            // Correct credentials
-            loginSuccess();
+            // Admin login
+            loginSuccess('admin', 'Admin', '');
         } else {
-            // Wrong credentials
-            if (errorEl) { errorEl.textContent = 'Invalid username or password.'; errorEl.style.display = 'block'; }
-            if (passwordInput) {
-                passwordInput.value = '';
-                passwordInput.focus();
+            // Check staff credentials
+            var staffList = getData('staff');
+            var staffMatch = staffList.find(function(s) {
+                return s.active && s.username === username && s.password === password;
+            });
+            if (staffMatch) {
+                loginSuccess(staffMatch.role, staffMatch.name, staffMatch.id);
+            } else {
+                if (errorEl) { errorEl.textContent = 'Invalid username or password.'; errorEl.style.display = 'block'; }
+                if (passwordInput) {
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
             }
         }
     } catch (err) {
@@ -128,10 +169,14 @@ function handleAdminLogin(event) {
     }
 }
 
-function loginSuccess() {
+function loginSuccess(role, name, staffId) {
     sessionStorage.setItem('dashLoggedIn', 'true');
+    sessionStorage.setItem('dashRole', role || 'admin');
+    sessionStorage.setItem('dashUserName', name || 'Admin');
+    sessionStorage.setItem('dashUserId', staffId || '');
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('dashboardApp').style.display = 'block';
+    applyRoleRestrictions();
     switchTab('overview');
     initDashboardData();
 }
@@ -154,6 +199,7 @@ function checkSession() {
     if (sessionStorage.getItem('dashLoggedIn') === 'true') {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('dashboardApp').style.display = 'block';
+        applyRoleRestrictions();
         return true;
     }
     return false;
@@ -161,7 +207,67 @@ function checkSession() {
 
 function logoutDashboard() {
     sessionStorage.removeItem('dashLoggedIn');
+    sessionStorage.removeItem('dashRole');
+    sessionStorage.removeItem('dashUserName');
+    sessionStorage.removeItem('dashUserId');
     window.location.reload();
+}
+
+/* ---- Role Enforcement ---- */
+function applyRoleRestrictions() {
+    const role = getCurrentRole();
+    const perms = ROLE_PERMISSIONS[role];
+    if (!perms) return;
+
+    const allowedTabs = perms.tabs;
+    const tabMap = ['overview', 'patients', 'appointments', 'accounts', 'followups', 'settings', 'trash'];
+
+    // Hide/show sidebar links
+    const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+    sidebarLinks.forEach(function(link, i) {
+        if (tabMap[i]) {
+            link.style.display = allowedTabs.includes(tabMap[i]) ? '' : 'none';
+        }
+    });
+
+    // Hide/show mobile nav buttons
+    const mobileButtons = document.querySelectorAll('.mobile-tab-nav button');
+    mobileButtons.forEach(function(btn, i) {
+        if (tabMap[i]) {
+            btn.style.display = allowedTabs.includes(tabMap[i]) ? '' : 'none';
+        }
+    });
+
+    updateHeaderUserInfo();
+}
+
+function updateHeaderUserInfo() {
+    const role = getCurrentRole();
+    const name = sessionStorage.getItem('dashUserName') || 'Admin';
+
+    // Remove existing user info if present
+    var existing = document.getElementById('headerUserInfo');
+    if (existing) existing.remove();
+
+    var navRight = document.querySelector('.nav-right');
+    if (!navRight) return;
+
+    var badgeColors = { admin: '#1B4D3E', physiotherapist: '#2563EB', receptionist: '#7C3AED' };
+    var roleLabels = { admin: 'Admin', physiotherapist: 'Physio', receptionist: 'Reception' };
+
+    var userInfo = document.createElement('div');
+    userInfo.id = 'headerUserInfo';
+    userInfo.className = 'header-user-info';
+    userInfo.innerHTML = '<span class="header-user-name">' + name + '</span>' +
+        '<span class="header-role-badge" style="background:' + (badgeColors[role] || '#1B4D3E') + ';">' + (roleLabels[role] || role) + '</span>';
+
+    // Insert before the logout button
+    var logoutBtn = navRight.querySelector('.btn-logout');
+    if (logoutBtn) {
+        navRight.insertBefore(userInfo, logoutBtn);
+    } else {
+        navRight.appendChild(userInfo);
+    }
 }
 
 function initDashboardData() {
@@ -377,6 +483,12 @@ function getCurrentVisibleTabName() {
    1. TAB NAVIGATION
    ============================================ */
 function switchTab(tabName) {
+    // Check role-based tab access
+    if (!canAccessTab(tabName)) {
+        showToast('You do not have access to this section.', 'error');
+        return;
+    }
+
     // Restore any teleported modal before leaving patient detail
     if (_pdTeleportedModalId) restoreTeleportedModal(_pdTeleportedModalId);
 
@@ -1762,13 +1874,17 @@ function renderPatientDetailActions(id, mode, apt) {
         const timePassed = hasAppointmentTimePassed(apt.date, apt.time || apt.startTime);
         const canComplete = isActionable && timePassed;
 
-        if (canComplete) {
+        if (canComplete && hasPermission('completeTreatment')) {
             html += `<button class="btn btn-primary pd-action-btn" style="background:#22C55E;border-color:#22C55E;" onclick="openTreatmentModal('${apt.id}')"><i class="fas fa-check-circle"></i> Complete</button>`;
         }
         if (patientId) {
-            html += `<button class="btn btn-primary pd-action-btn" onclick="writePrescription('${patientId}')"><i class="fas fa-file-prescription"></i> Write Rx</button>`;
+            if (hasPermission('writePrescription')) {
+                html += `<button class="btn btn-primary pd-action-btn" onclick="writePrescription('${patientId}')"><i class="fas fa-file-prescription"></i> Write Rx</button>`;
+            }
             html += `<button class="btn btn-accent pd-action-btn" onclick="openQuickBooking('${patientId}')"><i class="fas fa-calendar-plus"></i> Book Appointment</button>`;
-            html += `<button class="btn btn-outline pd-action-btn" style="color:var(--primary);border-color:var(--primary);" onclick="scheduleFollowup('${patientId}')"><i class="fas fa-bell"></i> Follow-up</button>`;
+            if (hasPermission('scheduleFollowup')) {
+                html += `<button class="btn btn-outline pd-action-btn" style="color:var(--primary);border-color:var(--primary);" onclick="scheduleFollowup('${patientId}')"><i class="fas fa-bell"></i> Follow-up</button>`;
+            }
         }
         if (isActionable) {
             html += `<button class="btn btn-outline pd-action-btn" style="color:#DC2626;border-color:#DC2626;" onclick="if(confirm('Cancel this appointment?')) updateAppointmentStatus('${apt.id}', 'Cancelled')"><i class="fas fa-times-circle"></i> Cancel</button>`;
@@ -1791,12 +1907,16 @@ function renderPatientDetailActions(id, mode, apt) {
             .filter(a => a.status !== 'Completed' && a.status !== 'Cancelled' && hasAppointmentTimePassed(a.date, a.time || a.startTime))
             .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-        if (completableAppt) {
+        if (completableAppt && hasPermission('completeTreatment')) {
             html += `<button class="btn btn-primary pd-action-btn" style="background:#22C55E;border-color:#22C55E;" onclick="openTreatmentModal('${completableAppt.id}')"><i class="fas fa-check-circle"></i> Complete</button>`;
         }
-        html += `<button class="btn btn-primary pd-action-btn" onclick="writePrescription('${id}')"><i class="fas fa-file-prescription"></i> Write Rx</button>`;
+        if (hasPermission('writePrescription')) {
+            html += `<button class="btn btn-primary pd-action-btn" onclick="writePrescription('${id}')"><i class="fas fa-file-prescription"></i> Write Rx</button>`;
+        }
         html += `<button class="btn btn-accent pd-action-btn" onclick="openQuickBooking('${id}')"><i class="fas fa-calendar-plus"></i> Book Appointment</button>`;
-        html += `<button class="btn btn-outline pd-action-btn" style="color:var(--primary);border-color:var(--primary);" onclick="scheduleFollowup('${id}')"><i class="fas fa-bell"></i> Follow-up</button>`;
+        if (hasPermission('scheduleFollowup')) {
+            html += `<button class="btn btn-outline pd-action-btn" style="color:var(--primary);border-color:var(--primary);" onclick="scheduleFollowup('${id}')"><i class="fas fa-bell"></i> Follow-up</button>`;
+        }
         html += `<button class="btn btn-outline pd-action-btn" onclick="openEditPatient('${id}')"><i class="fas fa-edit"></i> Edit Patient</button>`;
 
         const patients = getData('patients');
@@ -1992,6 +2112,10 @@ function clearPrescriptionFilters() {
 }
 
 function writePrescription(patientId) {
+    if (!hasPermission('writePrescription')) {
+        showToast('You do not have permission to write prescriptions.', 'error');
+        return;
+    }
     const patients = getData('patients');
     const patient = patients.find(p => p.id === patientId);
     if (!patient) {
@@ -2559,6 +2683,10 @@ function deleteFollowup(id) {
 }
 
 function scheduleFollowup(patientId) {
+    if (!hasPermission('scheduleFollowup')) {
+        showToast('You do not have permission to schedule follow-ups.', 'error');
+        return;
+    }
     const patients = getData('patients');
     const patient = patients.find(p => p.id === patientId);
     if (!patient) {
@@ -3022,6 +3150,10 @@ function cleanupOldTrash() {
 let currentTreatmentAptId = null;
 
 function openTreatmentModal(appointmentId) {
+    if (!hasPermission('completeTreatment')) {
+        showToast('You do not have permission to complete treatments.', 'error');
+        return;
+    }
     const appointments = getData('appointments');
     const apt = appointments.find(a => a.id === appointmentId);
     if (!apt) return;
@@ -3083,6 +3215,10 @@ function convertTo12Hour(timeStr) {
 }
 
 function saveCompletedTreatment() {
+    if (!hasPermission('completeTreatment')) {
+        showToast('You do not have permission to complete treatments.', 'error');
+        return;
+    }
     if (!currentTreatmentAptId) return;
 
     const appointments = getData('appointments');
@@ -4236,9 +4372,180 @@ function printReport() {
 }
 
 /* ============================================
+   STAFF MANAGEMENT CRUD
+   ============================================ */
+function showAddStaffForm() {
+    document.getElementById('staffEditId').value = '';
+    document.getElementById('staffName').value = '';
+    document.getElementById('staffPhone').value = '';
+    document.getElementById('staffRole').value = '';
+    document.getElementById('staffUsername').value = '';
+    document.getElementById('staffPassword').value = '';
+    document.getElementById('staffFormTitle').innerHTML = '<i class="fas fa-user-plus" style="margin-right:8px;opacity:0.7;"></i>Add Staff Member';
+    document.getElementById('staffFormCard').style.display = 'block';
+    document.getElementById('staffName').focus();
+}
+
+function hideStaffForm() {
+    document.getElementById('staffFormCard').style.display = 'none';
+}
+
+function editStaff(id) {
+    var staffList = getData('staff');
+    var staff = staffList.find(function(s) { return s.id === id; });
+    if (!staff) return;
+
+    document.getElementById('staffEditId').value = staff.id;
+    document.getElementById('staffName').value = staff.name;
+    document.getElementById('staffPhone').value = staff.phone || '';
+    document.getElementById('staffRole').value = staff.role;
+    document.getElementById('staffUsername').value = staff.username;
+    document.getElementById('staffPassword').value = staff.password;
+    document.getElementById('staffFormTitle').innerHTML = '<i class="fas fa-edit" style="margin-right:8px;opacity:0.7;"></i>Edit Staff Member';
+    document.getElementById('staffFormCard').style.display = 'block';
+    document.getElementById('staffName').focus();
+}
+
+function saveStaff(event) {
+    event.preventDefault();
+
+    var editId = document.getElementById('staffEditId').value;
+    var name = document.getElementById('staffName').value.trim();
+    var phone = document.getElementById('staffPhone').value.trim();
+    var role = document.getElementById('staffRole').value;
+    var username = document.getElementById('staffUsername').value.trim();
+    var password = document.getElementById('staffPassword').value;
+
+    if (!name || !role || !username || !password) {
+        showToast('Please fill all required fields.', 'error');
+        return;
+    }
+
+    if (username.length < 3) {
+        showToast('Username must be at least 3 characters.', 'error');
+        return;
+    }
+    if (password.length < 4) {
+        showToast('Password must be at least 4 characters.', 'error');
+        return;
+    }
+
+    // Check username uniqueness vs admin
+    var adminCreds = getSavedCredentials();
+    if (adminCreds && username === adminCreds.u) {
+        showToast('This username is already taken by the admin account.', 'error');
+        return;
+    }
+
+    // Check username uniqueness vs other staff
+    var staffList = getData('staff');
+    var duplicate = staffList.find(function(s) {
+        return s.username === username && s.id !== editId;
+    });
+    if (duplicate) {
+        showToast('This username is already taken by another staff member.', 'error');
+        return;
+    }
+
+    if (editId) {
+        // Update existing
+        var index = staffList.findIndex(function(s) { return s.id === editId; });
+        if (index >= 0) {
+            staffList[index].name = name;
+            staffList[index].phone = phone;
+            staffList[index].role = role;
+            staffList[index].username = username;
+            staffList[index].password = password;
+        }
+        showToast('Staff member updated.', 'success');
+    } else {
+        // Add new
+        staffList.push({
+            id: generateId(),
+            name: name,
+            phone: phone,
+            role: role,
+            username: username,
+            password: password,
+            createdAt: new Date().toISOString(),
+            active: true
+        });
+        showToast('Staff member added.', 'success');
+    }
+
+    setData('staff', staffList);
+    hideStaffForm();
+    loadStaffList();
+}
+
+function deleteStaff(id) {
+    if (!confirm('Delete this staff member? This cannot be undone.')) return;
+
+    var staffList = getData('staff');
+    staffList = staffList.filter(function(s) { return s.id !== id; });
+    setData('staff', staffList);
+    showToast('Staff member deleted.', 'success');
+    loadStaffList();
+}
+
+function toggleStaffActive(id) {
+    var staffList = getData('staff');
+    var staff = staffList.find(function(s) { return s.id === id; });
+    if (!staff) return;
+
+    staff.active = !staff.active;
+    setData('staff', staffList);
+    showToast(staff.name + ' ' + (staff.active ? 'activated' : 'deactivated') + '.', 'success');
+    loadStaffList();
+}
+
+function loadStaffList() {
+    var container = document.getElementById('staffListContainer');
+    if (!container) return;
+
+    var staffList = getData('staff');
+    if (!staffList || staffList.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);font-size:0.9rem;">No staff members added yet.</p>';
+        return;
+    }
+
+    var roleLabels = { physiotherapist: 'Physiotherapist', receptionist: 'Receptionist' };
+    var roleBadgeColors = { physiotherapist: '#2563EB', receptionist: '#7C3AED' };
+
+    var html = '<table class="data-table" style="width:100%;"><thead><tr>' +
+        '<th>Name</th><th>Role</th><th>Username</th><th>Status</th><th style="text-align:right;">Actions</th>' +
+        '</tr></thead><tbody>';
+
+    staffList.forEach(function(s) {
+        var statusBadge = s.active
+            ? '<span style="background:#DEF7EC;color:#03543F;padding:3px 10px;border-radius:12px;font-size:0.78rem;font-weight:600;">Active</span>'
+            : '<span style="background:#FDE8E8;color:#9B1C1C;padding:3px 10px;border-radius:12px;font-size:0.78rem;font-weight:600;">Inactive</span>';
+
+        var roleBadge = '<span style="background:' + (roleBadgeColors[s.role] || '#666') + ';color:#fff;padding:3px 10px;border-radius:12px;font-size:0.78rem;font-weight:600;">' +
+            (roleLabels[s.role] || s.role) + '</span>';
+
+        html += '<tr>' +
+            '<td><strong>' + s.name + '</strong>' + (s.phone ? '<br><span style="font-size:0.8rem;color:var(--text-muted);">' + s.phone + '</span>' : '') + '</td>' +
+            '<td>' + roleBadge + '</td>' +
+            '<td style="font-family:monospace;font-size:0.85rem;">' + s.username + '</td>' +
+            '<td>' + statusBadge + '</td>' +
+            '<td style="text-align:right;white-space:nowrap;">' +
+                '<button class="btn btn-outline" onclick="editStaff(\'' + s.id + '\')" style="padding:5px 10px;font-size:0.78rem;margin-right:4px;" title="Edit"><i class="fas fa-edit"></i></button>' +
+                '<button class="btn btn-outline" onclick="toggleStaffActive(\'' + s.id + '\')" style="padding:5px 10px;font-size:0.78rem;margin-right:4px;" title="' + (s.active ? 'Deactivate' : 'Activate') + '"><i class="fas fa-' + (s.active ? 'ban' : 'check') + '"></i></button>' +
+                '<button class="btn btn-outline" onclick="deleteStaff(\'' + s.id + '\')" style="padding:5px 10px;font-size:0.78rem;color:#DC2626;border-color:#DC2626;" title="Delete"><i class="fas fa-trash"></i></button>' +
+            '</td>' +
+            '</tr>';
+    });
+
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+/* ============================================
    CLOUD SYNC / SETTINGS TAB FUNCTIONS
    ============================================ */
 function loadSettingsTab() {
+    loadStaffList();
     // Load data stats
     var statsGrid = document.getElementById('dataStatsGrid');
     if (statsGrid && window.CloudSync) {
@@ -4373,13 +4680,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initDashboardData();
 });
 
-// Secret admin shortcut: Ctrl+Shift+C to access Cloud Sync settings
+// Secret admin shortcut: Ctrl+Shift+C to access Settings (admin only)
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && e.shiftKey && e.key === 'C') {
         e.preventDefault();
-        if (checkSession()) {
+        if (checkSession() && getCurrentRole() === 'admin') {
             switchTab('settings');
-            showToast('Admin: Cloud Sync settings opened', 'info');
+            showToast('Admin: Settings opened', 'info');
         }
     }
 });

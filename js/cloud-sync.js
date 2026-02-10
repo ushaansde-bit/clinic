@@ -10,7 +10,7 @@
     var FIREBASE_CONFIG = null;
 
     // Data keys to sync across browsers
-    var DATA_KEYS = ['patients', 'appointments', 'prescriptions', 'followups'];
+    var DATA_KEYS = ['patients', 'appointments', 'prescriptions', 'followups', 'staff'];
 
     // ---- State ----
     var database = null;
