@@ -3,20 +3,20 @@
    PWA with Offline Support and Notifications
    ============================================ */
 
-const CACHE_NAME = 'shree-physio-v2';
+const CACHE_NAME = 'shree-physio-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/book.html',
-  '/dashboard.html',
+  '/blog.html',
   '/css/style.css',
-  '/css/dashboard-calendar.css',
+  '/css/blog.css',
   '/js/main.js',
-  '/js/booking.js',
   '/js/dashboard.js',
+  '/js/cloud-sync.js',
+  '/js/blog-auto-update.js',
   '/js/pwa.js',
   '/a1.jpg',
-  '/a2.jpg',
   '/manifest.json'
 ];
 

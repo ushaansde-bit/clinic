@@ -1,252 +1,1444 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Book Appointment | Shree Physiotherapy Clinic</title>
-  <meta name="description" content="Book your physiotherapy appointment with Dr. Aarthi Ganesh at Shree Physiotherapy Clinic.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shree Physiotherapy Clinic — Book Appointment</title>
+<meta name="description" content="Book your physiotherapy appointment with Dr. Aarthi Ganesh at Shree Physiotherapy Clinic.">
 
-  <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#1B4D3E">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Book Physio">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css">
+<style>
+/* --- CSS Custom Properties (matching main website) --- */
+:root {
+  --primary: #1B4D3E;
+  --primary-dark: #164032;
+  --primary-light: #2D7A5F;
+  --primary-50: rgba(27, 77, 62, 0.05);
+  --primary-100: rgba(27, 77, 62, 0.1);
+  --primary-200: rgba(27, 77, 62, 0.18);
+  --accent: #C8956C;
+  --accent-light: #E8D5C0;
+  --accent-hover: #B8834F;
+  --success: #22c55e;
+  --success-bg: #f0fdf4;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --white: #ffffff;
+  --bg: #FAFAF7;
+  --card-bg: #ffffff;
+  --border: #E5E7EB;
+  --border-light: #F3F4F6;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow: 0 4px 20px rgba(27,77,62,0.08);
+  --shadow-md: 0 6px 24px rgba(27,77,62,0.1);
+  --shadow-lg: 0 12px 40px rgba(27,77,62,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-body: 'Inter', sans-serif;
+  --font-heading: 'Playfair Display', serif;
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  color: #1A1A1A;
+  background: var(--bg);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* --- Header --- */
+.header {
+  background: var(--primary);
+  color: var(--white);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+}
+.header h1 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.header p {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  opacity: 0.8;
+  margin-top: 0.25rem;
+  font-weight: 400;
+}
+
+/* --- Main Grid (side-by-side) --- */
+.main-grid {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: stretch;
+}
+.left-panel, .right-panel {
+  display: flex;
+  flex-direction: column;
+}
+.right-panel > #panel-form,
+.right-panel > #panel-confirm {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.right-panel > #panel-form > .card,
+.right-panel > #panel-confirm > .card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.right-panel > #panel-form > .card > #form-new,
+.right-panel > #panel-form > .card > #form-existing {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.right-panel > #panel-form > .card > #form-new > .form-group:last-child,
+.right-panel > #panel-form > .card > #form-existing > .form-group:last-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.right-panel > #panel-form > .card > #form-new > .form-group:last-child > textarea,
+.right-panel > #panel-form > .card > #form-existing > .form-group:last-child > textarea {
+  flex: 1;
+  min-height: 60px;
+}
+
+/* --- Card --- */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  border: 1px solid var(--border-light);
+}
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+
+/* --- Calendar --- */
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.cal-header h3 {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.cal-nav {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  width: 34px; height: 34px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gray-500);
+  transition: var(--transition);
+}
+.cal-nav:hover { background: var(--primary-50); color: var(--primary); }
+.cal-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+.cal-nav:disabled:hover { background: none; color: var(--gray-500); }
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  text-align: center;
+}
+.cal-dow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  padding: 0.4rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.cal-day {
+  position: relative;
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  border: 2px solid transparent;
+}
+.cal-day:hover { background: var(--primary-50); }
+.cal-day.today { font-weight: 700; color: var(--primary); border-color: var(--primary-100); }
+.cal-day.selected {
+  background: var(--primary);
+  color: var(--white);
+  font-weight: 600;
+  border-color: var(--primary);
+}
+.cal-day.selected:hover { background: var(--primary-dark); }
+.cal-day.disabled {
+  color: var(--gray-300);
+  cursor: not-allowed;
+  background: none;
+}
+.cal-day.disabled:hover { background: none; }
+.cal-day.empty { cursor: default; }
+.cal-day.empty:hover { background: none; }
+.cal-dot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.cal-day.selected .cal-dot { background: var(--white); }
+.cal-day.disabled .cal-dot { background: var(--gray-300); }
+
+/* --- Time Slots --- */
+.time-label {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+.session-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0.85rem 0 0.4rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border-light);
+}
+.session-label:first-of-type { margin-top: 0.25rem; }
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.time-slot {
+  padding: 0.55rem 0.25rem;
+  text-align: center;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--white);
+  font-weight: 500;
+}
+.time-slot:hover { border-color: var(--primary-light); background: var(--primary-50); color: var(--primary); }
+.time-slot.selected {
+  background: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(27, 77, 62, 0.25);
+}
+.time-slot.unavailable {
+  background: var(--gray-100);
+  color: var(--gray-400);
+  cursor: not-allowed;
+  border-color: var(--gray-200);
+  text-decoration: line-through;
+}
+.time-slot.unavailable:hover {
+  background: var(--gray-100);
+  border-color: var(--gray-200);
+  color: var(--gray-400);
+}
+
+/* --- Selection Summary --- */
+.selection-summary {
+  background: var(--primary-50);
+  border: 1px solid var(--primary-200);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--primary);
+  display: none;
+}
+.selection-summary.show { display: block; }
+.selection-summary strong { font-weight: 600; }
+
+/* --- Time Placeholder --- */
+.time-placeholder {
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+  color: var(--gray-400);
+  font-size: 0.85rem;
+}
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  border: 2px solid transparent;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+}
+.btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+.btn-primary:disabled {
+  background: var(--gray-300);
+  border-color: var(--gray-300);
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: var(--white);
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+.btn-secondary:hover { background: var(--primary); color: var(--white); }
+.btn-whatsapp {
+  background: #25D366;
+  color: var(--white);
+  border-color: #25D366;
+}
+.btn-whatsapp:hover { background: #1FAD54; border-color: #1FAD54; }
+.btn-block { width: 100%; }
+
+/* --- Forms --- */
+.form-group { margin-bottom: 1rem; }
+.form-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 0.35rem;
+}
+.form-input, .form-select {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  color: #1A1A1A;
+  background: var(--white);
+  transition: var(--transition);
+  font-family: var(--font-body);
+}
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(27, 77, 62, 0.08);
+}
+.form-input.error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+.form-error {
+  font-size: 0.75rem;
+  color: var(--danger);
+  margin-top: 0.2rem;
+  display: none;
+}
+.form-error.show { display: block; }
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin-top: 0.2rem;
+}
+
+/* Phone row */
+.phone-row {
+  display: flex;
+  gap: 0.5rem;
+}
+.phone-code {
+  width: 72px;
+  flex-shrink: 0;
+  text-align: center;
+}
+.phone-number { flex: 1; }
+
+/* --- Toggle --- */
+.toggle-group {
+  display: flex;
+  background: var(--gray-100);
+  border-radius: 50px;
+  padding: 4px;
+  margin-bottom: 1.25rem;
+}
+.toggle-btn {
+  flex: 1;
+  padding: 0.55rem;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  background: none;
+  color: var(--gray-500);
+  transition: var(--transition);
+}
+.toggle-btn.active {
+  background: var(--primary);
+  color: var(--white);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(27, 77, 62, 0.2);
+}
+
+/* --- Confirmation --- */
+.confirm-wrap {
+  text-align: center;
+  padding: 1.5rem 0 1rem;
+}
+.confirm-check {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--success-bg);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+.confirm-check svg {
+  width: 36px; height: 36px;
+  stroke: var(--success);
+}
+.confirm-wrap h2 {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+.confirm-wrap p {
+  color: var(--gray-500);
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+}
+.confirm-detail {
+  background: var(--primary-50);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  text-align: left;
+  border: 1px solid var(--primary-100);
+}
+.confirm-detail .row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  font-size: 0.85rem;
+}
+.confirm-detail .row .label {
+  color: var(--gray-500);
+}
+.confirm-detail .row .value {
+  font-weight: 600;
+  color: var(--primary);
+}
+.confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.confirm-actions .btn { flex: 1; }
+
+/* --- Toast --- */
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.toast {
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  font-family: var(--font-body);
+  color: var(--white);
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.3s ease;
+  max-width: 340px;
+}
+.toast-info { background: var(--primary); }
+.toast-error { background: var(--danger); }
+.toast-success { background: linear-gradient(135deg, #34A853 0%, #2D9249 100%); }
+.toast.removing { animation: slideOut 0.3s ease forwards; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+
+/* --- Hidden --- */
+.hidden { display: none !important; }
+
+/* --- Responsive: Mobile stacked --- */
+@media (max-width: 768px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+  .card { padding: 1.25rem; }
+  .header { padding: 1.25rem 1.5rem; }
+  .header h1 { font-size: 1.3rem; }
+}
+@media (max-width: 380px) {
+  .time-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
 </head>
 <body>
 
-  <nav class="navbar" id="navbar">
-    <div class="container nav-container">
-      <a href="index.html" class="nav-brand">
-        <span class="brand-name">Dr. Aarthi Ganesh</span>
-        <span class="brand-subtitle">Shree Physiotherapy Clinic</span>
-      </a>
-      <ul class="nav-menu" id="navMenu">
-        <li class="nav-item nav-item-mobile"><a href="blog.html" class="nav-link"><i class="fas fa-blog"></i> Blog</a></li>
-      </ul>
-      <div class="nav-cta">
-        <a href="blog.html" class="nav-blog-link" title="Visit Blog"><i class="fas fa-blog"></i></a>
-        <a href="index.html" class="btn btn-primary"><i class="fas fa-home"></i> Home</a>
+<!-- Header -->
+<div class="header">
+  <a href="index.html" style="text-decoration:none;color:inherit"><h1>Shree Physiotherapy Clinic</h1></a>
+  <p>Book an Appointment</p>
+</div>
+
+<!-- Side-by-Side Layout -->
+<div class="main-grid">
+
+  <!-- ===== LEFT PANEL: Calendar + Time Slots ===== -->
+  <div class="left-panel">
+    <div class="card">
+      <div class="cal-header">
+        <button class="cal-nav" id="cal-prev" title="Previous month">&#9664;</button>
+        <h3 id="cal-month-label"></h3>
+        <button class="cal-nav" id="cal-next" title="Next month">&#9654;</button>
       </div>
-      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
-        <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-      </button>
+      <div class="cal-grid" id="cal-grid"></div>
     </div>
-  </nav>
 
-  <div class="page-header">
-    <div class="container">
-      <h1>Book Your Appointment</h1>
-      <p>Select a date and time that works for you. We'll confirm your booking via WhatsApp.</p>
-    </div>
-  </div>
-
-  <section class="booking-section">
-    <div class="container">
-      <div class="booking-layout">
-        <div class="calendar-wrapper">
-          <div class="calendar-header">
-            <h3 id="calendarMonthYear">January 2025</h3>
-            <div class="calendar-nav">
-              <button onclick="changeMonth(-1)" aria-label="Previous month"><i class="fas fa-chevron-left"></i></button>
-              <button onclick="changeMonth(1)" aria-label="Next month"><i class="fas fa-chevron-right"></i></button>
-            </div>
-          </div>
-          <div class="calendar-days-header">
-            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
-          </div>
-          <div class="calendar-grid" id="calendarGrid"></div>
-          <div class="clinic-hours-info" style="margin-top:20px;padding:16px;background:rgba(27,77,62,0.04);border-radius:12px;border:1px solid rgba(27,77,62,0.1);">
-            <h4 style="font-family:var(--font-body);font-size:0.9rem;font-weight:600;color:var(--primary);margin-bottom:8px;"><i class="fas fa-clock" style="margin-right:6px;"></i>Clinic Hours</h4>
-            <p style="font-size:0.82rem;color:var(--text-muted);margin:0;line-height:1.6;">
-              <strong>Morning:</strong> 10:00 AM - 1:30 PM<br>
-              <strong>Evening:</strong> 6:00 PM - 8:30 PM<br>
-              <span style="color:var(--accent);">Closed on Sundays</span>
-            </p>
-          </div>
-          <div class="time-slots" id="timeSlotsSection" style="display:none;">
-            <h4>Available Time Slots for <span id="selectedDateText"></span></h4>
-            <div class="time-slots-grid" id="timeSlotsGrid"></div>
-          </div>
-        </div>
-
-        <div class="patient-form">
-          <h3><i class="fas fa-user-plus" style="color:var(--primary);margin-right:8px;"></i>Patient Details</h3>
-          <form id="bookingForm" onsubmit="submitBooking(event)">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="patientName">Full Name *</label>
-                <input type="text" id="patientName" required placeholder="Enter your full name">
-              </div>
-              <div class="form-group">
-                <label for="patientAge">Age *</label>
-                <input type="number" id="patientAge" required placeholder="Age" min="1" max="120">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="patientGender">Gender *</label>
-                <select id="patientGender" required>
-                  <option value="">Select Gender</option>
-                  <option value="Female">Female</option>
-                  <option value="Male">Male</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="patientPhone">Phone Number *</label>
-                <input type="tel" id="patientPhone" required placeholder="+91 XXXXX XXXXX" pattern="[0-9+\s\-]{10,15}">
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="patientEmail">Email (Optional)</label>
-              <input type="email" id="patientEmail" placeholder="your@email.com">
-            </div>
-            <div class="form-group">
-              <label for="patientAddress">Address (Optional)</label>
-              <input type="text" id="patientAddress" placeholder="Your address">
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="serviceType">Service Required *</label>
-                <select id="serviceType" required>
-                  <option value="">Select Service</option>
-                  <option value="General Consultation">General Consultation</option>
-                  <option value="Fascial Manipulation">Fascial Manipulation</option>
-                  <option value="Orthopedic Rehabilitation">Orthopedic Rehabilitation</option>
-                  <option value="Neuro Rehabilitation">Neuro Rehabilitation</option>
-                  <option value="Women's Health Physio">Women's Health Physio</option>
-                  <option value="Elderly Home Care">Elderly Home Care</option>
-                  <option value="Pediatric Physiotherapy">Pediatric Physiotherapy</option>
-                  <option value="Follow-up">Follow-up Visit</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="appointmentDuration">Duration</label>
-                <div class="fixed-duration-display">
-                  <i class="fas fa-clock"></i>
-                  <span>15 minutes</span>
-                  <small>Standard appointment</small>
-                </div>
-                <input type="hidden" id="appointmentDuration" value="15">
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="patientComplaint">Chief Complaint *</label>
-              <textarea id="patientComplaint" required placeholder="Describe your condition or symptoms..."></textarea>
-            </div>
-            <div class="form-group">
-              <label for="medicalHistory">Medical History (Optional)</label>
-              <textarea id="medicalHistory" placeholder="Any existing conditions, surgeries, medications..."></textarea>
-            </div>
-            <div id="bookingSummary" style="display:none;background:rgba(27,77,62,0.05);padding:16px;border-radius:12px;margin-bottom:20px;border:1px solid rgba(27,77,62,0.15);">
-              <h4 style="font-family:var(--font-body);margin-bottom:8px;color:var(--primary);font-size:0.95rem;"><i class="fas fa-calendar-check"></i> Booking Summary</h4>
-              <p style="font-size:0.9rem;color:var(--text-muted);">
-                Date: <strong id="summaryDate">-</strong><br>
-                Time: <strong id="summaryTime">-</strong><br>
-                Duration: <strong id="summaryDuration">-</strong>
-              </p>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="submitBtn" disabled>
-              <i class="fas fa-check-circle"></i> Confirm Appointment
-            </button>
-            <p style="text-align:center;margin-top:12px;font-size:0.82rem;color:var(--text-muted);">You'll receive a WhatsApp confirmation after booking.</p>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="modal-overlay" id="confirmationModal">
-    <div class="modal">
-      <button class="modal-close" onclick="closeModal('confirmationModal')">&times;</button>
-      <div style="text-align:center;margin-bottom:24px;">
-        <div style="width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:2rem;color:#22C55E;">
-          <i class="fas fa-check-circle"></i>
-        </div>
-        <h2 style="font-size:1.5rem;">Appointment Booked!</h2>
-        <p style="color:var(--text-muted);margin-top:8px;">Your appointment has been successfully scheduled.</p>
-      </div>
-      <div style="background:var(--bg);border-radius:12px;padding:20px;margin-bottom:24px;">
-        <div style="display:grid;gap:8px;font-size:0.9rem;">
-          <div><strong>Patient:</strong> <span id="confName"></span></div>
-          <div><strong>Date:</strong> <span id="confDate"></span></div>
-          <div><strong>Time:</strong> <span id="confTime"></span></div>
-          <div><strong>Duration:</strong> <span id="confDuration"></span></div>
-          <div><strong>Service:</strong> <span id="confService"></span></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:12px;">
-        <a id="whatsappConfirmLink" href="#" target="_blank" class="btn btn-whatsapp" style="flex:1;justify-content:center;">
-          <i class="fab fa-whatsapp"></i> Confirm via WhatsApp
-        </a>
-        <a href="index.html" class="btn btn-outline" style="flex:1;justify-content:center;">
-          <i class="fas fa-home"></i> Go Home
-        </a>
-      </div>
+    <div class="card" style="margin-top:0.75rem; flex:1;">
+      <div class="time-label" id="time-label">Available Times</div>
+      <div class="time-placeholder" id="time-placeholder">Select a date to see available times</div>
+      <div id="time-slots-container"></div>
+      <div class="selection-summary" id="selection-summary"></div>
     </div>
   </div>
 
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-about">
-          <h3 class="footer-brand">Shree Physiotherapy Clinic</h3>
-          <p>We provide expert physiotherapy care specializing in women's health, elderly home care, and advanced pain management in Periyanaickenpalayam.</p>
-          <div class="footer-social">
-            <a href="https://www.instagram.com/dr.aarti.physio" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="https://wa.me/919092294466" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-            <a href="tel:9092294466" aria-label="Phone"><i class="fas fa-phone-alt"></i></a>
+  <!-- ===== RIGHT PANEL: Patient Form OR Confirmation ===== -->
+  <div class="right-panel">
+
+    <!-- Patient Details Form -->
+    <div id="panel-form">
+      <div class="card">
+        <div class="card-title">Patient Details</div>
+
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="toggle-new">New Patient</button>
+          <button class="toggle-btn" id="toggle-existing">Existing Patient</button>
+        </div>
+
+        <!-- New Patient Form -->
+        <div id="form-new">
+          <div class="form-group">
+            <label class="form-label" for="inp-name">Full Name *</label>
+            <input type="text" class="form-input" id="inp-name" placeholder="Enter your full name" autocomplete="name">
+            <div class="form-error" id="err-name">Please enter your name</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <div class="phone-row">
+              <input type="text" class="form-input phone-code" id="inp-code" value="+91">
+              <input type="tel" class="form-input phone-number" id="inp-phone" placeholder="Phone number" autocomplete="tel">
+            </div>
+            <div class="form-error" id="err-phone">Please enter a valid phone number</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inp-email">Email (optional)</label>
+            <input type="email" class="form-input" id="inp-email" placeholder="your@email.com" autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inp-reason">Service Required *</label>
+            <select class="form-select" id="inp-reason">
+              <option value="General Consultation">General Consultation</option>
+              <option value="Fascial Manipulation">Fascial Manipulation</option>
+              <option value="Orthopedic Rehabilitation">Orthopedic Rehabilitation</option>
+              <option value="Neuro Rehabilitation">Neuro Rehabilitation</option>
+              <option value="Women's Health Physio">Women's Health Physio</option>
+              <option value="Elderly Home Care">Elderly Home Care</option>
+              <option value="Pediatric Physiotherapy">Pediatric Physiotherapy</option>
+              <option value="Follow-up Visit">Follow-up Visit</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="inp-notes">Any additional notes? (optional)</label>
+            <textarea class="form-input" id="inp-notes" rows="2" placeholder="Describe your condition or anything else we should know..."></textarea>
           </div>
         </div>
-        <div class="footer-links">
-          <h4>Quick Links</h4>
-          <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="index.html#about">About</a></li>
-            <li><a href="index.html#services">Services</a></li>
-            <li><a href="index.html#testimonials">Testimonials</a></li>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="index.html#contact">Contact</a></li>
-            <li><a href="dashboard.html">Doctor Login</a></li>
-          </ul>
+
+        <!-- Existing Patient Form -->
+        <div id="form-existing" class="hidden">
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <div class="phone-row">
+              <input type="text" class="form-input phone-code" id="inp-ex-code" value="+91">
+              <input type="tel" class="form-input phone-number" id="inp-ex-phone" placeholder="Enter registered phone">
+            </div>
+            <div class="form-error" id="err-ex-phone">Patient not found with this number</div>
+          </div>
+          <div id="ex-patient-info" class="hidden" style="background:var(--success-bg);border-radius:var(--radius);padding:0.75rem;margin-bottom:1rem;">
+            <div style="font-size:0.8rem;color:var(--gray-500);">Patient found</div>
+            <div style="font-weight:600;color:var(--gray-800);" id="ex-patient-name"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="inp-ex-reason">Service Required *</label>
+            <select class="form-select" id="inp-ex-reason">
+              <option value="General Consultation">General Consultation</option>
+              <option value="Fascial Manipulation">Fascial Manipulation</option>
+              <option value="Orthopedic Rehabilitation">Orthopedic Rehabilitation</option>
+              <option value="Neuro Rehabilitation">Neuro Rehabilitation</option>
+              <option value="Women's Health Physio">Women's Health Physio</option>
+              <option value="Elderly Home Care">Elderly Home Care</option>
+              <option value="Pediatric Physiotherapy">Pediatric Physiotherapy</option>
+              <option value="Follow-up Visit">Follow-up Visit</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="inp-ex-notes">Any additional notes? (optional)</label>
+            <textarea class="form-input" id="inp-ex-notes" rows="2" placeholder="Describe your condition or anything else we should know..."></textarea>
+          </div>
         </div>
-        <div class="footer-contact">
-          <h4>Contact Info</h4>
-          <ul>
-            <li><i class="fas fa-map-marker-alt"></i><span>Bus Stop, No.454, LIC Siva Complex, Vannakoil, Periyanaickenpalayam, Tamil Nadu 641047</span></li>
-            <li><i class="fas fa-phone-alt"></i><span><a href="tel:8220040844">8220040844</a> | <a href="tel:9092294466">9092294466</a></span></li>
-            <li><i class="fab fa-whatsapp"></i><span><a href="https://wa.me/919092294466" target="_blank" rel="noopener noreferrer">+91 9092294466</a></span></li>
-            <li><i class="fas fa-clock"></i><span>Mon-Sat: 9AM-7PM | Sun: By Appointment</span></li>
-          </ul>
+
+        <div style="margin-top:auto; padding-top:1rem;">
+          <button class="btn btn-primary btn-block" id="btn-book" disabled>Book Appointment</button>
         </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2025 Shree Physiotherapy Clinic | Best Physiotherapist in Coimbatore</p>
       </div>
     </div>
-  </footer>
 
-  <div class="toast" id="toast"><i class="fas fa-info-circle"></i><span id="toastMessage">Notification</span></div>
+    <!-- Confirmation (replaces form after booking) -->
+    <div id="panel-confirm" class="hidden">
+      <div class="card">
+        <div class="confirm-wrap">
+          <div class="confirm-check">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <h2>Appointment Booked!</h2>
+          <p>You will receive a confirmation shortly via WhatsApp.</p>
+          <div class="confirm-detail" id="confirm-detail"></div>
+          <div class="confirm-actions">
+            <a id="whatsapp-link" href="#" target="_blank" class="btn btn-whatsapp">WhatsApp Confirm</a>
+            <a href="index.html" class="btn btn-primary" id="btn-home">Go Home</a>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <a href="https://wa.me/919092294466?text=Hello%20Shree%20Physiotherapy%20Clinic,%20I%20would%20like%20to%20book%20an%20appointment." target="_blank" class="whatsapp-float">
-    <i class="fab fa-whatsapp"></i>
-  </a>
+  </div>
+</div>
 
-  <!-- Firebase SDK (for cross-browser cloud sync) -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
 
-  <script src="js/main.js"></script>
-  <script src="js/booking.js"></script>
-  <script src="js/cloud-sync.js"></script>
-  <script src="js/pwa.js"></script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<script>
+(function() {
+  'use strict';
+
+  // ============ FIREBASE INIT ============
+  var firebaseConfig = {
+    apiKey: "AIzaSyBcaymsJYlDpQ-EPF2Wtd-nYX2P6u7HQoE",
+    authDomain: "physio-clinic-4ae53.firebaseapp.com",
+    projectId: "physio-clinic-4ae53",
+    storageBucket: "physio-clinic-4ae53.firebasestorage.app",
+    messagingSenderId: "791291492733",
+    appId: "1:791291492733:web:9edaccf13df450b5513414"
+  };
+
+  var fbDb = null;
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    fbDb = firebase.firestore();
+    console.log('[Booking] Firebase initialized');
+  } catch(e) {
+    console.warn('[Booking] Firebase init failed, using local only:', e);
+  }
+
+  var FB_COLLECTIONS = {
+    'physio_patients': 'patients',
+    'physio_appointments': 'appointments',
+    'physio_activity_log': 'activity_log',
+    'physio_online_bookings': 'online_bookings'
+  };
+
+  function fbSaveDoc(localKey, item) {
+    if (!fbDb || !FB_COLLECTIONS[localKey] || !item) return;
+    var docId = item.id || ('doc_' + Date.now());
+    fbDb.collection(FB_COLLECTIONS[localKey]).doc(docId).set(JSON.parse(JSON.stringify(item)))
+      .then(function() { console.log('[Booking] Synced ' + docId + ' to ' + FB_COLLECTIONS[localKey]); })
+      .catch(function(e) { console.error('[Booking] Sync failed:', e); });
+  }
+
+  function fbSaveCollection(localKey) {
+    if (!fbDb || !FB_COLLECTIONS[localKey]) return;
+    var items = [];
+    try { items = JSON.parse(localStorage.getItem(localKey)) || []; } catch(e) { return; }
+    var batch = fbDb.batch();
+    for (var i = 0; i < items.length; i++) {
+      var docId = items[i].id || ('doc_' + i);
+      batch.set(fbDb.collection(FB_COLLECTIONS[localKey]).doc(docId), JSON.parse(JSON.stringify(items[i])));
+    }
+    batch.commit().catch(function(e) { console.error('[Booking] Batch sync failed:', e); });
+  }
+
+  function fbPullCollection(localKey) {
+    if (!fbDb || !FB_COLLECTIONS[localKey]) return Promise.resolve();
+    return fbDb.collection(FB_COLLECTIONS[localKey]).get().then(function(snapshot) {
+      if (snapshot.empty) return;
+      var items = [];
+      snapshot.forEach(function(doc) { items.push(doc.data()); });
+      localStorage.setItem(localKey, JSON.stringify(items));
+      console.log('[Booking] Pulled ' + items.length + ' docs from ' + FB_COLLECTIONS[localKey]);
+    }).catch(function(e) { console.warn('[Booking] Pull failed:', e); });
+  }
+
+  // ============ CLINIC CONFIG ============
+  var DURATION = 15; // 15-minute appointments
+  var CLINIC_HOURS = {
+    morning: { start: 10 * 60, end: 13 * 60 + 30 },   // 10:00 AM - 1:30 PM
+    evening: { start: 18 * 60, end: 20 * 60 + 30 }     // 6:00 PM - 8:30 PM
+  };
+  var WHATSAPP_NUMBER = '919092294466';
+
+  // ============ UTILITIES ============
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  var PHONE_MAP = [
+    { phone: '+91', digits: 11 },
+    { phone: '+1', digits: 10 },
+    { phone: '+44', digits: 11 },
+    { phone: '+49', digits: 11 },
+    { phone: '+61', digits: 9 },
+    { phone: '+971', digits: 9 },
+    { phone: '+966', digits: 9 },
+    { phone: '+974', digits: 8 },
+    { phone: '+968', digits: 8 },
+    { phone: '+973', digits: 8 },
+    { phone: '+65', digits: 8 },
+    { phone: '+60', digits: 10 },
+    { phone: '+977', digits: 10 },
+    { phone: '+94', digits: 9 },
+    { phone: '+880', digits: 10 },
+    { phone: '+92', digits: 10 },
+    { phone: '+27', digits: 9 },
+    { phone: '+234', digits: 10 },
+    { phone: '+254', digits: 9 },
+    { phone: '+55', digits: 11 },
+    { phone: '+81', digits: 10 },
+    { phone: '+82', digits: 10 },
+    { phone: '+86', digits: 11 }
+  ];
+
+  function getDigitsForCode(code) {
+    code = (code || '').trim();
+    if (code.charAt(0) !== '+') code = '+' + code;
+    for (var i = 0; i < PHONE_MAP.length; i++) {
+      if (PHONE_MAP[i].phone === code) return PHONE_MAP[i].digits;
+    }
+    var stored = parseInt(localStorage.getItem('physio_phone_digits'), 10);
+    return stored || 10;
+  }
+
+  function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+  }
+
+  // IST timezone helpers
+  function getIndiaTime() {
+    var now = new Date();
+    var istOffset = 5.5 * 60;
+    var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (istOffset * 60000));
+  }
+
+  function todayStr() {
+    var ist = getIndiaTime();
+    var m = (ist.getMonth() + 1).toString();
+    var day = ist.getDate().toString();
+    if (m.length < 2) m = '0' + m;
+    if (day.length < 2) day = '0' + day;
+    return ist.getFullYear() + '-' + m + '-' + day;
+  }
+
+  function toDateString(date) {
+    var d = new Date(date);
+    var m = (d.getMonth() + 1).toString();
+    var day = d.getDate().toString();
+    if (m.length < 2) m = '0' + m;
+    if (day.length < 2) day = '0' + day;
+    return d.getFullYear() + '-' + m + '-' + day;
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  }
+
+  function minutesToTimeLabel(mins) {
+    var h = Math.floor(mins / 60);
+    var m = mins % 60;
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    var dh = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+    return dh + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+  }
+
+  function formatTime(timeStr) {
+    if (!timeStr) return '-';
+    var parts = timeStr.split(':');
+    var h = parseInt(parts[0], 10);
+    var m = parts[1];
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return h + ':' + m + ' ' + ampm;
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function timeToMinutes(t) {
+    var parts = t.split(':');
+    return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+  }
+
+  function isSunday(dateStr) {
+    var d = new Date(dateStr + 'T00:00:00');
+    return d.getDay() === 0;
+  }
+
+  // ============ STORE ============
+  function getAll(key) {
+    try { return JSON.parse(localStorage.getItem(key)) || []; }
+    catch(e) { return []; }
+  }
+
+  function saveAll(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  function getPatientByPhone(phone) {
+    var patients = getAll('physio_patients');
+    var clean = phone.replace(/\D/g, '');
+    for (var i = 0; i < patients.length; i++) {
+      if (patients[i].phone && patients[i].phone.replace(/\D/g, '') === clean) return patients[i];
+    }
+    return null;
+  }
+
+  function hasConflict(date, time) {
+    var appts = getAll('physio_appointments');
+    var newStart = timeToMinutes(time);
+    var newEnd = newStart + DURATION;
+    for (var i = 0; i < appts.length; i++) {
+      var a = appts[i];
+      if (a.date === date && a.status !== 'cancelled' && a.status !== 'Cancelled') {
+        var aStart = timeToMinutes(a.time);
+        var aEnd = aStart + (parseInt(a.duration, 10) || 15);
+        if (newStart < aEnd && newEnd > aStart) return true;
+      }
+    }
+    return false;
+  }
+
+  function createPatient(data) {
+    var patients = getAll('physio_patients');
+    data.id = data.id || 'obp_' + generateId();
+    data.createdAt = new Date().toISOString();
+    patients.push(data);
+    saveAll('physio_patients', patients);
+    fbSaveDoc('physio_patients', data);
+    logActivity('New patient added: ' + data.name + ' (online booking)');
+    return data;
+  }
+
+  function createAppointment(data) {
+    var appts = getAll('physio_appointments');
+    data.id = data.id || 'ob_' + generateId();
+    data.createdAt = new Date().toISOString();
+    appts.push(data);
+    saveAll('physio_appointments', appts);
+    fbSaveDoc('physio_appointments', data);
+    logActivity('Appointment booked for ' + (data.patientName || 'patient') + ' (online)');
+    return data;
+  }
+
+  function logActivity(text) {
+    var log = getAll('physio_activity_log');
+    var entry = { text: text, time: new Date().toISOString() };
+    log.unshift(entry);
+    if (log.length > 50) log = log.slice(0, 50);
+    saveAll('physio_activity_log', log);
+    fbSaveCollection('physio_activity_log');
+  }
+
+  function addOnlineBookingIndex(appointmentId, patientId) {
+    var index = getAll('physio_online_bookings');
+    var entry = { id: 'obi_' + generateId(), appointmentId: appointmentId, patientId: patientId, bookedAt: new Date().toISOString() };
+    index.push(entry);
+    saveAll('physio_online_bookings', index);
+    fbSaveDoc('physio_online_bookings', entry);
+  }
+
+  // ============ TOAST ============
+  function toast(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toast-container');
+    var el = document.createElement('div');
+    el.className = 'toast toast-' + type;
+    el.textContent = message;
+    container.appendChild(el);
+    setTimeout(function() {
+      el.classList.add('removing');
+      setTimeout(function() {
+        if (el.parentNode) el.parentNode.removeChild(el);
+      }, 300);
+    }, 3000);
+  }
+
+  // ============ APP STATE ============
+  var state = {
+    currentMonth: getIndiaTime().getMonth(),
+    currentYear: getIndiaTime().getFullYear(),
+    selectedDate: null,
+    selectedTime: null,
+    patientMode: 'new',
+    foundPatient: null
+  };
+
+  // ============ DOM REFS ============
+  var $calGrid = document.getElementById('cal-grid');
+  var $calLabel = document.getElementById('cal-month-label');
+  var $calPrev = document.getElementById('cal-prev');
+  var $calNext = document.getElementById('cal-next');
+  var $slotsContainer = document.getElementById('time-slots-container');
+  var $timeLabel = document.getElementById('time-label');
+  var $selSummary = document.getElementById('selection-summary');
+  var $btnBook = document.getElementById('btn-book');
+  var $toggleNew = document.getElementById('toggle-new');
+  var $toggleExisting = document.getElementById('toggle-existing');
+  var $formNew = document.getElementById('form-new');
+  var $formExisting = document.getElementById('form-existing');
+  var $panelForm = document.getElementById('panel-form');
+  var $panelConfirm = document.getElementById('panel-confirm');
+  var $timePlaceholder = document.getElementById('time-placeholder');
+
+  // ============ CALENDAR ============
+  function renderCalendar() {
+    var year = state.currentYear;
+    var month = state.currentMonth;
+    $calLabel.textContent = MONTHS[month] + ' ' + year;
+
+    var todayS = todayStr();
+    var firstDay = new Date(year, month, 1).getDay();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    var maxDate = new Date();
+    maxDate.setMonth(maxDate.getMonth() + 3);
+    var maxS = toDateString(maxDate);
+
+    var now = getIndiaTime();
+    $calPrev.disabled = (year === now.getFullYear() && month === now.getMonth());
+    $calNext.disabled = (year === maxDate.getFullYear() && month >= maxDate.getMonth());
+
+    var html = '';
+    for (var d = 0; d < 7; d++) {
+      html += '<div class="cal-dow">' + DAYS_SHORT[d] + '</div>';
+    }
+    for (var e = 0; e < firstDay; e++) {
+      html += '<div class="cal-day empty"></div>';
+    }
+    for (var day = 1; day <= daysInMonth; day++) {
+      var dateStr = year + '-' + (month + 1 < 10 ? '0' : '') + (month + 1) + '-' + (day < 10 ? '0' : '') + day;
+      var cls = 'cal-day';
+      var isPast = dateStr < todayS;
+      var isFuture = dateStr > maxS;
+      var isToday = dateStr === todayS;
+      var isSun = isSunday(dateStr);
+
+      if (isPast || isFuture || isSun) cls += ' disabled';
+      if (isToday) cls += ' today';
+      if (state.selectedDate === dateStr) cls += ' selected';
+
+      var hasDot = '';
+      if (!isPast && !isFuture && !isSun) {
+        if (hasAvailableSlots(dateStr)) {
+          hasDot = '<div class="cal-dot"></div>';
+        }
+      }
+
+      html += '<div class="' + cls + '" data-date="' + dateStr + '">' + day + hasDot + '</div>';
+    }
+
+    $calGrid.innerHTML = html;
+  }
+
+  function hasAvailableSlots(dateStr) {
+    var slots = generateTimeSlots(dateStr);
+    for (var i = 0; i < slots.length; i++) {
+      if (slots[i].available) return true;
+    }
+    return false;
+  }
+
+  // ============ TIME SLOTS ============
+  function generateTimeSlots(dateStr) {
+    var slots = [];
+    var ist = getIndiaTime();
+    var isToday = dateStr === todayStr();
+    var currentMinutes = ist.getHours() * 60 + ist.getMinutes();
+
+    // Morning session
+    for (var mins = CLINIC_HOURS.morning.start; mins < CLINIC_HOURS.morning.end; mins += 15) {
+      var canFit = mins + DURATION <= CLINIC_HOURS.morning.end;
+      var time = (Math.floor(mins / 60) < 10 ? '0' : '') + Math.floor(mins / 60) + ':' + (mins % 60 === 0 ? '00' : (mins % 60 < 10 ? '0' : '') + (mins % 60));
+      var available = canFit;
+      if (isToday && mins <= currentMinutes) available = false;
+      if (available && hasConflict(dateStr, time)) available = false;
+      slots.push({ time: time, label: minutesToTimeLabel(mins), available: available, session: 'morning' });
+    }
+
+    // Evening session
+    for (var mins2 = CLINIC_HOURS.evening.start; mins2 < CLINIC_HOURS.evening.end; mins2 += 15) {
+      var canFit2 = mins2 + DURATION <= CLINIC_HOURS.evening.end;
+      var time2 = (Math.floor(mins2 / 60) < 10 ? '0' : '') + Math.floor(mins2 / 60) + ':' + (mins2 % 60 === 0 ? '00' : (mins2 % 60 < 10 ? '0' : '') + (mins2 % 60));
+      var available2 = canFit2;
+      if (isToday && mins2 <= currentMinutes) available2 = false;
+      if (available2 && hasConflict(dateStr, time2)) available2 = false;
+      slots.push({ time: time2, label: minutesToTimeLabel(mins2), available: available2, session: 'evening' });
+    }
+
+    return slots;
+  }
+
+  function renderTimeSlots() {
+    if (!state.selectedDate) {
+      $timePlaceholder.style.display = '';
+      $slotsContainer.innerHTML = '';
+      $timeLabel.textContent = 'Available Times';
+      updateBookButton();
+      updateSelectionSummary();
+      return;
+    }
+
+    $timePlaceholder.style.display = 'none';
+    $timeLabel.textContent = 'Available times for ' + formatDate(state.selectedDate);
+
+    var slots = generateTimeSlots(state.selectedDate);
+    var morningSlots = slots.filter(function(s) { return s.session === 'morning'; });
+    var eveningSlots = slots.filter(function(s) { return s.session === 'evening'; });
+
+    var html = '';
+
+    // Morning section
+    html += '<div class="session-label">Morning (10:00 AM - 1:30 PM)</div>';
+    html += '<div class="time-grid">';
+    for (var i = 0; i < morningSlots.length; i++) {
+      var s = morningSlots[i];
+      var cls = 'time-slot';
+      if (!s.available) cls += ' unavailable';
+      if (state.selectedTime === s.time) cls += ' selected';
+      html += '<div class="' + cls + '" data-time="' + s.time + '">' + s.label + '</div>';
+    }
+    html += '</div>';
+
+    // Evening section
+    html += '<div class="session-label">Evening (6:00 PM - 8:30 PM)</div>';
+    html += '<div class="time-grid">';
+    for (var j = 0; j < eveningSlots.length; j++) {
+      var s2 = eveningSlots[j];
+      var cls2 = 'time-slot';
+      if (!s2.available) cls2 += ' unavailable';
+      if (state.selectedTime === s2.time) cls2 += ' selected';
+      html += '<div class="' + cls2 + '" data-time="' + s2.time + '">' + s2.label + '</div>';
+    }
+    html += '</div>';
+
+    $slotsContainer.innerHTML = html;
+    updateBookButton();
+    updateSelectionSummary();
+  }
+
+  function updateSelectionSummary() {
+    if (state.selectedDate && state.selectedTime) {
+      var endMins = timeToMinutes(state.selectedTime) + DURATION;
+      $selSummary.innerHTML = '<strong>' + formatDate(state.selectedDate) + '</strong> at <strong>' + formatTime(state.selectedTime) + ' - ' + minutesToTimeLabel(endMins) + '</strong> (15 min)';
+      $selSummary.classList.add('show');
+    } else {
+      $selSummary.classList.remove('show');
+    }
+  }
+
+  function updateBookButton() {
+    $btnBook.disabled = !(state.selectedDate && state.selectedTime);
+  }
+
+  // ============ PHONE INPUT ENFORCEMENT ============
+  function enforceDigits(input, codeInput) {
+    input.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '');
+      var maxDigits = getDigitsForCode(codeInput.value);
+      if (this.value.length > maxDigits) {
+        this.value = this.value.slice(0, maxDigits);
+      }
+    });
+    codeInput.addEventListener('input', function() {
+      var val = this.value.replace(/[^0-9+]/g, '');
+      if (val && val.charAt(0) !== '+') val = '+' + val;
+      this.value = val;
+    });
+  }
+
+  function loadDefaultPhoneCode() {
+    var code = localStorage.getItem('physio_phone_code') || '+91';
+    document.getElementById('inp-code').value = code;
+    document.getElementById('inp-ex-code').value = code;
+  }
+
+  // ============ PATIENT FORM LOGIC ============
+  function searchExistingPatient() {
+    var phone = document.getElementById('inp-ex-phone').value.trim();
+    var errEl = document.getElementById('err-ex-phone');
+    var infoEl = document.getElementById('ex-patient-info');
+    var nameEl = document.getElementById('ex-patient-name');
+
+    if (!phone || phone.length < 4) {
+      infoEl.classList.add('hidden');
+      errEl.classList.remove('show');
+      state.foundPatient = null;
+      return;
+    }
+
+    var patient = getPatientByPhone(phone);
+    if (patient) {
+      state.foundPatient = patient;
+      nameEl.textContent = patient.name;
+      infoEl.classList.remove('hidden');
+      errEl.classList.remove('show');
+    } else {
+      state.foundPatient = null;
+      infoEl.classList.add('hidden');
+      errEl.classList.add('show');
+      errEl.textContent = 'Patient not found with this number';
+    }
+  }
+
+  // ============ BOOKING LOGIC ============
+  function buildNotesString(reason, extraNotes) {
+    var notes = 'Booked online';
+    if (reason) notes += ' — ' + reason;
+    if (extraNotes) notes += '. Notes: ' + extraNotes;
+    return notes;
+  }
+
+  function validateAndBook() {
+    var patient = null;
+    var reason, extraNotes;
+
+    if (state.patientMode === 'new') {
+      var name = document.getElementById('inp-name').value.trim();
+      var phone = document.getElementById('inp-phone').value.trim();
+      var phoneCode = document.getElementById('inp-code').value.trim();
+      var email = document.getElementById('inp-email').value.trim();
+      reason = document.getElementById('inp-reason').value;
+      extraNotes = document.getElementById('inp-notes').value.trim();
+
+      var nameOk = name.length >= 2;
+      document.getElementById('inp-name').classList.toggle('error', !nameOk);
+      document.getElementById('err-name').classList.toggle('show', !nameOk);
+
+      var maxDigits = getDigitsForCode(phoneCode);
+      var phoneOk = phone.length >= 6 && phone.length <= maxDigits;
+      document.getElementById('inp-phone').classList.toggle('error', !phoneOk);
+      document.getElementById('err-phone').classList.toggle('show', !phoneOk);
+      if (!phoneOk) {
+        document.getElementById('err-phone').textContent = 'Please enter a valid phone number';
+      }
+
+      if (!nameOk || !phoneOk) return;
+
+      var existing = getPatientByPhone(phone);
+      if (existing) {
+        document.getElementById('inp-phone').classList.add('error');
+        document.getElementById('err-phone').textContent = 'This phone is already registered. Use "Existing Patient" to book.';
+        document.getElementById('err-phone').classList.add('show');
+        return;
+      }
+
+      patient = createPatient({
+        name: name,
+        phone: phone,
+        phoneCode: phoneCode || '+91',
+        email: email,
+        dob: '',
+        gender: '',
+        status: 'active',
+        tags: [],
+        bodyRegions: [],
+        source: 'online'
+      });
+
+    } else {
+      if (!state.foundPatient) {
+        document.getElementById('err-ex-phone').classList.add('show');
+        document.getElementById('err-ex-phone').textContent = 'Please find your patient record first';
+        return;
+      }
+      patient = state.foundPatient;
+      reason = document.getElementById('inp-ex-reason').value;
+      extraNotes = document.getElementById('inp-ex-notes').value.trim();
+    }
+
+    // Double-check slot availability
+    if (hasConflict(state.selectedDate, state.selectedTime)) {
+      toast('This time slot is no longer available. Please select another.', 'error');
+      state.selectedTime = null;
+      renderTimeSlots();
+      return;
+    }
+
+    var endMins = timeToMinutes(state.selectedTime) + DURATION;
+    var endTimeStr = minutesToTimeLabel(endMins);
+
+    var appt = createAppointment({
+      patientId: patient.id,
+      patientName: patient.name,
+      date: state.selectedDate,
+      time: formatTime(state.selectedTime),
+      startTime: formatTime(state.selectedTime),
+      endTime: endTimeStr,
+      duration: DURATION,
+      type: 'Treatment',
+      treatmentType: reason,
+      status: 'Scheduled',
+      notes: buildNotesString(reason, extraNotes),
+      source: 'online'
+    });
+
+    addOnlineBookingIndex(appt.id, patient.id);
+    showConfirmation(patient, appt, reason);
+  }
+
+  function showConfirmation(patient, appt, reason) {
+    var detail = document.getElementById('confirm-detail');
+    detail.innerHTML =
+      '<div class="row"><span class="label">Patient</span><span class="value">' + escapeHtml(patient.name) + '</span></div>' +
+      '<div class="row"><span class="label">Date</span><span class="value">' + formatDate(appt.date) + '</span></div>' +
+      '<div class="row"><span class="label">Time</span><span class="value">' + appt.startTime + ' - ' + appt.endTime + '</span></div>' +
+      '<div class="row"><span class="label">Duration</span><span class="value">15 minutes</span></div>' +
+      (reason ? '<div class="row"><span class="label">Service</span><span class="value">' + escapeHtml(reason) + '</span></div>' : '');
+
+    // WhatsApp link
+    var waMsg = 'Hello Shree Physiotherapy Clinic,\n\nI have booked an appointment:\n\nName: ' + patient.name +
+      '\nDate: ' + formatDate(appt.date) +
+      '\nTime: ' + appt.startTime + ' - ' + appt.endTime +
+      '\nService: ' + (reason || 'General') +
+      '\n\nPlease confirm.\n\nThank you.';
+    document.getElementById('whatsapp-link').href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(waMsg);
+
+    $panelForm.classList.add('hidden');
+    $panelConfirm.classList.remove('hidden');
+    toast('Appointment booked successfully!', 'success');
+  }
+
+  function resetAll() {
+    state.selectedDate = null;
+    state.selectedTime = null;
+    state.foundPatient = null;
+    state.patientMode = 'new';
+    var ist = getIndiaTime();
+    state.currentMonth = ist.getMonth();
+    state.currentYear = ist.getFullYear();
+
+    document.getElementById('inp-name').value = '';
+    document.getElementById('inp-phone').value = '';
+    document.getElementById('inp-email').value = '';
+    document.getElementById('inp-reason').selectedIndex = 0;
+    document.getElementById('inp-notes').value = '';
+    document.getElementById('inp-ex-phone').value = '';
+    document.getElementById('inp-ex-reason').selectedIndex = 0;
+    document.getElementById('inp-ex-notes').value = '';
+    document.getElementById('ex-patient-info').classList.add('hidden');
+    loadDefaultPhoneCode();
+
+    var errors = document.querySelectorAll('.form-error');
+    for (var i = 0; i < errors.length; i++) errors[i].classList.remove('show');
+    var errorInputs = document.querySelectorAll('.form-input.error');
+    for (var j = 0; j < errorInputs.length; j++) errorInputs[j].classList.remove('error');
+
+    $toggleNew.classList.add('active');
+    $toggleExisting.classList.remove('active');
+    $formNew.classList.remove('hidden');
+    $formExisting.classList.add('hidden');
+
+    $panelConfirm.classList.add('hidden');
+    $panelForm.classList.remove('hidden');
+
+    renderCalendar();
+    renderTimeSlots();
+    $btnBook.disabled = true;
+  }
+
+  // ============ EVENT HANDLERS ============
+
+  // Calendar day click
+  $calGrid.addEventListener('click', function(e) {
+    var dayEl = e.target.closest('.cal-day');
+    if (!dayEl || dayEl.classList.contains('disabled') || dayEl.classList.contains('empty')) return;
+
+    state.selectedDate = dayEl.getAttribute('data-date');
+    state.selectedTime = null;
+    renderCalendar();
+    renderTimeSlots();
+  });
+
+  // Time slot click (delegated on container)
+  $slotsContainer.addEventListener('click', function(e) {
+    var slotEl = e.target.closest('.time-slot');
+    if (!slotEl || slotEl.classList.contains('unavailable')) return;
+
+    state.selectedTime = slotEl.getAttribute('data-time');
+    renderTimeSlots();
+  });
+
+  // Calendar navigation
+  $calPrev.addEventListener('click', function() {
+    state.currentMonth--;
+    if (state.currentMonth < 0) {
+      state.currentMonth = 11;
+      state.currentYear--;
+    }
+    renderCalendar();
+  });
+
+  $calNext.addEventListener('click', function() {
+    state.currentMonth++;
+    if (state.currentMonth > 11) {
+      state.currentMonth = 0;
+      state.currentYear++;
+    }
+    renderCalendar();
+  });
+
+  // Book button
+  $btnBook.addEventListener('click', function() {
+    validateAndBook();
+  });
+
+  // Book another
+
+  // Toggle new/existing
+  $toggleNew.addEventListener('click', function() {
+    state.patientMode = 'new';
+    state.foundPatient = null;
+    $toggleNew.classList.add('active');
+    $toggleExisting.classList.remove('active');
+    $formNew.classList.remove('hidden');
+    $formExisting.classList.add('hidden');
+  });
+
+  $toggleExisting.addEventListener('click', function() {
+    state.patientMode = 'existing';
+    $toggleNew.classList.remove('active');
+    $toggleExisting.classList.add('active');
+    $formNew.classList.add('hidden');
+    $formExisting.classList.remove('hidden');
+  });
+
+  // Existing patient phone search (debounced)
+  var searchTimer = null;
+  document.getElementById('inp-ex-phone').addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(searchExistingPatient, 400);
+  });
+
+  // Enforce phone digits
+  enforceDigits(document.getElementById('inp-phone'), document.getElementById('inp-code'));
+  enforceDigits(document.getElementById('inp-ex-phone'), document.getElementById('inp-ex-code'));
+
+  // ============ INIT ============
+  loadDefaultPhoneCode();
+
+  // Auto-select today if not Sunday
+  var todayDate = todayStr();
+  if (!isSunday(todayDate)) {
+    state.selectedDate = todayDate;
+  }
+
+  renderCalendar();
+  renderTimeSlots();
+
+  // Pull latest data from Firestore
+  if (fbDb) {
+    Promise.all([
+      fbPullCollection('physio_patients'),
+      fbPullCollection('physio_appointments')
+    ]).then(function() {
+      console.log('[Booking] Cloud data loaded');
+      renderCalendar();
+      renderTimeSlots();
+    }).catch(function() {
+      console.warn('[Booking] Cloud pull failed, using local data');
+    });
+  }
+
+})();
+</script>
 </body>
 </html>
